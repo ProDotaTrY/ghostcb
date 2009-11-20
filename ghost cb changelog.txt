@@ -1,0 +1,10 @@
+==============================
+GHost++ Custom Build Changelog
+==============================
+Version 3.0 Alpha (2009-11-19)
+ - removed all custom modifications, updated to GHost++ 16.2 (rev 384)
+ - Somewhat a misleading version, because code has been reset to GHost++ 16.2, and previous additions are added from this point on.
+
+
+Version 2.7 (2009-09-13)
+ - Located in the old repository: http://ghostcustom.googlecode.com
