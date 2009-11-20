@@ -678,7 +678,7 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	if (m_MapLocalPath.substr(0,4)=="DotA") 
 	{
 		m_MapType= "dota";
-		m_MapMatchMakingCategory = "dota_elo"
+		m_MapMatchMakingCategory = "dota_elo";
 	}
 	else
 	{
@@ -771,18 +771,12 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	CheckValid( );
 }
 
-void CMap :: CheckValid( )
-{
-	// todotodo: should this code fix any errors it sees rather than just warning the user?
-
-	//ghost custom build additions
-	
-	// @disturbed_oc
-	// string CMAP :: GetMapGameNameWithRandomMode()
-	// Returns a gamename based on cfg value 'map_gamenamewitmode' with a random mode picked from cfg value 'map_validhcl', which is later encoded to hcl string at game start.
-	// map_gamenamewithmode = DotA $mode$ GHost++
-	// map_validhcl = -apso -arso -sdso -rdso
-	// Will result in for example DotA -arso GHost++ and HCL command will be set accordingly.
+// @disturbed_oc
+// string CMAP :: GetMapGameNameWithRandomMode()
+// Returns a gamename based on cfg value 'map_gamenamewitmode' with a random mode picked from cfg value 'map_validhcl', which is later encoded to hcl string at game start.
+// map_gamenamewithmode = DotA $mode$ GHost++
+// map_validhcl = -apso -arso -sdso -rdso
+// Will result in for example DotA -arso GHost++ and HCL command will be set accordingly.
 
 string CMap::GetMapGameNameWithRandomMode()
 {
@@ -815,8 +809,12 @@ string CMap::GetMapGameNameWithRandomMode()
 		return "";
 	}
 }
+
 // @end
 
+void CMap :: CheckValid( )
+{
+	// todotodo: should this code fix any errors it sees rather than just warning the user?
 
 	if( m_MapPath.empty( ) )
 	{
