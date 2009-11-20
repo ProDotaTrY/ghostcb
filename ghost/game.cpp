@@ -1032,6 +1032,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 						{
 							m_HCLCommandString = Payload;
 							SendAllChat( m_GHost->m_Language->SettingHCL( m_HCLCommandString ) );
+							// @disturbed_oc
+							m_HCLOverride = true;
+							// @end
 						}
 						else
 							SendAllChat( m_GHost->m_Language->UnableToSetHCLInvalid( ) );

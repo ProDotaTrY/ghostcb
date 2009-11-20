@@ -2971,6 +2971,28 @@ void CBaseGame :: EventGameStarted( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
+	// @disturbed_oc
+	// Get HCL Command from gamename
+
+	if ( m_Map->GetMapHCLFromGameName() && !m_HCLOverride )
+	{
+		//CONSOLE_Print( "[GAME: " + m_GameName + "] Trying to get Game Mode for HCL from gamename. Valid Modes [" + m_Map->GetMapHCLValidModes() + "]" );
+
+		vector<string> ValidModes = UTIL_Tokenize(m_Map->GetMapHCLValidModes(), ' ');
+		string::size_type loc;
+
+		for( vector<string> :: iterator i = ValidModes.begin( ); i != ValidModes.end( ); i++ )
+		{
+			loc = m_GameName.find( (*i) );
+			if ( loc != string::npos )
+			{
+				CONSOLE_Print( "[GAME: " + m_GameName + "] Found Game Mode [" + (*i).c_str() + "] HCL Command [" + (*i).substr(1) + "]" );
+				m_HCLCommandString = (*i).substr(1);
+			}
+		}
+	}
+	// @end
+
 	// encode the HCL command string in the slot handicaps
 	// here's how it works:
 	//  the user inputs a command string to be sent to the map

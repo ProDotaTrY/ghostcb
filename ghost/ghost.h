@@ -126,6 +126,10 @@ public:
 	uint32_t m_MatchMakingMethod;			// config value: the matchmaking method
 
 	string m_ApprovedCountries;				// custom value: approved countries 
+	// @disturbed_oc
+	bool m_HCLCommandFromGameName;			// custom value: try to get hcl command from game name
+	bool m_HCLOverride;						// custom value: if the !hcl command is issued, override hcl from gamename
+	// @end
 
 
 	CGHost( CConfig *CFG );
