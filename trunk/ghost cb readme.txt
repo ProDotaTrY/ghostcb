@@ -14,7 +14,18 @@ The SVN Repository is located at http://ghostcb.googlecode.com
 ========
 Commands
 ========
-No commands have been added at this point.
+*** In battle.net (via local chat or whisper at any time):
+
+
+*** In game lobby:
+
+!startn				starts the game immediately with no countdowns or delays.
+
+*** In game:
+
+
+*** In admin game lobby
+
 
 ========
 Features

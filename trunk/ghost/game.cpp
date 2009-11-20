@@ -1493,6 +1493,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				}
 			}
 
+			// *(GCBC)*
+			// !STARTN
+			//
+
+			if( Command == "startn" && !m_CountDownStarted )
+			{
+				// skip checks and start the game right now
+				m_CountDownStarted = true;
+				m_CountDownCounter = 0;
+			}
+
 			//
 			// !SWAP (swap slots)
 			//
