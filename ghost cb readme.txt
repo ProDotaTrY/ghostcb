@@ -26,6 +26,13 @@ Commands
 
 *** In admin game lobby
 
+===================
+ghost.cfg additions
+===================
+### List of countries to allow based on the two-letter country codes
+### Don't separate entries with spaces or commas or anything, leave blank or comment out to allow 
+### Example: approvedcountries = USCA
+bot_approvedcountries = 
 
 ========
 Features
@@ -44,4 +51,5 @@ I really hope that I have been able to give credit to all those involved in deve
 -Spoofy
 -Senkin
 -Emmeran
+-Vunutus
 
