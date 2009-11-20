@@ -48,7 +48,7 @@ map_gamenamewithmode = Dota 5v5 $mode$ !!!
 ========
 Features
 ========
-No additional features have been added at this point.
+- improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$)
 
 =======
 Credits
