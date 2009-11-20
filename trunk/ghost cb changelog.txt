@@ -6,6 +6,7 @@ Version 3.0 Beta (2009-11-xx)
 *note* all custom commands that are added are marked in the comment text as " *(GCBC)* " for GHost Custom Build Commmand.
  - added the From Country Enforcer by Vunutus
  - added Map HCL Rotation by disturbed_oc 
+ - added motd improvements by Shade0o
  
  
 Version 3.0 Alpha (2009-11-19)

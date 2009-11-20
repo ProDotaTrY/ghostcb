@@ -1211,14 +1211,17 @@ void CBaseGame :: SendWelcomeMessage( CGamePlayer *player )
 			SendChat( player, " " );
 
 		SendChat( player, " " );
+		SendChat( player, " Welcome to game " + m_GameName );
 		SendChat( player, " " );
-		SendChat( player, " " );
-		SendChat( player, "GHost++                                        http://forum.codelain.com/" );
+		SendChat( player, " This game is hosted with Ghost++ v" + m_GHost->m_Version );                                        http://forum.codelain.com/" );
 		SendChat( player, "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-" );
-		SendChat( player, "     Game Name:                 " + m_GameName );
+		SendChat( player, " The Owner is " + m_OwnerName  );
 
 		if( !m_HCLCommandString.empty( ) )
-			SendChat( player, "     HCL Command String:  " + m_HCLCommandString );
+			SendChat( player, "Game Mode will be -" + m_HCLCommandString );
+		else 
+			SendChat( player, " " );
+
 	}
 	else
 	{
@@ -1231,6 +1234,13 @@ void CBaseGame :: SendWelcomeMessage( CGamePlayer *player )
 		while( !in.eof( ) && Count < 8 )
 		{
 			getline( in, Line );
+
+			// Shade0o - added in custom message codes
+			UTIL_Replace( Line, "$OWNERNAME$", m_OwnerName );
+			UTIL_Replace( Line, "$GAMENAME$", m_GameName );
+			UTIL_Replace( Line, "$HCL$", m_HCLCommandString );
+			UTIL_Replace( Line, "$VERSION$", m_GHost->m_Version );
+			UTIL_Replace( Line, "$USER$", player->GetName( ) );
 
 			if( Line.empty( ) )
 			{
