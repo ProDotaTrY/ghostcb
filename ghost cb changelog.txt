@@ -1,6 +1,10 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.0 Beta (2009-11-xx)
+ - added !startn
+*note* all custom commands that are added are marked in the comment text as " *(GCBC)* " for GHost Custom Build Commmand.
+
 Version 3.0 Alpha (2009-11-19)
  - removed all custom modifications, updated to GHost++ 16.2 (rev 384)
  - Somewhat a misleading version, because code has been reset to GHost++ 16.2, and previous additions are added from this point on.
