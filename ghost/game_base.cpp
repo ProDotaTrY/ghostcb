@@ -1568,6 +1568,48 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 		return;
 	}
 
+	// [FROMENFORCER]
+	//Make sure from checking is enabled and config values are clean
+	if(!m_GHost->m_ApprovedCountries.empty( ) || m_GHost->m_ApprovedCountries.length() % 2 != 0)
+	{
+		int num;
+		vector<string> ApprovedLocations;
+		string PlayerLocation;
+		bool playerIsApproved;
+
+		if(m_GHost->m_ApprovedCountries.length() == 2)
+			num = 1;
+		else
+			num = m_GHost->m_ApprovedCountries.length() / 2;
+
+		//Loop through approved countries and construct an array
+		for(int i = 0; i < m_GHost->m_ApprovedCountries.length(); i += 2)
+			ApprovedLocations.push_back(m_GHost->m_ApprovedCountries.substr(i,2));
+
+		//Get their location
+		PlayerLocation = m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( potential->GetExternalIP( ), true ));
+
+		//Kick if not from an allowed location, ignore if their location is approved or cannot be found "??"
+		playerIsApproved = false;
+
+		//Try to make a match
+		for(int x = 0; x < num; x++)
+		{
+			//Approve the player if their country is approved
+			if(PlayerLocation == ApprovedLocations[x])
+				playerIsApproved = true;
+		}
+
+		if(!playerIsApproved && PlayerLocation != "??")
+		{
+			//Player location has been found and is invalid, deny them entry
+			CONSOLE_Print("[FROMENFORCER] Player [" + joinPlayer->GetName() + "] tried to join the game but is not from an approved location (" + PlayerLocation + ")");
+			SendAllChat("[" + joinPlayer->GetName() + "] tried to join the game but is not from an approved location (" + PlayerLocation + ")");
+			potential->SetDeleteMe(true);
+			return;
+		}
+	}
+
 	// check if the player is an admin or root admin on any connected realm for determining reserved status
 	// we can't just use the spoof checked realm like in EventPlayerBotCommand because the player hasn't spoof checked yet
 

@@ -125,6 +125,9 @@ public:
 	bool m_TCPNoDelay;						// config value: use Nagle's algorithm or not
 	uint32_t m_MatchMakingMethod;			// config value: the matchmaking method
 
+	string m_ApprovedCountries;				// custom value: approved countries 
+
+
 	CGHost( CConfig *CFG );
 	~CGHost( );
 
