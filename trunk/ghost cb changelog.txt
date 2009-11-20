@@ -7,6 +7,7 @@ Version 3.0 Beta (2009-11-xx)
  - added the From Country Enforcer by Vunutus
  - added Map HCL Rotation by disturbed_oc 
  - added motd improvements by Shade0o
+ - added the auto-detect dota map type feature by Instinct121, Senkin, and AlienLifeForm
  
  
 Version 3.0 Alpha (2009-11-19)

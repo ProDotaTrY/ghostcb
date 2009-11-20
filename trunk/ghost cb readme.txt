@@ -49,6 +49,7 @@ map_gamenamewithmode = Dota 5v5 $mode$ !!!
 Features
 ========
 - improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$)
+- automatically detects the map_type as dota & sets map_matchmakingcategory to dota_elo when loading a DotA map
 
 =======
 Credits
@@ -64,4 +65,6 @@ I really hope that I have been able to give credit to all those involved in deve
 -Emmeran
 -Vunutus
 -disturbed_oc
+-AlienLifeForm
+-Instinct121
 

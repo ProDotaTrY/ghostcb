@@ -675,8 +675,16 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	}
 
 	m_MapHeight = MapHeight;
-	m_MapType = CFG->GetString( "map_type", string( ) );
-	m_MapMatchMakingCategory = CFG->GetString( "map_matchmakingcategory", string( ) );
+	if (m_MapLocalPath.substr(0,4)=="DotA") 
+	{
+		m_MapType= "dota";
+		m_MapMatchMakingCategory = "dota_elo"
+	}
+	else
+	{
+		m_MapType = CFG->GetString( "map_type", string( ) );
+		m_MapMatchMakingCategory = CFG->GetString( "map_matchmakingcategory", string( ) );
+	}
 	m_MapStatsW3MMDCategory = CFG->GetString( "map_statsw3mmdcategory", string( ) );
 	m_MapDefaultHCL = CFG->GetString( "map_defaulthcl", string( ) );
 	//ghost custom build additions
