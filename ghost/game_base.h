@@ -124,6 +124,14 @@ protected:
 	bool m_MatchMaking;								// if matchmaking mode is enabled
 	bool m_LocalAdminMessages;						// if local admin messages should be relayed or not
 
+	//ghost custom build additions
+	
+	// @disturbed_oc
+	bool m_HCLCommandFromGameName;					// try to get hcl command from game name
+	bool m_HCLOverride;						// if the !hcl command is issued, override hcl from gamename
+	// @end
+
+
 public:
 	CBaseGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer );
 	virtual ~CBaseGame( );
