@@ -1,7 +1,7 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.0 Beta (2009-11-xx)
+Version 3.0 Beta (2009-11-20)
  - added !startn
 *note* all custom commands that are added are marked in the comment text as " *(GCBC)* " for GHost Custom Build Commmand.
  - added the From Country Enforcer by Vunutus
