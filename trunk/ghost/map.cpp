@@ -679,6 +679,12 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	m_MapMatchMakingCategory = CFG->GetString( "map_matchmakingcategory", string( ) );
 	m_MapStatsW3MMDCategory = CFG->GetString( "map_statsw3mmdcategory", string( ) );
 	m_MapDefaultHCL = CFG->GetString( "map_defaulthcl", string( ) );
+	//ghost custom build additions
+	// @disturbed_oc
+	m_HCLCommandFromGameName = CFG->GetInt( "map_hclfromgamename", 0 ) == 0 ? false : true;
+	m_HCLValidModes = CFG->GetString( "map_validmodes", string( ) );
+	m_MapGameNameWithMode = CFG->GetString( "map_gamenamewithmode", string( ) );
+	// @end
 	m_MapDefaultPlayerScore = CFG->GetInt( "map_defaultplayerscore", 1000 );
 	m_MapLoadInGame = CFG->GetInt( "map_loadingame", 0 ) == 0 ? false : true;
 
@@ -760,6 +766,49 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 void CMap :: CheckValid( )
 {
 	// todotodo: should this code fix any errors it sees rather than just warning the user?
+
+	//ghost custom build additions
+	
+	// @disturbed_oc
+	// string CMAP :: GetMapGameNameWithRandomMode()
+	// Returns a gamename based on cfg value 'map_gamenamewitmode' with a random mode picked from cfg value 'map_validhcl', which is later encoded to hcl string at game start.
+	// map_gamenamewithmode = DotA $mode$ GHost++
+	// map_validhcl = -apso -arso -sdso -rdso
+	// Will result in for example DotA -arso GHost++ and HCL command will be set accordingly.
+
+string CMap::GetMapGameNameWithRandomMode()
+{
+	string GameName;
+	string find, replace;
+	string::size_type loc;
+	vector<string> modes;
+
+	if (m_MapGameNameWithMode.empty() || !m_HCLCommandFromGameName || m_HCLValidModes.empty())
+		return "";
+
+	GameName = m_MapGameNameWithMode;
+
+	find = "$mode$";
+	loc = GameName.find( find );
+
+	if ( loc != string::npos )
+	{
+		modes = UTIL_Tokenize(m_HCLValidModes, ' ');
+		//CONSOLE_Print( "[MAPMODE] Gamename with random mode [" + GameName + "] Found [" + UTIL_ToString(modes.size()) + "] Valid modes [" + m_HCLValidModes + "]" );
+		replace = modes[rand() % modes.size()];
+		//CONSOLE_Print( "[MAPMODE] HCL Command will be [" + replace.substr(1) + "]" );
+		GameName.replace(loc, find.size(), replace);
+
+		return GameName;
+	}
+	else // no $mode$ found stick to autohost name
+	{
+		m_HCLCommandFromGameName = false;
+		return "";
+	}
+}
+// @end
+
 
 	if( m_MapPath.empty( ) )
 	{

@@ -5,6 +5,8 @@ Version 3.0 Beta (2009-11-xx)
  - added !startn
 *note* all custom commands that are added are marked in the comment text as " *(GCBC)* " for GHost Custom Build Commmand.
  - added the From Country Enforcer by Vunutus
+ - added Map HCL Rotation by disturbed_oc 
+ 
  
 Version 3.0 Alpha (2009-11-19)
  - removed all custom modifications, updated to GHost++ 16.2 (rev 384)

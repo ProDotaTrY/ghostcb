@@ -34,10 +34,21 @@ ghost.cfg additions
 ### Example: approvedcountries = USCA
 bot_approvedcountries = 
 
+====================
+map config additions
+====================
+### Map HCL Rotation
+### If you add these three lines to a dota config,
+### when autohosted the gamename will be map_gamenamewithmode as long as map_hclfromgamename = 1 and map_validmodes shows a valid mode
+### it will display a random mode from map_validmodes as a replacement for $mode$ in game name
+map_hclfromgamename = 1
+map_validmodes = -arso -apso -rdso -sdso -aremso -apemso
+map_gamenamewithmode = Dota 5v5 $mode$ !!!
+
 ========
 Features
 ========
-No features have been added at this point.
+No additional features have been added at this point.
 
 =======
 Credits
@@ -52,4 +63,5 @@ I really hope that I have been able to give credit to all those involved in deve
 -Senkin
 -Emmeran
 -Vunutus
+-disturbed_oc
 

@@ -924,7 +924,22 @@ bool CGHost :: Update( long usecBlock )
 		{
 			if( m_AutoHostMap->GetValid( ) )
 			{
+				// @disturbed_oc
+				// try to find gamename with random mode, or fallback on autohost_gamename
+
+				//CONSOLE_Print( "[GHOST] Trying to determine gamename..." );
+				string GameName = m_AutoHostMap->GetMapGameNameWithRandomMode();
+
+				if (GameName.empty())
+					GameName = m_AutoHostGameName;
+
+				GameName = GameName + " #" + UTIL_ToString( m_HostCounter );
+
+				// @end
+
+				/* removed when implemented HCL command rotation code
 				string GameName = m_AutoHostGameName + " #" + UTIL_ToString( m_HostCounter );
+				*/
 
 				if( GameName.size( ) <= 31 )
 				{

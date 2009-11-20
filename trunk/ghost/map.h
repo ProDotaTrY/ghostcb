@@ -79,6 +79,17 @@ private:
 	uint32_t m_MapNumTeams;
 	vector<CGameSlot> m_Slots;
 
+	//ghost custom build additions
+
+	// @disturbed_oc
+	bool m_HCLCommandFromGameName;				// config value: try to get hcl command from gamename
+	string m_HCLValidModes;					// config value: valid hcl modes for map
+	string m_MapGameNameWithMode;				// config value: gamename with random mode
+	// @end
+
+
+
+
 public:
 	CMap( CGHost *nGHost );
 	CMap( CGHost *nGHost, CConfig *CFG, string nCFGFile );
@@ -110,6 +121,14 @@ public:
 	uint32_t GetMapNumPlayers( )			{ return m_MapNumPlayers; }
 	uint32_t GetMapNumTeams( )				{ return m_MapNumTeams; }
 	vector<CGameSlot> GetSlots( )			{ return m_Slots; }
+
+	//ghost custom additions
+	// @disturbed_oc
+	bool GetMapHCLFromGameName( )			{ return m_HCLCommandFromGameName; }
+	string GetMapHCLValidModes( )			{ return m_HCLValidModes; }
+	string GetMapGameNameWithMode( )		{ return m_MapGameNameWithMode; }
+	string GetMapGameNameWithRandomMode();
+	// @end
 
 	void Load( CConfig *CFG, string nCFGFile );
 	void CheckValid( );
