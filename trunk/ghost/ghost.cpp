@@ -1211,6 +1211,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 
 	//GHost Custom Reloadable CFG Values
 	m_ApprovedCountries = CFG->GetString( "bot_approvedcountries", string( ));
+	m_LANAdmins = CFG->GetInt( "bot_lanadmins", 0 );
 
 }
 

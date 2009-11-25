@@ -360,6 +360,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			AdminCheck = true;
 			break;
 		}
+		//GHost++ Custom Build Addition start
+		else if( UTIL_IsLanIP( player->GetExternalIP( ) ) && m_GHost->m_LANAdmins != 0 )
+		{
+			if ( m_GHost->m_LANAdmins == 1 && (*i)->IsAdmin( User ) )
+				AdminCheck = true;
+			break;
+		}
+		//GHost++ Custom Build Addition end
 	}
 
 	bool RootAdminCheck = false;
@@ -371,6 +379,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			RootAdminCheck = true;
 			break;
 		}
+		//GHost++ Custom Build Addition start
+		else if( UTIL_IsLanIP( player->GetExternalIP( ) ) && m_GHost->m_LANAdmins != 0 )
+		{
+			if ( m_GHost->m_LANAdmins == 2 && (*i)->IsRootAdmin( User ) )
+				RootAdminCheck = true;
+			break;
+		}
+		//GHost++ Custom Build Addition end
 	}
 
 	if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )

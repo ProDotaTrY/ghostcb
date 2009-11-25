@@ -34,6 +34,10 @@ ghost.cfg additions
 ### Example: approvedcountries = USCA
 bot_approvedcountries = 
 
+### LAN Admins
+###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins
+bot_lanadmins = 
+
 ====================
 map config additions
 ====================
@@ -67,4 +71,5 @@ I really hope that I have been able to give credit to all those involved in deve
 -disturbed_oc
 -AlienLifeForm
 -Instinct121
+-Fire86
 
