@@ -1,6 +1,9 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.0 (2009-xx-xx)
+ - added ghost.cfg value [bot_lanadmins]
+
 Version 3.0 Beta (2009-11-20)
  - added !startn
 *note* all custom commands that are added are marked in the comment text as " *(GCBC)* " for GHost Custom Build Commmand.

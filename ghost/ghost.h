@@ -130,6 +130,7 @@ public:
 	bool m_HCLCommandFromGameName;			// custom value: try to get hcl command from game name
 	bool m_HCLOverride;						// custom value: if the !hcl command is issued, override hcl from gamename
 	// @end
+	uint32_t m_LANAdmins;					// custom value: enable players joining from LAN to be recognized as admins
 
 
 	CGHost( CConfig *CFG );
