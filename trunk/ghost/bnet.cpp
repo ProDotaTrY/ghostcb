@@ -1455,7 +1455,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !EMOTE
 				// shade0o - Added in this command myself to aloud emotes since cant ".say /me" anymore
-				//
+				// *(GCBC)*
 
 				if( ( Command == "emote" || Command == "em" ) && !Payload.empty( ) )
 					QueueChatCommand( "/me " + Payload );
