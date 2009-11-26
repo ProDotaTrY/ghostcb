@@ -1,7 +1,8 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.0 (2009-xx-xx)
+Version 3.0 (2009-11-26)
+Based on GHost++ 16.2 (rev 384)
  - added ghost.cfg value [bot_lanadmins]
  - added !emote by Shade0o
  - tweaked the !say command to restrict using battle.net commands "/" unless root_admin, submitted by Shade0o.
