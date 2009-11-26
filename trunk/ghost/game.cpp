@@ -1416,9 +1416,15 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "say" && !Payload.empty( ) )
 			{
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
-					(*i)->QueueChatCommand( Payload );
-
+				if( Payload.find( "/" ) != string :: npos )
+					{
+						if( RootAdminCheck )
+							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+								SendAllChat( Payload );
+					}
+					else
+						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+							SendAllChat( Payload );
 				HideCommand = true;
 			}
 

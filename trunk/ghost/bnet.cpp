@@ -1453,6 +1453,14 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				}
 
 				//
+				// !EMOTE
+				// shade0o - Added in this command myself to aloud emotes since cant ".say /me" anymore
+				//
+
+				if( ( Command == "emote" || Command == "em" ) && !Payload.empty( ) )
+					QueueChatCommand( "/me " + Payload );
+
+				//
 				// !ENABLE
 				//
 
@@ -1941,7 +1949,17 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 
 				if( Command == "say" && !Payload.empty( ) )
-					QueueChatCommand( Payload );
+				{
+					// shade0o - completly redone this to stop "/" unless you are rootadmin
+					if( Payload.find( "/" ) != string :: npos )
+					{
+						if( IsRootAdmin( User ) )
+							QueueChatCommand( Payload );
+					}
+					else
+						QueueChatCommand( Payload );
+				}
+
 
 				//
 				// !SAYGAME
