@@ -1490,3 +1490,44 @@ string CLanguage :: CantUnhostGameOwnerIsPresent( string owner )
 	UTIL_Replace( Out, "$OWNER$", owner );
 	return Out;
 }
+
+string CLanguage :: WTVenabled( bool ATM )
+{
+	string Out = m_CFG->GetString( "lang_7921", "lang_7921" );
+
+	if( ATM )
+		UTIL_Replace( Out, "$STATUS$", "currently" );
+	else
+		UTIL_Replace( Out, "$STATUS$", "now" );
+
+	return Out;
+}
+
+string CLanguage :: WTVdisabled( bool ATM )
+{
+	string Out = m_CFG->GetString( "lang_7922", "lang_7922" );
+
+	if( ATM )
+		UTIL_Replace( Out, "$STATUS$", "currently" );
+	else
+		UTIL_Replace( Out, "$STATUS$", "now" );
+
+	return Out;
+}
+
+string CLanguage :: WTVAutoCreateEnabled( )
+{
+	return m_CFG->GetString( "lang_7923", "lang_7923" );
+}
+
+string CLanguage :: WTVAutoCreateDisabled( )
+{
+	return m_CFG->GetString( "lang_7924", "lang_7924" );
+}
+
+string CLanguage :: WTVNameChanged( string name )
+{
+	string Out = m_CFG->GetString( "lang_7925", "lang_7923" );
+	UTIL_Replace( Out, "$NAME$", name );
+	return Out;
+}

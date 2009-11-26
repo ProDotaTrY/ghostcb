@@ -40,6 +40,13 @@ bot_approvedcountries =
 ###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins
 bot_lanadmins = 
 
+### Waaagh!TV
+###  used for creating 'live' replays
+bot_wtv_enabled = 0
+bot_wtv_autocreate = 0
+bot_wtv_path = C:\Program Files\WaaaghTV Recorder\
+bot_wtv_observerplayername = Waaagh!TV
+
 ====================
 map config additions
 ====================
