@@ -1707,32 +1707,6 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				}
 			}
 
-			//
-			// !wtv
-			//
-
-			if( Command == "wtv" && !m_CountDownStarted && !m_GameLoaded && m_GHost->m_wtvEnabled && Payload.size( ) <= 15 )
-			{
-				if( Payload.empty( ) )
-				{
-					if( CreateWTVPlayer( ) )
-						CreateWTVProcess( );
-					else
-					{
-						if( DeleteWTVPlayer( ) )
-							DeleteWTVProcess( );
-					}
-				}
-				else
-				{
-					m_WTVPlayerName = Payload;
-					
-					if ( DeleteWTVPlayer( ) )
-						CreateWTVPlayer( );
-					else
-						SendChat( player, m_GHost->m_Language->WTVNameChanged( Payload ) );
-				}
-			}
 		}
 		else
 		{

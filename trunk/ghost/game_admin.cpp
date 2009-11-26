@@ -1274,49 +1274,6 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 					SendAllChat("Normal WC3 countdown disabled");
 				}
 		}
-
-		//
-		// !wtv
-		//
-
-		if( Command == "wtv" && Payload.size( ) <= 15 )
-		{
-			if( Payload.empty( ) )
-			{
-				if( m_GHost->m_wtvEnabled )
-					SendChat( player, m_GHost->m_Language->WTVenabledATM( ) );
-				else
-					SendChat( player, m_GHost->m_Language->WTVdisabledATM( ) );
-			}
-			else if( Payload == "off" )
-			{
-				m_GHost->m_wtvEnabled = false;
-				SendChat( player, m_GHost->m_Language->WTVdisabled( ) );
-			}
-			else if( Payload == "on" )
-			{
-				m_GHost->m_wtvEnabled = true;
-				SendChat( player, m_GHost->m_Language->WTVenabled( ) );
-			}
-			else if( Payload == "alloff" || Payload == "shutdown" )
-			{
-				if( m_GHost->m_CurrentGame )
-				{
-					m_GHost->m_CurrentGame->DeleteWTVProcess( );
-					m_GHost->m_CurrentGame->DeleteWTVPlayer( );
-				}
-
-				for( vector<CBaseGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); i++ )
-					if( (*i)->GetWTVProcessId( ) != NULL )
-						(*i)->DeleteWTVProcess( );
-			}
-			else
-			{
-				m_GHost->m_WTVPlayerName = Payload;
-				SendChat( player, m_GHost->m_Language->WTVNameChanged( Payload ) );
-			}
-		}
-
 	}
 	else
 		CONSOLE_Print( "[ADMINGAME] user [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
