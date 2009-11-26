@@ -6,6 +6,7 @@ Version 3.0 (2009-xx-xx)
  - added !emote by Shade0o
  - tweaked the !say command to restrict using battle.net commands "/" unless root_admin, submitted by Shade0o.
  - added !start now (alias to !startn) suggested by Shade0o.
+ - added the Waaagh!TV patch, changed values to be compatible with the dynamic ghost configurator tool
 
 Version 3.0 Beta (2009-11-20)
  - added !startn

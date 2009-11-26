@@ -79,9 +79,11 @@ public:
 	string m_LanguageFile;					// config value: language file
 	string m_Warcraft3Path;					// config value: Warcraft 3 path
 	bool m_TFT;								// config value: TFT enabled or not
+	string m_wtvPath;						// config value: WaaaghTV-Recorder path
 	string m_BindAddress;					// config value: the address to host games on
 	uint16_t m_HostPort;					// config value: the port to host games on
 	uint32_t m_MaxGames;					// config value: maximum number of games in progress
+	uint16_t m_wtvEnabled;					// config value: weather Waaagh!TV is enabled or not
 	char m_CommandTrigger;					// config value: the command trigger inside games
 	string m_MapCFGPath;					// config value: map cfg path
 	string m_SaveGamePath;					// config value: savegame path
@@ -89,6 +91,7 @@ public:
 	bool m_SaveReplays;						// config value: save replays
 	string m_ReplayPath;					// config value: replay path
 	string m_VirtualHostName;				// config value: virtual host name
+	string m_WTVPlayerName;					// config value: Waaagh!TV Player name
 	bool m_HideIPAddresses;					// config value: hide IP addresses from players
 	bool m_CheckMultipleIPUsage;			// config value: check for multiple IP address usage
 	uint32_t m_SpoofChecks;					// config value: do automatic spoof checks or not

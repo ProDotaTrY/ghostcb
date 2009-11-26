@@ -62,9 +62,11 @@ CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16
 	m_GameState = nGameState;
 	m_VirtualHostPID = 255;
 	m_FakePlayerPID = 255;
+	m_WTVPlayerPID = 255;
 	m_GameName = nGameName;
 	m_LastGameName = nGameName;
 	m_VirtualHostName = m_GHost->m_VirtualHostName;
+	m_WTVPlayerName = m_GHost->m_WTVPlayerName;
 	m_OwnerName = nOwnerName;
 	m_CreatorName = nCreatorName;
 	m_CreatorServer = nCreatorServer;
@@ -1118,6 +1120,19 @@ void CBaseGame :: SendFakePlayerInfo( CGamePlayer *player )
 	Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( m_FakePlayerPID, "FakePlayer", IP, IP ) );
 }
 
+void CBaseGame :: SendWTVPlayerInfo( CGamePlayer *player )
+{
+	if( m_WTVPlayerPID == 255 )
+		return;
+
+	BYTEARRAY IP;
+	IP.push_back( 0 );
+	IP.push_back( 0 );
+	IP.push_back( 0 );
+	IP.push_back( 0 );
+	Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( m_WTVPlayerPID, m_WTVPlayerName, IP, IP ) );
+}
+
 void CBaseGame :: SendAllActions( )
 {
 	m_GameTicks += m_Latency;
@@ -1844,6 +1859,7 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 
 	// send virtual host info and fake player info (if present) to the new player
 
+	SendWTVPlayerInfo( Player );
 	SendVirtualHostPlayerInfo( Player );
 	SendFakePlayerInfo( Player );
 
@@ -2217,6 +2233,7 @@ void CBaseGame :: EventPlayerJoinedWithScore( CPotentialPlayer *potential, CInco
 
 	// send virtual host info and fake player info (if present) to the new player
 
+	SendWTVPlayerInfo( Player );
 	SendVirtualHostPlayerInfo( Player );
 	SendFakePlayerInfo( Player );
 
@@ -3091,6 +3108,11 @@ void CBaseGame :: EventGameStarted( )
 	if( m_FakePlayerPID != 255 )
 		SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( m_FakePlayerPID ) );
 
+	// send a game loaded packet for the Waaagh!TV player (if present)
+
+	if( m_WTVPlayerPID != 255 )
+		SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( m_WTVPlayerPID ) );
+
 	// record the starting number of players
 
 	m_StartPlayers = GetNumHumanPlayers( );
@@ -3368,7 +3390,7 @@ unsigned char CBaseGame :: GetNewPID( )
 
 	for( unsigned char TestPID = 1; TestPID < 255; TestPID++ )
 	{
-		if( TestPID == m_VirtualHostPID || TestPID == m_FakePlayerPID )
+		if( TestPID == m_VirtualHostPID || TestPID == m_FakePlayerPID || TestPID == m_WTVPlayerPID )
 			continue;
 
 		bool InUse = false;
@@ -4447,4 +4469,96 @@ void CBaseGame :: DeleteFakePlayer( )
 	SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( m_FakePlayerPID, PLAYERLEAVE_LOBBY ) );
 	SendAllSlotInfo( );
 	m_FakePlayerPID = 255;
+}
+
+bool CBaseGame :: CreateWTVPlayer( )
+{
+	if( m_WTVPlayerPID != 255 )
+		return false;
+
+	unsigned char SID = 10;
+
+	if( SID > m_Slots.size( ) )
+		return false;
+	else
+	{
+		if( m_Slots[SID].GetTeam( ) != 12 )
+			return false;
+
+		if( GetNumPlayers( ) >= 11 )
+			DeleteVirtualHost( );
+
+		m_WTVPlayerPID = GetNewPID( );
+		BYTEARRAY IP;
+		IP.push_back( 0 );
+		IP.push_back( 0 );
+		IP.push_back( 0 );
+		IP.push_back( 0 );
+		SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( m_WTVPlayerPID, m_WTVPlayerName, IP, IP ) );
+		m_Slots[SID] = CGameSlot( m_WTVPlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam( ), m_Slots[SID].GetColour( ), m_Slots[SID].GetRace( ) );
+		SendAllSlotInfo( );
+		return true;
+	}
+}
+
+bool CBaseGame :: DeleteWTVPlayer( )
+{
+	if( m_WTVPlayerPID == 255 )
+		return false;
+
+	for( unsigned char i = 0; i < m_Slots.size( ); i++ )
+	{
+		if( m_Slots[i].GetPID( ) == m_WTVPlayerPID )
+			m_Slots[i] = CGameSlot( 0, 255, SLOTSTATUS_CLOSED, 0, m_Slots[i].GetTeam( ), m_Slots[i].GetColour( ), m_Slots[i].GetRace( ) ); 
+	}
+
+	SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( m_WTVPlayerPID, PLAYERLEAVE_LOBBY ) );
+	SendAllSlotInfo( );
+	m_WTVPlayerPID = 255;
+	return true;
+}
+
+void CBaseGame :: CreateWTVProcess( )
+{
+#ifdef WIN32
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory( &si, sizeof( si ) );
+	si.cb = sizeof( si );
+	ZeroMemory( &pi, sizeof( pi ) );
+
+	string wtvRecorderEXE = m_GHost->m_wtvPath + "\\wtvRecorder.exe";
+
+	int hProcess = CreateProcessA( wtvRecorderEXE.c_str( ), NULL, NULL, NULL, FALSE, HIGH_PRIORITY_CLASS, NULL, m_GHost->m_wtvPath.c_str( ), LPSTARTUPINFOA( &si ), &pi );
+
+	if( !hProcess )
+		CONSOLE_Print( "[WaaaghTV] failed to start wtvRecorder.exe" );
+	else
+	{
+		SetWTVProcessId( int( pi.dwProcessId ) );
+		CONSOLE_Print( "[WaaaghTV] wtvRecorder.exe started!" );
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+#endif
+}
+
+void CBaseGame :: DeleteWTVProcess( )
+{
+#ifdef WIN32			
+	if( GetWTVProcessId( ) != NULL )
+	{
+		HANDLE hProcess = OpenProcess( PROCESS_ALL_ACCESS, FALSE, GetWTVProcessId( ) );
+
+		if( !TerminateProcess( hProcess, 0 ) )
+			CONSOLE_Print( "[WaaaghTV] an error has occurred when trying to terminate wtvrecorder process" );
+		else
+		{
+			CloseHandle( hProcess );
+			SetWTVProcessId( NULL );
+			CONSOLE_Print( "[WaaaghTV] wtvrecorder process terminated" );
+		}
+	}
+#endif
 }

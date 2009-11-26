@@ -64,12 +64,15 @@ protected:
 	bool m_Exiting;									// set to true and this class will be deleted next update
 	bool m_Saving;									// if we're currently saving game data to the database
 	uint16_t m_HostPort;							// the port to host games on
+	uint16_t m_WTVProcessId;						// wtv process id for identically shut down the wtvRecorder.exe
 	unsigned char m_GameState;						// game state, public or private
 	unsigned char m_VirtualHostPID;					// virtual host's PID
 	unsigned char m_FakePlayerPID;					// the fake player's PID (if present)
+	unsigned char m_WTVPlayerPID;					// the Waaagh!TV player's PID (if present)
 	string m_GameName;								// game name
 	string m_LastGameName;							// last game name (the previous game name before it was rehosted)
 	string m_VirtualHostName;						// virtual host's name
+	string m_WTVPlayerName;							// Waaagh!TV Player's name
 	string m_OwnerName;								// name of the player who owns this game (should be considered an admin)
 	string m_CreatorName;							// name of the player who created this game
 	string m_CreatorServer;							// battle.net server the player who created this game was on
@@ -140,10 +143,12 @@ public:
 	virtual vector<PIDPlayer> GetEnforcePlayers( )	{ return m_EnforcePlayers; }
 	virtual CSaveGame *GetSaveGame( )				{ return m_SaveGame; }
 	virtual uint16_t GetHostPort( )					{ return m_HostPort; }
+	virtual uint16_t GetWTVProcessId( )				{ return m_WTVProcessId; }
 	virtual unsigned char GetGameState( )			{ return m_GameState; }
 	virtual string GetGameName( )					{ return m_GameName; }
 	virtual string GetLastGameName( )				{ return m_LastGameName; }
 	virtual string GetVirtualHostName( )			{ return m_VirtualHostName; }
+	virtual string GetWTVPlayerName( )				{ return m_WTVPlayerName; }
 	virtual string GetOwnerName( )					{ return m_OwnerName; }
 	virtual string GetCreatorName( )				{ return m_CreatorName; }
 	virtual string GetCreatorServer( )				{ return m_CreatorServer; }
@@ -164,6 +169,8 @@ public:
 	virtual void SetMaximumScore( double nMaximumScore )				{ m_MaximumScore = nMaximumScore; }
 	virtual void SetRefreshError( bool nRefreshError )					{ m_RefreshError = nRefreshError; }
 	virtual void SetMatchMaking( bool nMatchMaking )					{ m_MatchMaking = nMatchMaking; }
+	virtual void SetWTVProcessId( uint16_t nWTVProcessId )				{ m_WTVProcessId = nWTVProcessId; }
+	virtual void SetWTVPlayerName( string nWTVPlayerName )				{ m_WTVPlayerName = nWTVPlayerName; }
 
 	virtual uint32_t GetNextTimedActionTicks( );
 	virtual uint32_t GetSlotsOccupied( );
@@ -199,6 +206,7 @@ public:
 	virtual void SendAllSlotInfo( );
 	virtual void SendVirtualHostPlayerInfo( CGamePlayer *player );
 	virtual void SendFakePlayerInfo( CGamePlayer *player );
+	virtual void SendWTVPlayerInfo( CGamePlayer *player );
 	virtual void SendAllActions( );
 	virtual void SendWelcomeMessage( CGamePlayer *player );
 	virtual void SendEndMessage( );
@@ -274,6 +282,10 @@ public:
 	virtual void DeleteVirtualHost( );
 	virtual void CreateFakePlayer( );
 	virtual void DeleteFakePlayer( );
+	virtual bool CreateWTVPlayer( );
+	virtual bool DeleteWTVPlayer( );
+	virtual void CreateWTVProcess( );
+	virtual void DeleteWTVProcess( );
 };
 
 #endif
