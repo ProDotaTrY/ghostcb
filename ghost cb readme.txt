@@ -15,7 +15,7 @@ The SVN Repository is located at http://ghostcb.googlecode.com
 Commands
 ========
 *** In battle.net (via local chat or whisper at any time):
-
+!emote				repeats anything you say with /me in front of it.
 
 *** In game lobby:
 
@@ -54,7 +54,7 @@ Features
 ========
 - improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$)
 - automatically detects the map_type as dota & sets map_matchmakingcategory to dota_elo when loading a DotA map
-
+- blocks battle.net !say commands (ex. !say /squelch user) unless sent from a Root Admin
 =======
 Credits
 =======
