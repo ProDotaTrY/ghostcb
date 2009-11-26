@@ -1256,6 +1256,25 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 					(*i)->QueueChatCommand( Message, Name, true );
 			}
 		}
+
+		//
+		// !normalcountdown
+		//
+
+		if ( Command == "normalcountdown" && !Payload.empty( ) )
+		{
+				if ( Payload == "on" )
+				{				
+					m_GHost->m_UseNormalCountDown = true;
+					SendAllChat("Normal WC3 countdown enabled");
+				}
+				else if ( Payload == "off" )
+				{
+					m_GHost->m_UseNormalCountDown = false;
+					SendAllChat("Normal WC3 countdown disabled");
+				}
+		}
+
 		//
 		// !wtv
 		//

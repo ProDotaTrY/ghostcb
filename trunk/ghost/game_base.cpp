@@ -640,23 +640,44 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		m_LastAutoStartTime = GetTime( );
 	}
 
-	// countdown every 500 ms
+	// normal countdown if active every 1200 ms (because we need an extra sec for 0 )
 
-	if( m_CountDownStarted && GetTicks( ) - m_LastCountDownTicks >= 500 )
+	if ( m_GHost->m_UseNormalCountDown )
 	{
-		if( m_CountDownCounter > 0 )
+		if( m_CountDownStarted && GetTicks( ) >= m_LastCountDownTicks + 1200 )
 		{
+			if( m_CountDownCounter > 0 )
+			{
+               m_CountDownCounter--;
+			}
+			else if( !m_GameLoading && !m_GameLoaded )
+			{
+				EventGameStarted( );
+			}
+
+			m_LastCountDownTicks = GetTicks( );
+		}
+	}
+	else 
+	{
+		// countdown (ghost style) every 500 ms
+
+		if( m_CountDownStarted && GetTicks( ) >= m_LastCountDownTicks + 500 )
+		{
+			if( m_CountDownCounter > 0 )
+			{
 			// we use a countdown counter rather than a "finish countdown time" here because it might alternately round up or down the count
 			// this sometimes resulted in a countdown of e.g. "6 5 3 2 1" during my testing which looks pretty dumb
 			// doing it this way ensures it's always "5 4 3 2 1" but each interval might not be *exactly* the same length
-
-			SendAllChat( UTIL_ToString( m_CountDownCounter ) + ". . ." );
-			m_CountDownCounter--;
+		
+				SendAllChat( UTIL_ToString( m_CountDownCounter ) + ". . ." );
+				m_CountDownCounter--;
+			}
+			else if( !m_GameLoading && !m_GameLoaded )
+				EventGameStarted( );
+	
+			m_LastCountDownTicks = GetTicks( );
 		}
-		else if( !m_GameLoading && !m_GameLoaded )
-			EventGameStarted( );
-
-		m_LastCountDownTicks = GetTicks( );
 	}
 
 	// check if the lobby is "abandoned" and needs to be closed since it will never start
@@ -1397,12 +1418,15 @@ void CBaseGame :: EventPlayerDeleted( CGamePlayer *player )
 			m_Replay->AddLeaveGame( 1, player->GetPID( ), player->GetLeftCode( ) );
 	}
 
-	// abort the countdown if there was one in progress
+	// abort the countdown if there was one in progress and normal countdown is off
 
-	if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+	if ( !m_GHost->m_UseNormalCountDown )
 	{
-		SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
-		m_CountDownStarted = false;
+		if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+		{
+			SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
+			m_CountDownStarted = false;
+		}
 	}
 
 	// abort the votekick
@@ -1466,6 +1490,13 @@ void CBaseGame :: EventPlayerDisconnectConnectionClosed( CGamePlayer *player )
 
 void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer )
 {
+	if ( m_GHost->m_UseNormalCountDown && m_CountDownStarted )
+	{
+		potential->GetSocket( )->PutBytes( m_Protocol->SEND_W3GS_REJECTJOIN( REJECTJOIN_FULL ) );
+		potential->SetDeleteMe( true );
+		return;
+	}
+
 	// check if the new player's name is empty or too long
 
 	if( joinPlayer->GetName( ).empty( ) || joinPlayer->GetName( ).size( ) > 15 )
@@ -1944,12 +1975,15 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 			SendAllChat( m_GHost->m_Language->MultipleIPAddressUsageDetected( joinPlayer->GetName( ), Others ) );
 	}
 
-	// abort the countdown if there was one in progress
+	// abort the countdown if there was one in progress and normal countdown is off
 
-	if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+	if ( !m_GHost->m_UseNormalCountDown )
 	{
-		SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
-		m_CountDownStarted = false;
+		if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+		{
+			SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
+			m_CountDownStarted = false;
+		}
 	}
 
 	// auto lock the game
@@ -1963,6 +1997,13 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 
 void CBaseGame :: EventPlayerJoinedWithScore( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer, double score )
 {
+	if ( m_GHost->m_UseNormalCountDown && m_CountDownStarted )
+	{
+		potential->GetSocket( )->PutBytes( m_Protocol->SEND_W3GS_REJECTJOIN( REJECTJOIN_FULL ) );
+		potential->SetDeleteMe( true );
+		return;
+	}
+
 	// this function is only called when matchmaking is enabled
 	// EventPlayerJoined will be called first in all cases
 	// if matchmaking is enabled EventPlayerJoined will start a database query to retrieve the player's score and keep the connection open while we wait
@@ -2355,12 +2396,15 @@ void CBaseGame :: EventPlayerJoinedWithScore( CPotentialPlayer *potential, CInco
 			SendAllChat( m_GHost->m_Language->MultipleIPAddressUsageDetected( joinPlayer->GetName( ), Others ) );
 	}
 
-	// abort the countdown if there was one in progress
+	// abort the countdown if there was one in progress and normal countdown is off
 
-	if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+	if ( !m_GHost->m_UseNormalCountDown )
 	{
-		SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
-		m_CountDownStarted = false;
+		if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+		{
+			SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
+			m_CountDownStarted = false;
+		}
 	}
 
 	// auto lock the game
@@ -3090,10 +3134,14 @@ void CBaseGame :: EventGameStarted( )
 	m_LastLoadInGameResetTime = GetTime( );
 	m_GameLoading = true;
 
+	if ( !m_GHost->m_UseNormalCountDown )
+	{
+
 	// since we use a fake countdown to deal with leavers during countdown the COUNTDOWN_START and COUNTDOWN_END packets are sent in quick succession
 	// send a start countdown packet
 
 	SendAll( m_Protocol->SEND_W3GS_COUNTDOWN_START( ) );
+	}
 
 	// remove the virtual host player
 
@@ -4204,6 +4252,8 @@ void CBaseGame :: StartCountDown( bool force )
 		{
 			m_CountDownStarted = true;
 			m_CountDownCounter = 5;
+			if ( m_GHost->m_UseNormalCountDown )
+				SendAll( m_Protocol->SEND_W3GS_COUNTDOWN_START( ) );
 		}
 		else
 		{
@@ -4284,6 +4334,8 @@ void CBaseGame :: StartCountDown( bool force )
 			{
 				m_CountDownStarted = true;
 				m_CountDownCounter = 5;
+				if ( m_GHost->m_UseNormalCountDown )
+					SendAll( m_Protocol->SEND_W3GS_COUNTDOWN_START( ) );
 			}
 		}
 	}
@@ -4375,7 +4427,9 @@ void CBaseGame :: StartCountDownAuto( bool requireSpoofChecks )
 		if( StillDownloading.empty( ) && NotSpoofChecked.empty( ) && NotPinged.empty( ) )
 		{
 			m_CountDownStarted = true;
-			m_CountDownCounter = 10;
+			m_CountDownCounter = 5;
+			if ( m_GHost->m_UseNormalCountDown )
+				SendAll( m_Protocol->SEND_W3GS_COUNTDOWN_START( ) );
 		}
 	}
 }

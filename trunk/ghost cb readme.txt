@@ -80,4 +80,5 @@ I really hope that I have been able to give credit to all those involved in deve
 -AlienLifeForm
 -Instinct121
 -Fire86
-
+-Krauzi
+-Damianakos
