@@ -2127,6 +2127,20 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					else
 						QueueChatCommand( "WARDEN STATUS --- Not connected to BNLS server.", User, Whisper );
 				}
+
+				if ( Command == "usenormalcountdown" && !Payload.empty( ) )
+				{
+					if ( Payload == "on" )
+					{
+						m_GHost->m_UseNormalCountDown = true;
+						QueueChatCommand("Normal wc3 countdown enabled");
+					}
+					else if ( Payload == "off" )
+					{					
+						m_GHost->m_UseNormalCountDown = false;
+						QueueChatCommand("Normal wc3 countdown disabled");
+					}
+				}
 				// !WTV - Waaagh!TV Settings
 				if( Command == "wtv" && Payload.size( ) <= 15 )
 				{
