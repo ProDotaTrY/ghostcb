@@ -15,11 +15,13 @@ The SVN Repository is located at http://ghostcb.googlecode.com
 Commands
 ========
 *** In battle.net (via local chat or whisper at any time):
+
 !emote				repeats anything you say with /me in front of it.
 
 *** In game lobby:
 
 !startn				starts the game immediately with no countdowns or delays.
+!start now			alias to !startn
 
 *** In game:
 

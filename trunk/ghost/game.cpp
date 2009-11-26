@@ -1509,12 +1509,22 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				if( Payload == "force" )
 					StartCountDown( true );
-				else
+				else 
 				{
-					if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
-						StartCountDown( false );
+					// *(GCBC)*
+					if( Payload == "now" )
+					{
+						// skip checks and start the game right now
+						m_CountDownStarted = true;
+						m_CountDownCounter = 0;
+					}
 					else
-						SendAllChat( m_GHost->m_Language->CountDownAbortedSomeoneLeftRecently( ) );
+					{
+						if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
+							StartCountDown( false );
+						else
+							SendAllChat( m_GHost->m_Language->CountDownAbortedSomeoneLeftRecently( ) );
+					}
 				}
 			}
 
