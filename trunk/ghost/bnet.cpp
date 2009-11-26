@@ -2127,6 +2127,33 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					else
 						QueueChatCommand( "WARDEN STATUS --- Not connected to BNLS server.", User, Whisper );
 				}
+				// !WTV - Waaagh!TV Settings
+				if( Command == "wtv" && Payload.size( ) <= 15 )
+				{
+					if( Payload.empty( ) )
+					{
+						if( m_GHost->m_wtvEnabled )
+							QueueChatCommand( m_GHost->m_Language->WTVenabledATM( ), User, Whisper );
+						else
+							QueueChatCommand( m_GHost->m_Language->WTVdisabledATM( ), User, Whisper );
+					}
+					else if( Payload == "off" )
+					{
+						m_GHost->m_wtvEnabled = false;
+						QueueChatCommand( m_GHost->m_Language->WTVdisabled( ), User, Whisper );
+					}
+					else if( Payload == "on" )
+					{
+						m_GHost->m_wtvEnabled = true;
+						QueueChatCommand( m_GHost->m_Language->WTVenabled( ), User, Whisper );
+					}
+					else
+					{
+						m_GHost->m_WTVPlayerName = Payload;
+						QueueChatCommand( m_GHost->m_Language->WTVNameChanged( Payload ), User, Whisper );
+					}
+				}
+
 			}
 			else
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] non-admin [" + User + "] sent command [" + Message + "]" );
