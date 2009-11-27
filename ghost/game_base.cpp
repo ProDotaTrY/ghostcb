@@ -117,6 +117,7 @@ CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16
 	m_AutoSave = m_GHost->m_AutoSave;
 	m_MatchMaking = false;
 	m_LocalAdminMessages = m_GHost->m_LocalAdminMessages;
+	m_UsingStart = false;
 
 	if( m_SaveGame )
 	{
@@ -633,12 +634,20 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 	}
 
 	// try to auto start every 10 seconds
-
-	if( !m_CountDownStarted && m_AutoStartPlayers != 0 && GetTime( ) - m_LastAutoStartTime >= 10 )
+	if( m_UsingStart )
 	{
-		StartCountDownAuto( m_GHost->m_RequireSpoofChecks );
-		m_LastAutoStartTime = GetTime( );
+		if( !m_CountDownStarted && m_AutoStartPlayers != 0 && GetTime( ) - m_LastAutoStartTime >= 5 )
+		{
+			StartCountDownAuto( m_GHost->m_RequireSpoofChecks );
+			m_LastAutoStartTime = GetTime( );
+		}
 	}
+	else
+		if( !m_CountDownStarted && m_AutoStartPlayers != 0 && GetTime( ) - m_LastAutoStartTime >= 10 )
+		{
+			StartCountDownAuto( m_GHost->m_RequireSpoofChecks );
+			m_LastAutoStartTime = GetTime( );
+		}
 
 	// normal countdown if active every 1200 ms (because we need an extra sec for 0 )
 
@@ -4344,6 +4353,16 @@ void CBaseGame :: StartCountDownAuto( bool requireSpoofChecks )
 {
 	if( !m_CountDownStarted )
 	{
+		// check if using !start or !autostart
+		if ( m_UsingStart )
+			if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
+			{
+				//cancel the autostart, a player has left the game
+				m_AutoStartPlayers = 0;
+				m_UsingStart = false;
+				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
+			}
+
 		// check if enough players are present
 
 		if( GetNumHumanPlayers( ) < m_AutoStartPlayers )

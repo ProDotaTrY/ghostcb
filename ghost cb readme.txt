@@ -20,6 +20,7 @@ Commands
 
 *** In game lobby:
 
+!start				starts the game after current number of players are pinged and spoofchecked.  The countdown will abort automatically if a player leaves.
 !startn				starts the game immediately with no countdowns or delays.
 !start now			alias to !startn
 
@@ -85,6 +86,7 @@ Features
 - improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$)
 - automatically detects the map_type as dota & sets map_matchmakingcategory to dota_elo when loading a DotA map
 - blocks battle.net !say commands (ex. !say /squelch user) unless sent from a Root Admin
+- improved !start command
 =======
 Credits
 =======

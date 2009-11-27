@@ -415,6 +415,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			{
 				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
 				m_CountDownStarted = false;
+				m_AutoStartPlayers = 0;
+				m_UsingStart = false;
 			}
 
 			//
@@ -564,6 +566,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				{
 					SendAllChat( m_GHost->m_Language->AutoStartDisabled( ) );
 					m_AutoStartPlayers = 0;
+					if ( m_UsingStart = true )
+						m_UsingStart = false;
 				}
 				else
 				{
@@ -1516,28 +1520,36 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			if( Command == "start" && !m_CountDownStarted )
 			{
 				// if the player sent "!start force" skip the checks and start the countdown
-				// otherwise check that the game is ready to start
+				// otherwise check if a player left recently then start the autostart
+				// *(GCBC)*
+				if( Payload.empty( ) )
+				{
+					if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
+					{
+						uint32_t AutoStartPlayers = GetNumHumanPlayers( );
+
+						if( AutoStartPlayers != 0 )
+						{
+							SendAllChat( m_GHost->m_Language->AutoStartEnabled( UTIL_ToString( AutoStartPlayers ) ) );
+							m_AutoStartPlayers = AutoStartPlayers;
+							m_UsingStart = true;
+						}
+					}
+					else
+						SendAllChat( m_GHost->m_Language->CountDownAbortedSomeoneLeftRecently( ) );
+				}
 
 				if( Payload == "force" )
 					StartCountDown( true );
-				else 
+					
+				// *(GCBC)*
+				if( Payload == "now" )
 				{
-					// *(GCBC)*
-					if( Payload == "now" )
-					{
-						// skip checks and start the game right now
-						m_CountDownStarted = true;
-						m_CountDownCounter = 0;
-					}
-					else
-					{
-						if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
-							StartCountDown( false );
-						else
-							SendAllChat( m_GHost->m_Language->CountDownAbortedSomeoneLeftRecently( ) );
-					}
+					// skip checks and start the game right now
+					m_CountDownStarted = true;
+					m_CountDownCounter = 0;
 				}
-			}
+			}		
 
 			// *(GCBC)*
 			// !STARTN
