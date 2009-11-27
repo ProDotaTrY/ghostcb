@@ -36,16 +36,37 @@ ghost.cfg additions
 ### Example: approvedcountries = USCA
 bot_approvedcountries = 
 
-### LAN Admins
-###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins
-bot_lanadmins = 
-
 ### Waaagh!TV
 ###  used for creating 'live' replays
 bot_wtv_enabled = 0
 bot_wtv_autocreate = 0
 bot_wtv_path = C:\Program Files\WaaaghTV Recorder\
 bot_wtv_observerplayername = Waaagh!TV
+
+### Use normal countdown when set to 1 will mimic the Warcraft III game start
+
+### Set this to 0 to set back to Ghost's normal countdown
+
+
+bot_usenormalcountdown = 1
+
+### LAN Admins
+###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins / 3 - Unspecified LAN players will be admins
+lan_admins = 0
+
+### Get LAN Admins from a list (lan_rootadmins)
+###  0 - off (default) / 1 - on
+###  if lan_admins = 1 & lan_getrootadmins = 1, will recognize players as admins joining from LAN only with the names specified for lan_rootadmins.
+###  if lan_admins = 2 & lan_getrootadmins = 1, will recognize players as root admins joining from LAN only with the names specified for lan_rootadmins.
+###  if lan_admins = 3 & lan_getrootadmins = 1, will recognize players as root admins joining from LAN with the names specified for lan_rootadmins,
+###   any other players will be admins
+lan_getrootadmins = 0
+
+### LAN Admins list
+### the (root) admins on LAN players
+
+###  seperate each name with a space, e.g. lan_rootadmins = Varlock Kilranin Instinct121
+lan_rootadmins = 
 
 ====================
 map config additions

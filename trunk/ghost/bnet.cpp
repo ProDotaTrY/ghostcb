@@ -44,7 +44,7 @@ using namespace boost :: filesystem;
 // CBNET
 //
 
-CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, bool nHoldFriends, bool nHoldClan, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string nPVPGNRealmName, uint32_t nMaxMessageLength, uint32_t nHostCounterID )
+CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, string nLANRootAdmin, char nCommandTrigger, bool nHoldFriends, bool nHoldClan, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string nPVPGNRealmName, uint32_t nMaxMessageLength, uint32_t nHostCounterID )
 {
 	// todotodo: append path seperator to Warcraft3Path if needed
 
@@ -107,6 +107,8 @@ CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nBNL
 	m_FirstChannel = nFirstChannel;
 	m_RootAdmin = nRootAdmin;
 	transform( m_RootAdmin.begin( ), m_RootAdmin.end( ), m_RootAdmin.begin( ), (int(*)(int))tolower );
+	m_LANRootAdmin = nLANRootAdmin;
+	transform( m_LANRootAdmin.begin( ), m_LANRootAdmin.end( ), m_LANRootAdmin.begin( ), (int(*)(int))tolower );
 	m_CommandTrigger = nCommandTrigger;
 	m_War3Version = nWar3Version;
 	m_EXEVersion = nEXEVersion;
@@ -2537,6 +2539,31 @@ bool CBNET :: IsRootAdmin( string name )
 	stringstream SS;
 	string s;
 	SS << m_RootAdmin;
+
+	while( !SS.eof( ) )
+	{
+		SS >> s;
+
+		if( name == s )
+			return true;
+	}
+
+	return false;
+}
+
+bool CBNET :: IsLANRootAdmin( string name )
+{
+	// m_LANRootAdmin was already transformed to lower case in the constructor
+
+	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
+
+	// updated to permit multiple root admins seperated by a space, e.g. "Varlock Kilranin Instinct121"
+	// note: this function gets called frequently so it would be better to parse the root admins just once and store them in a list somewhere
+	// however, it's hardly worth optimizing at this point since the code's already written
+
+	stringstream SS;
+	string s;
+	SS << m_LANRootAdmin;
 
 	while( !SS.eof( ) )
 	{
