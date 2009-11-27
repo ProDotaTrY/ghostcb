@@ -133,6 +133,7 @@ protected:
 	bool m_HCLCommandFromGameName;					// try to get hcl command from game name
 	bool m_HCLOverride;						// if the !hcl command is issued, override hcl from gamename
 	// @end
+	bool m_UsingStart;								// if the game start was initiated by !start or !autostart
 
 
 public:
