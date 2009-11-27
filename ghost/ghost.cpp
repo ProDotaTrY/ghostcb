@@ -580,7 +580,7 @@ CGHost :: CGHost( CConfig *CFG )
 		}
 
 		CONSOLE_Print( "[GHOST] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], HoldFriends, HoldClan, PublicCommands, War3Version, EXEVersion, EXEVersionHash, PasswordHashType, PVPGNRealmName, MaxMessageLength, i ) );
+		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, UserName, UserPassword, FirstChannel, RootAdmin, m_LANRootAdmin, BNETCommandTrigger[0], HoldFriends, HoldClan, PublicCommands, War3Version, EXEVersion, EXEVersionHash, PasswordHashType, PVPGNRealmName, MaxMessageLength, i ) );
 	}
 
 	if( m_BNETs.empty( ) )
@@ -1233,9 +1233,11 @@ void CGHost :: SetConfigs( CConfig *CFG )
 
 	//GHost Custom Reloadable CFG Values
 	m_ApprovedCountries = CFG->GetString( "bot_approvedcountries", string( ));
-	m_LANAdmins = CFG->GetInt( "bot_lanadmins", 0 );
+	m_LANAdmins = CFG->GetInt( "lan_admins", 0 );
 	m_UseNormalCountDown = CFG->GetInt( "bot_usenormalcountdown",0) == 0 ? false : true;
-
+	m_GetLANRootAdmins = CFG->GetInt( "lan_getrootadmins", 1) == 0 ? false : true;
+	m_LANRootAdmin = CFG->GetString( "lan_rootadmins", string( ) );
+	
 }
 
 void CGHost :: ExtractScripts( )

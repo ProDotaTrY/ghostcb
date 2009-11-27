@@ -136,6 +136,8 @@ public:
 	bool m_HCLOverride;						// custom value: if the !hcl command is issued, override hcl from gamename
 	// @end
 	uint32_t m_LANAdmins;					// custom value: enable players joining from LAN to be recognized as admins
+	string m_LANRootAdmin;					// custom value: the names of players if recognized from LAN will be root admins or admins
+	uint32_t m_GetLANRootAdmins;			// custom value: enable/disable reading LAN Admin names from config file
 
 
 	CGHost( CConfig *CFG );

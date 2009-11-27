@@ -361,10 +361,11 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			break;
 		}
 		//GHost++ Custom Build Addition start
-		else if( UTIL_IsLanIP( player->GetExternalIP( ) ) && m_GHost->m_LANAdmins != 0 )
+		else if( ( UTIL_IsLanIP( player->GetExternalIP( ) ) || UTIL_IsLocalIP( player->GetExternalIP( ), m_GHost->m_LocalAddresses ) ) && m_GHost->m_LANAdmins != 0 )
 		{
-			if ( m_GHost->m_LANAdmins == 1 && (*i)->IsAdmin( User ) )
-				AdminCheck = true;
+			if ( m_GHost->m_LANAdmins == 1 || m_GHost->m_LANAdmins == 3 )
+				if ( ( m_GHost->m_GetLANRootAdmins == 1 && (*i)->IsLANRootAdmin( User ) ) || m_GHost->m_GetLANRootAdmins != 1 )
+					AdminCheck = true;
 			break;
 		}
 		//GHost++ Custom Build Addition end
@@ -380,10 +381,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			break;
 		}
 		//GHost++ Custom Build Addition start
-		else if( UTIL_IsLanIP( player->GetExternalIP( ) ) && m_GHost->m_LANAdmins != 0 )
+		else if( ( UTIL_IsLanIP( player->GetExternalIP( ) ) || UTIL_IsLocalIP( player->GetExternalIP( ), m_GHost->m_LocalAddresses ) ) && m_GHost->m_LANAdmins != 0 )
 		{
-			if ( m_GHost->m_LANAdmins == 2 && (*i)->IsRootAdmin( User ) )
-				RootAdminCheck = true;
+			if ( m_GHost->m_LANAdmins == 2 )
+				if ( ( m_GHost->m_GetLANRootAdmins == 1 && (*i)->IsLANRootAdmin( User ) ) || m_GHost->m_GetLANRootAdmins != 1 )
+					RootAdminCheck = true;
+			if ( m_GHost->m_LANAdmins == 3 )
+				if ( ( m_GHost->m_GetLANRootAdmins == 1 && (*i)->IsLANRootAdmin( User ) ) )
+					RootAdminCheck = true;
 			break;
 		}
 		//GHost++ Custom Build Addition end
