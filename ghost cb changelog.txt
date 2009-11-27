@@ -1,7 +1,8 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.1 (20xx-xx-xx)
+Version 3.1 (2009-11-27)
+Based on GHost++ 16.2 (rev 384)
  - reworked the LAN admins options, improved detection
  - optimized the !start command.  Now works similar to !autostart #
 
