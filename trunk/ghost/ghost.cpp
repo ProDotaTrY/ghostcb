@@ -1237,6 +1237,8 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_UseNormalCountDown = CFG->GetInt( "bot_usenormalcountdown",0) == 0 ? false : true;
 	m_GetLANRootAdmins = CFG->GetInt( "lan_getrootadmins", 1) == 0 ? false : true;
 	m_LANRootAdmin = CFG->GetString( "lan_rootadmins", string( ) );
+	m_ResetDownloads = CFG->GetInt( "bot_resetdownloads", 0) == 0 ? false : true;
+	m_AllowDownloads2 = m_AllowDownloads;
 	
 }
 
