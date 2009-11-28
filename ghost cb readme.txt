@@ -45,11 +45,12 @@ bot_wtv_path = C:\Program Files\WaaaghTV Recorder\
 bot_wtv_observerplayername = Waaagh!TV
 
 ### Use normal countdown when set to 1 will mimic the Warcraft III game start
-
 ### Set this to 0 to set back to Ghost's normal countdown
-
-
 bot_usenormalcountdown = 1
+
+### Reload "bot_allowdownloads" after a game starts
+###  0 - off (default) / 1 - on
+bot_resetdownloads = 0
 
 ### LAN Admins
 ###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins / 3 - Unspecified LAN players will be admins
@@ -65,7 +66,6 @@ lan_getrootadmins = 0
 
 ### LAN Admins list
 ### the (root) admins on LAN players
-
 ###  seperate each name with a space, e.g. lan_rootadmins = Varlock Kilranin Instinct121
 lan_rootadmins = 
 

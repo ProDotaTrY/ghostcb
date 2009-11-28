@@ -3050,6 +3050,9 @@ void CBaseGame :: EventGameRefreshed( string server )
 void CBaseGame :: EventGameStarted( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
+	
+	if ( m_GHost->m_ResetDownloads )
+		m_GHost->m_AllowDownloads = m_GHost->m_AllowDownloads2;
 
 	// @disturbed_oc
 	// Get HCL Command from gamename
