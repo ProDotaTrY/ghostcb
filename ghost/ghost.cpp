@@ -1239,6 +1239,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_LANRootAdmin = CFG->GetString( "lan_rootadmins", string( ) );
 	m_ResetDownloads = CFG->GetInt( "bot_resetdownloads", 0) == 0 ? false : true;
 	m_AllowDownloads2 = m_AllowDownloads;
+	m_HideCommands = CFG->GetInt( "bot_hideadmincommands", 0) == 0 ? false : true;
 	
 }
 

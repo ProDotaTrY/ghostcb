@@ -140,6 +140,8 @@ public:
 	uint32_t m_GetLANRootAdmins;			// custom value: enable/disable reading LAN Admin names from config file
 	bool m_ResetDownloads;					// custom value: resets the 'allow downloads' to the config value after a game starts
 	uint32_t m_AllowDownloads2;				// config value: allow map downloads or not
+	bool m_HideCommands;					// custom value: hide or show commands
+
 
 
 	CGHost( CConfig *CFG );
