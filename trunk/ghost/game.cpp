@@ -413,6 +413,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( ( Command == "abort" || Command == "a" ) && m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
 				m_CountDownStarted = false;
 				m_AutoStartPlayers = 0;
@@ -426,6 +429,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the victim and the reason
 				// e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
 
@@ -501,6 +507,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "announce" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.empty( ) || Payload == "off" )
 				{
 					SendAllChat( m_GHost->m_Language->AnnounceMessageDisabled( ) );
@@ -544,6 +553,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "autosave" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload == "on" )
 				{
 					SendAllChat( m_GHost->m_Language->AutoSaveEnabled( ) );
@@ -562,6 +574,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "autostart" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.empty( ) || Payload == "off" )
 				{
 					SendAllChat( m_GHost->m_Language->AutoStartDisabled( ) );
@@ -586,7 +601,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "banlast" && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload ) ) );
+			}
 
 			//
 			// !CHECK
@@ -594,6 +614,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "check" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( !Payload.empty( ) )
 				{
 					CGamePlayer *LastMatch = NULL;
@@ -640,6 +663,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
 					m_PairedBanChecks.push_back( PairedBanCheck( User, m_GHost->m_DB->ThreadedBanCheck( (*i)->GetServer( ), Payload, string( ) ) ) );
 			}
@@ -650,6 +676,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "clearhcl" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				m_HCLCommandString.clear( );
 				SendAllChat( m_GHost->m_Language->ClearingHCL( ) );
 			}
@@ -660,6 +689,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "close" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// close as many slots as specified, e.g. "5 10" closes slots 5 and 10
 
 				stringstream SS;
@@ -685,7 +717,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "closeall" && !m_GameLoading && !m_GameLoaded )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CloseAllSlots( );
+			}
 
 			//
 			// !COMP (computer slot)
@@ -693,6 +730,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "comp" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the slot and the skill
 				// e.g. "1 2" -> slot: "1", skill: "2"
 
@@ -722,6 +762,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "compcolour" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the slot and the colour
 				// e.g. "1 2" -> slot: "1", colour: "2"
 
@@ -763,6 +806,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "comphandicap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the slot and the handicap
 				// e.g. "1 50" -> slot: "1", handicap: "50"
 
@@ -807,6 +853,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "comprace" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the slot and the race
 				// e.g. "1 human" -> slot: "1", race: "human"
 
@@ -876,6 +925,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "compteam" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the slot and the team
 				// e.g. "1 2" -> slot: "1", team: "2"
 
@@ -919,7 +971,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "dbstatus" )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_DB->GetStatus( ) );
+			}
 
 			//
 			// !DOWNLOAD
@@ -928,6 +985,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( ( Command == "download" || Command == "dl" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CGamePlayer *LastMatch = NULL;
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
@@ -960,7 +1020,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "drop" && m_GameLoaded )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				StopLaggers( "lagged out (dropped by admin)" );
+			}
 
 			//
 			// !END
@@ -968,6 +1033,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "end" && m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
 				StopPlayers( "was disconnected (admin ended game)" );
 			}
@@ -978,6 +1046,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "fakeplayer" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( m_FakePlayerPID == 255 )
 					CreateFakePlayer( );
 				else
@@ -990,6 +1061,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( ( Command == "fppause" || Command == "pause" ) && ( m_FakePlayerPID != 255 || m_WTVPlayerPID != 255 ) && m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
 				Action.push_back( 1 );
@@ -1005,6 +1079,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( ( Command == "resume" || Command == "fpresume" ) && ( m_FakePlayerPID != 255 || m_WTVPlayerPID != 255 ) && m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
 				Action.push_back( 2 );
@@ -1020,6 +1097,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "from" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				string Froms;
 
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
@@ -1053,6 +1133,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "hcl" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( !Payload.empty( ) )
 				{
 					if( Payload.size( ) <= m_Slots.size( ) )
@@ -1083,6 +1166,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "hold" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// hold as many players as specified, e.g. "Varlock Kilranin" holds players "Varlock" and "Kilranin"
 
 				stringstream SS;
@@ -1112,6 +1198,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "kick" && !Payload.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CGamePlayer *LastMatch = NULL;
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
@@ -1140,6 +1229,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "latency" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.empty( ) )
 					SendAllChat( m_GHost->m_Language->LatencyIs( UTIL_ToString( m_Latency ) ) );
 				else
@@ -1167,6 +1259,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "lock" && ( RootAdminCheck || IsOwner( User ) ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->GameLocked( ) );
 				m_Locked = true;
 			}
@@ -1177,6 +1272,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "messages" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload == "on" )
 				{
 					SendAllChat( m_GHost->m_Language->LocalAdminMessagesEnabled( ) );
@@ -1195,6 +1293,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "mute" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CGamePlayer *LastMatch = NULL;
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
@@ -1215,6 +1316,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "muteall" && m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->GlobalChatMuted( ) );
 				m_MuteAll = true;
 			}
@@ -1225,6 +1329,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "open" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// open as many slots as specified, e.g. "5 10" opens slots 5 and 10
 
 				stringstream SS;
@@ -1250,7 +1357,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "openall" && !m_GameLoading && !m_GameLoaded )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				OpenAllSlots( );
+			}
 
 			//
 			// !OWNER (set game owner)
@@ -1260,6 +1372,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			{
 				if( RootAdminCheck || IsOwner( User ) || !GetPlayerFromName( m_OwnerName, false ) )
 				{
+					if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 					if( !Payload.empty( ) )
 					{
 						SendAllChat( m_GHost->m_Language->SettingGameOwnerTo( Payload ) );
@@ -1281,6 +1396,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "ping" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// kick players with ping higher than payload if payload isn't empty
 				// we only do this if the game hasn't started since we don't want to kick players from a game in progress
 
@@ -1344,6 +1462,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "priv" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CONSOLE_Print( "[GAME: " + m_GameName + "] trying to rehost as private game [" + Payload + "]" );
 				SendAllChat( m_GHost->m_Language->TryingToRehostAsPrivateGame( Payload ) );
 				m_GameState = GAME_PRIVATE;
@@ -1381,6 +1502,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "pub" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CONSOLE_Print( "[GAME: " + m_GameName + "] trying to rehost as public game [" + Payload + "]" );
 				SendAllChat( m_GHost->m_Language->TryingToRehostAsPublicGame( Payload ) );
 				m_GameState = GAME_PUBLIC;
@@ -1413,6 +1537,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "refresh" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload == "on" )
 				{
 					SendAllChat( m_GHost->m_Language->RefreshMessagesEnabled( ) );
@@ -1431,6 +1558,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "say" && !Payload.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.find( "/" ) != string :: npos )
 					{
 						if( RootAdminCheck )
@@ -1449,6 +1579,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "sendlan" && !Payload.empty( ) && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// extract the ip and the port
 				// e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
 
@@ -1509,6 +1642,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "sp" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->ShufflingPlayers( ) );
 				ShuffleSlots( );
 			}
@@ -1519,6 +1655,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "start" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// if the player sent "!start force" skip the checks and start the countdown
 				// otherwise check if a player left recently then start the autostart
 				// *(GCBC)*
@@ -1557,6 +1696,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "startn" && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				// skip checks and start the game right now
 				m_CountDownStarted = true;
 				m_CountDownCounter = 0;
@@ -1568,6 +1710,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "swap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				uint32_t SID1;
 				uint32_t SID2;
 				stringstream SS;
@@ -1598,6 +1743,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "synclimit" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.empty( ) )
 					SendAllChat( m_GHost->m_Language->SyncLimitIs( UTIL_ToString( m_SyncLimit ) ) );
 				else
@@ -1624,7 +1772,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			if( Command == "unhost" && !m_CountDownStarted )
+			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				m_Exiting = true;
+			}
 
 			//
 			// !UNLOCK
@@ -1632,6 +1785,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "unlock" && ( RootAdminCheck || IsOwner( User ) ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->GameUnlocked( ) );
 				m_Locked = false;
 			}
@@ -1642,6 +1798,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "unmute" )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				CGamePlayer *LastMatch = NULL;
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
@@ -1662,6 +1821,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "unmuteall" && m_GameLoaded )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->GlobalChatUnmuted( ) );
 				m_MuteAll = false;
 			}
@@ -1672,6 +1834,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "virtualhost" && !Payload.empty( ) && Payload.size( ) <= 15 && !m_CountDownStarted )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				DeleteVirtualHost( );
 				m_VirtualHostName = Payload;
 			}
@@ -1682,6 +1847,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "votecancel" && !m_KickVotePlayer.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				SendAllChat( m_GHost->m_Language->VoteKickCancelled( m_KickVotePlayer ) );
 				m_KickVotePlayer.clear( );
 				m_StartedKickVoteTime = 0;
@@ -1718,6 +1886,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if( Command == "wtv" && !m_CountDownStarted && !m_GameLoaded && m_GHost->m_wtvEnabled && Payload.size( ) <= 15 )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if( Payload.empty( ) )
 				{
 					if( CreateWTVPlayer( ) )
@@ -1745,6 +1916,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 			if ( Command == "normalcountdown" && !Payload.empty( ) )
 			{
+				if ( m_GHost->m_HideCommands )
+					HideCommand = true;
+
 				if ( Payload == "on" )
 				{				
 					m_GHost->m_UseNormalCountDown = true;

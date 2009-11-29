@@ -20,9 +20,10 @@ Commands
 
 *** In game lobby:
 
-!start				starts the game after current number of players are pinged and spoofchecked.  The countdown will abort automatically if a player leaves.
-!startn				starts the game immediately with no countdowns or delays.
-!start now			alias to !startn
+!normalcountdown on|off		uses either the WC3 standard countdown or GHost's traditional countdown
+!start						starts the game after current number of players are pinged and spoofchecked.  The countdown will abort automatically if a player leaves.
+!startn						starts the game immediately with no countdowns or delays.
+!start now					alias to !startn
 
 *** In game:
 
@@ -51,6 +52,11 @@ bot_usenormalcountdown = 1
 ### Reload "bot_allowdownloads" after a game starts
 ###  0 - off (default) / 1 - on
 bot_resetdownloads = 0
+
+### Do not show who sent an admin command, if they are an admin
+###  0 - show all commands / 1 - hide admin commands
+###  The results (ex. "Shuffling Players") is still shown
+bot_hideadmincommands = 0
 
 ### LAN Admins
 ###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins / 3 - Unspecified LAN players will be admins
