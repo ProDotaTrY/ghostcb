@@ -21,9 +21,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "game_base.h"
-#include "game_admin.h"
-
 //
 // CGame
 //

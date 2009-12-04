@@ -1059,7 +1059,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !FPPAUSE
 			//
 
-			if( ( Command == "fppause" || Command == "pause" ) && ( m_FakePlayerPID != 255 || m_WTVPlayerPID != 255 ) && m_GameLoaded )
+			if( Command == "fppause" && m_FakePlayerPID != 255 && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1067,17 +1067,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
 				Action.push_back( 1 );
-				if( m_FakePlayerPID != 255 )
-					m_Actions.push( new CIncomingAction( m_FakePlayerPID, CRC, Action ) );
-				else
-					m_Actions.push( new CIncomingAction( m_WTVPlayerPID, CRC, Action ) );
+				m_Actions.push( new CIncomingAction( m_FakePlayerPID, CRC, Action ) );
 			}
 
 			//
 			// !FPRESUME
 			//
 
-			if( ( Command == "resume" || Command == "fpresume" ) && ( m_FakePlayerPID != 255 || m_WTVPlayerPID != 255 ) && m_GameLoaded )
+			if( Command == "fpresume" && m_FakePlayerPID != 255 && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1085,10 +1082,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
 				Action.push_back( 2 );
-				if( m_FakePlayerPID != 255 )
-					m_Actions.push( new CIncomingAction( m_FakePlayerPID, CRC, Action ) );
-				else
-					m_Actions.push( new CIncomingAction( m_WTVPlayerPID, CRC, Action ) );
+				m_Actions.push( new CIncomingAction( m_FakePlayerPID, CRC, Action ) );
 			}
 
 			//
@@ -1881,35 +1875,6 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			}
 
 			//
-			// !WTV
-			//
-
-			if( Command == "wtv" && !m_CountDownStarted && !m_GameLoaded && m_GHost->m_wtvEnabled && Payload.size( ) <= 15 )
-			{
-				if ( m_GHost->m_HideCommands )
-					HideCommand = true;
-
-				if( Payload.empty( ) )
-				{
-					if( CreateWTVPlayer( ) )
-						CreateWTVProcess( );
-					else
-					{
-						if( DeleteWTVPlayer( ) )
-							DeleteWTVProcess( );
-					}
-				}
-				else
-				{
-					m_WTVPlayerName = Payload;
-					
-					if ( DeleteWTVPlayer( ) )
-						CreateWTVPlayer( );
-					else
-						SendChat( player, m_GHost->m_Language->WTVNameChanged( Payload ) );
-				}
-			}
-
 			//
 			// !normalcountdown
 			//

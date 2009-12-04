@@ -18,7 +18,6 @@ Based on GHost++ 16.2 (rev 384)
  - tweaked the !say command to restrict using battle.net commands "/" unless root_admin, submitted by Shade0o.
  - added !start now (alias to !startn) suggested by Shade0o.
  - added the standard WC3 countdown by Damianakos & Varlock.
- - added the Waaagh!TV patch by Krauzi, made additional tweaks.
 
 Version 3.0 Beta (2009-11-20)
  - added !startn

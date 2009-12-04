@@ -247,11 +247,6 @@ public:
 	string CommandTrigger( string trigger );
 	string CantEndGameOwnerIsStillPlaying( string owner );
 	string CantUnhostGameOwnerIsPresent( string owner );
-	string WTVenabled( bool ATM );
-	string WTVdisabled( bool ATM );
-	string WTVAutoCreateEnabled( );
-	string WTVAutoCreateDisabled( );
-	string WTVNameChanged( string name );
 };
 
 #endif

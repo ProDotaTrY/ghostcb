@@ -78,21 +78,17 @@ public:
 	uint32_t m_AllGamesFinishedTime;		// GetTime when all games finished (used when exiting nicely)
 	string m_LanguageFile;					// config value: language file
 	string m_Warcraft3Path;					// config value: Warcraft 3 path
-	string m_wtvPath;						// config value: WaaaghTV-Recorder path
 	bool m_TFT;								// config value: TFT enabled or not
 	string m_BindAddress;					// config value: the address to host games on
 	uint16_t m_HostPort;					// config value: the port to host games on
 	uint32_t m_MaxGames;					// config value: maximum number of games in progress
-	uint16_t m_wtvEnabled;					// config value: whether Waaagh!TV is enabled or not
-	uint16_t m_wtvAutoCreate;				// config value: whether to automatically create a Waaagh!TV "session"
- 	char m_CommandTrigger;					// config value: the command trigger inside games
+	char m_CommandTrigger;					// config value: the command trigger inside games
 	string m_MapCFGPath;					// config value: map cfg path
 	string m_SaveGamePath;					// config value: savegame path
 	string m_MapPath;						// config value: map path
 	bool m_SaveReplays;						// config value: save replays
 	string m_ReplayPath;					// config value: replay path
 	string m_VirtualHostName;				// config value: virtual host name
-	string m_WTVPlayerName;					// config value: Waaagh!TV Player name
 	bool m_HideIPAddresses;					// config value: hide IP addresses from players
 	bool m_CheckMultipleIPUsage;			// config value: check for multiple IP address usage
 	uint32_t m_SpoofChecks;					// config value: do automatic spoof checks or not
