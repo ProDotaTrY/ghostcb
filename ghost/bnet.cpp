@@ -2130,63 +2130,6 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						QueueChatCommand( "WARDEN STATUS --- Not connected to BNLS server.", User, Whisper );
 				}
 
-				//
-				// !WTV
-				//
-
-				if( Command == "wtv" && Payload.size( ) <= 15 )
-				{
-					if( Payload.empty( ) )
-					{
-						if( m_GHost->m_wtvEnabled )
-							QueueChatCommand( m_GHost->m_Language->WTVenabled( true ), User, Whisper );
-						else
-							QueueChatCommand( m_GHost->m_Language->WTVdisabled( true ), User, Whisper );
-					}
-					else if( Payload == "off" || Payload == "0" )
-					{
-						m_GHost->m_wtvEnabled = false;
-						QueueChatCommand( m_GHost->m_Language->WTVdisabled( false ), User, Whisper );
-					}
-					else if( Payload == "on" || Payload == "1" )
-					{
-						m_GHost->m_wtvEnabled = true;
-						QueueChatCommand( m_GHost->m_Language->WTVenabled( false ), User, Whisper );
-					}
-					else if( Payload == "alloff" || Payload == "shutdown" )
-					{
-						if( m_GHost->m_CurrentGame )
-						{
-							m_GHost->m_CurrentGame->DeleteWTVProcess( );
-							m_GHost->m_CurrentGame->DeleteWTVPlayer( );
-						}
-
-						for( vector<CBaseGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); i++ )
-							if( (*i)->GetWTVProcessId( ) != NULL )
-								(*i)->DeleteWTVProcess( );
-					}
-					else if( Payload == "auto" || Payload == "autocreate" )
-					{
-						if( m_GHost->m_wtvAutoCreate )
-						{
-							m_GHost->m_wtvAutoCreate = false;
-							QueueChatCommand( m_GHost->m_Language->WTVAutoCreateDisabled( ), User, Whisper );
-						}
-						else
-						{
-							m_GHost->m_wtvAutoCreate = true;
-							QueueChatCommand( m_GHost->m_Language->WTVAutoCreateEnabled( ), User, Whisper );
-						}
-					}
-					else
-					{
-						m_GHost->m_WTVPlayerName = Payload;
-						QueueChatCommand( m_GHost->m_Language->WTVNameChanged( Payload ), User, Whisper );
-					}
-				}
-
-
-
 				if ( Command == "usenormalcountdown" && !Payload.empty( ) )
 				{
 					if ( Payload == "on" )

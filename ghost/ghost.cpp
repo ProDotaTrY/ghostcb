@@ -669,21 +669,11 @@ CGHost :: ~CGHost( )
 	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		delete *i;
 
-	if( m_CurrentGame )
-	{
-		if( m_CurrentGame->GetWTVProcessId( ) != NULL )
-			m_CurrentGame->DeleteWTVProcess( );
-	}
-
 	delete m_CurrentGame;
 	delete m_AdminGame;
 
 	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
-	{
-		if( (*i)->GetWTVProcessId( ) != NULL )
-			(*i)->DeleteWTVProcess( );
- 		delete *i;
-	}
+		delete *i;
 
 	delete m_DB;
 	delete m_DBLocal;
@@ -869,10 +859,6 @@ bool CGHost :: Update( long usecBlock )
 		if( m_CurrentGame->Update( &fd, &send_fd ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
-
-			if( m_CurrentGame->GetWTVProcessId( ) != NULL )
-				m_CurrentGame->DeleteWTVProcess( );
-
 			delete m_CurrentGame;
 			m_CurrentGame = NULL;
 
@@ -908,10 +894,6 @@ bool CGHost :: Update( long usecBlock )
 		if( (*i)->Update( &fd, &send_fd ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting game [" + (*i)->GetGameName( ) + "]" );
-
-			if( (*i)->GetWTVProcessId( ) != NULL )
-				(*i)->DeleteWTVProcess( );
-
 			EventGameDeleted( *i );
 			delete *i;
 			i = m_Games.erase( i );
@@ -1171,9 +1153,6 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	delete m_Language;
 	m_Language = new CLanguage( m_LanguageFile );
 	m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
-	m_wtvPath = CFG->GetString( "bot_wtv_path", "C:\\Program Files\\WaaaghTV Recorder\\" );
-	m_wtvEnabled = CFG->GetInt( "bot_wtv_enabled", 0 ) == 0 ? false : true;
-	m_wtvAutoCreate = CFG->GetInt( "bot_wtv_autocreate", 0 ) == 0 ? false : true;
 	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
 	m_MaxGames = CFG->GetInt( "bot_maxgames", 5 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
@@ -1188,7 +1167,6 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_SaveReplays = CFG->GetInt( "bot_savereplays", 0 ) == 0 ? false : true;
 	m_ReplayPath = UTIL_AddPathSeperator( CFG->GetString( "bot_replaypath", string( ) ) );
 	m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0GHost" );
-	m_WTVPlayerName = CFG->GetString( "bot_wtv_observerplayername", "Waaagh!TV" );
 	m_HideIPAddresses = CFG->GetInt( "bot_hideipaddresses", 0 ) == 0 ? false : true;
 	m_CheckMultipleIPUsage = CFG->GetInt( "bot_checkmultipleipusage", 1 ) == 0 ? false : true;
 
@@ -1576,13 +1554,5 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 
 		if( (*i)->GetHoldClan( ) )
 			(*i)->HoldClan( m_CurrentGame );
-	}
-
-	m_CurrentGame->SetWTVProcessId( NULL );
-
-	if( m_wtvEnabled && m_wtvAutoCreate )
-	{
-		if( m_CurrentGame->CreateWTVPlayer( ) )
-			m_CurrentGame->CreateWTVProcess( );
 	}
 }

@@ -1258,61 +1258,6 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 		}
 
 		//
-		// !WTV
-		//
-
-		if( Command == "wtv" && Payload.size( ) <= 15 )
-		{
-			if( Payload.empty( ) )
-			{
-				if( m_GHost->m_wtvEnabled )
-					SendChat( player, m_GHost->m_Language->WTVenabled( true ) );
-				else
-					SendChat( player, m_GHost->m_Language->WTVdisabled( true ) );
-			}
-			else if( Payload == "off" || Payload == "0" )
-			{
-				m_GHost->m_wtvEnabled = false;
-				SendChat( player, m_GHost->m_Language->WTVdisabled( false ) );
-			}
-			else if( Payload == "on" || Payload == "1" )
-			{
-				m_GHost->m_wtvEnabled = true;
-				SendChat( player, m_GHost->m_Language->WTVenabled( false ) );
-			}
-			else if( Payload == "alloff" || Payload == "shutdown" )
-			{
-				if( m_GHost->m_CurrentGame )
-				{
-					m_GHost->m_CurrentGame->DeleteWTVProcess( );
-					m_GHost->m_CurrentGame->DeleteWTVPlayer( );
-				}
-
-				for( vector<CBaseGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); i++ )
-					if( (*i)->GetWTVProcessId( ) != NULL )
-						(*i)->DeleteWTVProcess( );
-			}
-			else if( Payload == "auto" || Payload == "autocreate" )
-			{
-				if( m_GHost->m_wtvAutoCreate )
-				{
-					m_GHost->m_wtvAutoCreate = false;
-					SendChat( player, m_GHost->m_Language->WTVAutoCreateDisabled( ) );
-				}
-				else
-				{
-					m_GHost->m_wtvAutoCreate = true;
-					SendChat( player, m_GHost->m_Language->WTVAutoCreateEnabled( ) );
-				}
-			}
-			else
-			{
-				m_GHost->m_WTVPlayerName = Payload;
-				SendChat( player, m_GHost->m_Language->WTVNameChanged( Payload ) );
-			}
-		}
-
-		//
 		// !normalcountdown
 		//
 

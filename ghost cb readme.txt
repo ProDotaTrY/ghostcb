@@ -38,13 +38,6 @@ ghost.cfg additions
 ### Example: approvedcountries = USCA
 bot_approvedcountries = 
 
-### Waaagh!TV
-###  used for creating 'live' replays
-bot_wtv_enabled = 0
-bot_wtv_autocreate = 0
-bot_wtv_path = C:\Program Files\WaaaghTV Recorder\
-bot_wtv_observerplayername = Waaagh!TV
-
 ### Use normal countdown when set to 1 will mimic the Warcraft III game start
 ### Set this to 0 to set back to Ghost's normal countdown
 bot_usenormalcountdown = 1
