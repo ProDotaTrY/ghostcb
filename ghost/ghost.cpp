@@ -1056,7 +1056,7 @@ void CGHost :: EventBNETGameRefreshFailed( CBNET *bnet )
 			(*i)->QueueChatCommand( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
 
 			if( (*i)->GetServer( ) == m_CurrentGame->GetCreatorServer( ) )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ), m_CurrentGame->GetCreatorName( ), true );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ), m_CurrentGame->GetCreatorName( ), true, false );
 		}
 
 		if( m_AdminGame )
@@ -1133,7 +1133,7 @@ void CGHost :: EventGameDeleted( CBaseGame *game )
 		(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
 
 		if( (*i)->GetServer( ) == game->GetCreatorServer( ) )
-			(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true );
+			(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, false);
 	}
 }
 
@@ -1218,6 +1218,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_ResetDownloads = CFG->GetInt( "bot_resetdownloads", 0) == 0 ? false : true;
 	m_AllowDownloads2 = m_AllowDownloads;
 	m_HideCommands = CFG->GetInt( "bot_hideadmincommands", 0) == 0 ? false : true;
+	m_WhisperResponses = CFG->GetInt( "bot_whisperresponses", 0) == 0 ? false : true;
 	
 }
 
@@ -1365,7 +1366,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		{
 			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, false );
 		}
 
 		if( m_AdminGame )
@@ -1379,7 +1380,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		{
 			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, false );
 		}
 
 		if( m_AdminGame )
@@ -1393,7 +1394,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		{
 			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, false );
 		}
 
 		if( m_AdminGame )
@@ -1409,7 +1410,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 			{
 				if( (*i)->GetServer( ) == creatorServer )
-					(*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidSaveGame( gameName ), creatorName, whisper );
+					(*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidSaveGame( gameName ), creatorName, whisper, false );
 			}
 
 			if( m_AdminGame )
@@ -1430,7 +1431,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 			{
 				if( (*i)->GetServer( ) == creatorServer )
-					(*i)->QueueChatCommand( m_Language->UnableToCreateGameSaveGameMapMismatch( gameName ), creatorName, whisper );
+					(*i)->QueueChatCommand( m_Language->UnableToCreateGameSaveGameMapMismatch( gameName ), creatorName, whisper, false );
 			}
 
 			if( m_AdminGame )
@@ -1444,7 +1445,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 			{
 				if( (*i)->GetServer( ) == creatorServer )
-					(*i)->QueueChatCommand( m_Language->UnableToCreateGameMustEnforceFirst( gameName ), creatorName, whisper );
+					(*i)->QueueChatCommand( m_Language->UnableToCreateGameMustEnforceFirst( gameName ), creatorName, whisper, false );
 			}
 
 			if( m_AdminGame )
@@ -1459,7 +1460,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		{
 			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, false );
 		}
 
 		if( m_AdminGame )
@@ -1473,7 +1474,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 		{
 			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, false );
 		}
 
 		if( m_AdminGame )
@@ -1504,9 +1505,9 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 			// note that we send this whisper only on the creator server
 
 			if( gameState == GAME_PRIVATE )
-				(*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, false );
 			else if( gameState == GAME_PUBLIC )
-				(*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper );
+				(*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, false );
 		}
 		else
 		{
