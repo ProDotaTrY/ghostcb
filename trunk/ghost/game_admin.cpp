@@ -44,10 +44,12 @@ using namespace boost :: filesystem;
 // CAdminGame
 //
 
-CAdminGame :: CAdminGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nPassword ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, string( ), string( ), string( ) )
+CAdminGame :: CAdminGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, int nRequirePassword, string nPassword ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, string( ), string( ), string( ) )
 {
 	m_VirtualHostName = "|cFFC04040Admin";
 	m_MuteLobby = true;
+	if(nRequirePassword == 2)
+		m_RequirePassword = 0;
 	m_Password = nPassword;
 }
 
@@ -272,7 +274,7 @@ void CAdminGame :: SendAdminChat( string message )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 	{
-		if( (*i)->GetLoggedIn( ) )
+		if( (*i)->GetLoggedIn( ) || !m_RequirePassword)
 			SendChat( *i, message );
 	}
 }
@@ -328,7 +330,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 	string Command = command;
 	string Payload = payload;
 
-	if( player->GetLoggedIn( ) )
+	if( player->GetLoggedIn( ) || !m_RequirePassword)
 	{
 		CONSOLE_Print( "[ADMINGAME] admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 

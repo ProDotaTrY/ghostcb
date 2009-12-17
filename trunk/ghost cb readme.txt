@@ -72,6 +72,12 @@ lan_getrootadmins = 0
 ###  seperate each name with a space, e.g. lan_rootadmins = Varlock Kilranin Instinct121
 lan_rootadmins = 
 
+### whether to create the admin game or not (see readme.txt for more information)
+###  0 do not create admin game 
+###  1 create admin game with password
+###  2 create admin game without password
+admingame_create = 0
+
 ====================
 map config additions
 ====================
@@ -109,3 +115,5 @@ I really hope that I have been able to give credit to all those involved in deve
 -Fire86
 -Krauzi
 -Damianakos
+-Smaug
+-Shade0o
