@@ -51,6 +51,10 @@ bot_resetdownloads = 0
 ###  The results (ex. "Shuffling Players") is still shown
 bot_hideadmincommands = 0
 
+### Only whisper command responses instead of sending through public chat
+###  0 - normal operation / 1 - most commands are responded with a whisper
+bot_whisperresponses = 0
+
 ### LAN Admins
 ###  0 - off (default) / 1 - LAN players will be Admins / 2 - LAN players will be Root Admins / 3 - Unspecified LAN players will be admins
 lan_admins = 0

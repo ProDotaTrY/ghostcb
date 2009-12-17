@@ -137,6 +137,7 @@ public:
 	bool m_ResetDownloads;					// custom value: resets the 'allow downloads' to the config value after a game starts
 	uint32_t m_AllowDownloads2;				// config value: allow map downloads or not
 	bool m_HideCommands;					// custom value: hide or show commands
+	bool m_WhisperResponses;				//config value: have ghost whisper responses to most commands regardless of how you communicated
 
 
 

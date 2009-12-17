@@ -320,7 +320,7 @@ bool CGamePlayer :: Update( void *fd )
 						(*i)->QueueChatCommand( "/whois " + m_Name );
 				}
 				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
-					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true );
+					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
 			}
 		}
 

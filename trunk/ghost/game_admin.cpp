@@ -1253,7 +1253,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 				Message = Payload.substr( MessageStart + 1 );
 
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
-					(*i)->QueueChatCommand( Message, Name, true );
+					(*i)->QueueChatCommand( Message, Name, true, false );
 			}
 		}
 

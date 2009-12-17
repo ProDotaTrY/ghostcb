@@ -164,7 +164,7 @@ public:
 	void SendGetClanList( );
 	void QueueEnterChat( );
 	void QueueChatCommand( string chatCommand );
-	void QueueChatCommand( string chatCommand, string user, bool whisper );
+	void QueueChatCommand( string chatCommand, string user, bool whisper, bool whisperresponses );
 	void QueueGameCreate( unsigned char state, string gameName, string hostName, CMap *map, CSaveGame *saveGame, uint32_t hostCounter );
 	void QueueGameRefresh( unsigned char state, string gameName, string hostName, CMap *map, CSaveGame *saveGame, uint32_t upTime, uint32_t hostCounter );
 	void QueueGameUncreate( );
