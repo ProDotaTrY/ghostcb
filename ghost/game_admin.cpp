@@ -274,7 +274,7 @@ void CAdminGame :: SendAdminChat( string message )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 	{
-		if( (*i)->GetLoggedIn( ) || !m_RequirePassword)
+		if( (*i)->GetLoggedIn( ) || !m_RequirePassword || m_Password.empty( ) )
 			SendChat( *i, message );
 	}
 }
@@ -330,7 +330,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 	string Command = command;
 	string Payload = payload;
 
-	if( player->GetLoggedIn( ) || !m_RequirePassword)
+	if( player->GetLoggedIn( ) || !m_RequirePassword || !m_Password.empty( ) )
 	{
 		CONSOLE_Print( "[ADMINGAME] admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 
@@ -1288,7 +1288,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 	// !PASSWORD
 	//
 
-	if( Command == "password" && !player->GetLoggedIn( ) )
+	if( Command == "password" && !player->GetLoggedIn( ) && !m_Password.empty( ) )
 	{
 		if( !m_Password.empty( ) && Payload == m_Password )
 		{
