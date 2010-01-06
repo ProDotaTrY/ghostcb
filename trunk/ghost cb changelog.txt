@@ -7,6 +7,7 @@ Based on GHost++ 16.2 (rev 384)
  - added feature to hide all admin commands, semi-reintegration [ghost.cfg - bot_hideadmincommands]
  - added ghost.cfg value [bot_whisperresponses]
  - added feature to disable admingame password (mostly by Smaug)
+ - modified bot_banmethod when it is set to 1, it will also warn when a player joins who has a banned IP address.
 
 Version 3.1 (2009-11-27)
 Based on GHost++ 16.2 (rev 384)
