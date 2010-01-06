@@ -1,8 +1,9 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.2 (xxxx-xx-xx)
+Version 3.2 (2010-01-05)
 Based on GHost++ 16.2 (rev 384)
+ - removed the WTV addon due to linux incompatibility
  - added feature to reset allow/disallow downloads after a game starts (suggested by Alex)
  - added feature to hide all admin commands, semi-reintegration [ghost.cfg - bot_hideadmincommands]
  - added ghost.cfg value [bot_whisperresponses]
