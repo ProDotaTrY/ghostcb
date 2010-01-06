@@ -1791,11 +1791,11 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	// this is because if bot_banmethod is 0 we need to wait to announce the ban until now because they could have been rejected because the game was full
 	// this would have allowed the player to spam the chat by attempting to join the game multiple times in a row
 
-	if( m_GHost->m_BanMethod == 0 )
+	if( m_GHost->m_BanMethod == 0 || m_GHost->m_BanMethod == 1 )
 	{
 		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
 		{
-			if( (*i)->GetServer( ) == JoinedRealm )
+			if( (*i)->GetServer( ) == JoinedRealm && m_GHost->m_BanMethod == 0 )
 			{
 				CDBBan *Ban = (*i)->IsBannedName( joinPlayer->GetName( ) );
 
@@ -2369,6 +2369,26 @@ void CBaseGame :: EventPlayerJoinedWithScore( CPotentialPlayer *potential, CInco
 
 	// check for multiple IP usage
 
+	if( m_GHost->m_CheckMultipleIPUsage )
+	{
+		string Others;
+
+		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+		{
+			if( Player != *i && Player->GetExternalIPString( ) == (*i)->GetExternalIPString( ) )
+			{
+				if( Others.empty( ) )
+					Others = (*i)->GetName( );
+				else
+					Others += ", " + (*i)->GetName( );
+			}
+		}
+
+		if( !Others.empty( ) )
+			SendAllChat( m_GHost->m_Language->MultipleIPAddressUsageDetected( joinPlayer->GetName( ), Others ) );
+	}
+
+	// check for past username change
 	if( m_GHost->m_CheckMultipleIPUsage )
 	{
 		string Others;

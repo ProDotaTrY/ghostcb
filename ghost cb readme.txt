@@ -96,6 +96,9 @@ Features
 - automatically detects the map_type as dota & sets map_matchmakingcategory to dota_elo when loading a DotA map
 - blocks battle.net !say commands (ex. !say /squelch user) unless sent from a Root Admin
 - improved !start command
+- modified bot_ban method when set to 1.
+###  if bot_banmethod = 1, GHost++ will automatically reject players using a banned name, and will print a message if it only recognizes the IP address
+
 =======
 Credits
 =======
