@@ -1,6 +1,10 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.3 (xxxx-xx-xx)
+Based on GHost++ 16.2 (rev 384)
+ - added support for $BOTNAME$ in motd.txt (by Shade0o)
+ 
 Version 3.2 (2010-01-05)
 Based on GHost++ 16.2 (rev 384)
  - removed the WTV addon due to linux incompatibility
