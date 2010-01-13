@@ -92,7 +92,7 @@ map_gamenamewithmode = Dota 5v5 $mode$ !!!
 ========
 Features
 ========
-- improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$)
+- improved motd.txt handling (supports variables: $OWNERNAME$, $GAMENAME$, $HCL$, $VERSION$, $USER$, $BOTNAME$)
 - automatically detects the map_type as dota & sets map_matchmakingcategory to dota_elo when loading a DotA map
 - blocks battle.net !say commands (ex. !say /squelch user) unless sent from a Root Admin
 - improved !start command

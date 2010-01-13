@@ -1271,6 +1271,7 @@ void CBaseGame :: SendWelcomeMessage( CGamePlayer *player )
 			UTIL_Replace( Line, "$HCL$", m_HCLCommandString );
 			UTIL_Replace( Line, "$VERSION$", m_GHost->m_Version );
 			UTIL_Replace( Line, "$USER$", player->GetName( ) );
+			UTIL_Replace( Line, "$BOTNAME$", m_VirtualHostName );
 
 			if( Line.empty( ) )
 			{
