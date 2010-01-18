@@ -581,7 +581,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				{
 					SendAllChat( m_GHost->m_Language->AutoStartDisabled( ) );
 					m_AutoStartPlayers = 0;
-					if ( m_UsingStart = true )
+					if ( m_UsingStart == true )
 						m_UsingStart = false;
 				}
 				else

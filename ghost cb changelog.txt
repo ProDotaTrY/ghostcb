@@ -4,6 +4,7 @@ GHost++ Custom Build Changelog
 Version 3.3 (xxxx-xx-xx)
 Based on GHost++ 16.2 (rev 384)
  - added support for $BOTNAME$ in motd.txt (by Shade0o)
+ - unconfirmed fix for the !start command displaying 'countdown aborted' when starting.
  
 Version 3.2 (2010-01-05)
 Based on GHost++ 16.2 (rev 384)

@@ -631,8 +631,8 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		}
 	}
 
-	// try to auto start every 10 seconds
-	if( m_UsingStart )
+	// try to auto start every 5 sec (!start) or 10 sec (!autostart)
+	if( m_UsingStart == true )
 	{
 		if( !m_CountDownStarted && m_AutoStartPlayers != 0 && GetTime( ) - m_LastAutoStartTime >= 5 )
 		{
@@ -4357,7 +4357,7 @@ void CBaseGame :: StartCountDownAuto( bool requireSpoofChecks )
 	if( !m_CountDownStarted )
 	{
 		// check if using !start or !autostart
-		if ( m_UsingStart )
+		if ( m_UsingStart == true )
 			if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
 			{
 				//cancel the autostart, a player has left the game
