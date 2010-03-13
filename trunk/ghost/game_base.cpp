@@ -1415,7 +1415,7 @@ void CBaseGame :: EventPlayerDeleted( CGamePlayer *player )
 
 	// abort the countdown if there was one in progress and normal countdown is off
 
-	if ( !m_GHost->m_UseNormalCountDown )
+	if ( !m_GHost->m_UseNormalCountDown && !m_UsingStart )
 	{
 		if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
 		{
@@ -4356,19 +4356,10 @@ void CBaseGame :: StartCountDownAuto( bool requireSpoofChecks )
 {
 	if( !m_CountDownStarted )
 	{
-		// check if using !start or !autostart
-		if ( m_UsingStart == true )
-			if( GetTicks( ) - m_LastPlayerLeaveTicks >= 2000 )
-			{
-				//cancel the autostart, a player has left the game
-				m_AutoStartPlayers = 0;
-				m_UsingStart = false;
-				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
-			}
-
+		
 		// check if enough players are present
 
-		if( GetNumHumanPlayers( ) < m_AutoStartPlayers )
+		if( !m_UsingStart && GetNumHumanPlayers( ) < m_AutoStartPlayers )
 		{
 			SendAllChat( m_GHost->m_Language->WaitingForPlayersBeforeAutoStart( UTIL_ToString( m_AutoStartPlayers ), UTIL_ToString( m_AutoStartPlayers - GetNumHumanPlayers( ) ) ) );
 			return;
