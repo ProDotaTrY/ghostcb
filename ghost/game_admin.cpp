@@ -44,12 +44,10 @@ using namespace boost :: filesystem;
 // CAdminGame
 //
 
-CAdminGame :: CAdminGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, int nRequirePassword, string nPassword ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, string( ), string( ), string( ) )
+CAdminGame :: CAdminGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nPassword ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, string( ), string( ), string( ) )
 {
 	m_VirtualHostName = "|cFFC04040Admin";
 	m_MuteLobby = true;
-	if(nRequirePassword == 2)
-		m_RequirePassword = 0;
 	m_Password = nPassword;
 }
 
@@ -274,7 +272,7 @@ void CAdminGame :: SendAdminChat( string message )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 	{
-		if( (*i)->GetLoggedIn( ) || !m_RequirePassword || m_Password.empty( ) )
+		if( (*i)->GetLoggedIn( ) || m_Password.empty( ) )
 			SendChat( *i, message );
 	}
 }
@@ -330,7 +328,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 	string Command = command;
 	string Payload = payload;
 
-	if( player->GetLoggedIn( ) || !m_RequirePassword || !m_Password.empty( ) )
+	if( player->GetLoggedIn( ) || m_Password.empty( ) )
 	{
 		CONSOLE_Print( "[ADMINGAME] admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 
@@ -1303,7 +1301,7 @@ bool CAdminGame :: EventPlayerBotCommand( CGamePlayer *player, string command, s
 			CONSOLE_Print( "[ADMINGAME] user [" + User + "] login attempt failed" );
 			SendChat( player, m_GHost->m_Language->AdminInvalidPassword( UTIL_ToString( LoginAttempts ) ) );
 
-			if( LoginAttempts >= 1 )
+			if( LoginAttempts >= 3 )
 			{
 				player->SetDeleteMe( true );
 				player->SetLeftReason( "was kicked for too many failed login attempts" );

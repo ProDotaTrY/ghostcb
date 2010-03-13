@@ -115,7 +115,7 @@ public:
 	string m_GameLoadedFile;				// config value: gameloaded.txt
 	string m_GameOverFile;					// config value: gameover.txt
 	bool m_LocalAdminMessages;				// config value: send local admin messages or not
-	uint32_t m_AdminGameCreate;					// config value: create the admin game or not
+	bool m_AdminGameCreate;					// config value: create the admin game or not
 	uint16_t m_AdminGamePort;				// config value: the port to host the admin game on
 	string m_AdminGamePassword;				// config value: the admin game password
 	string m_AdminGameMap;					// config value: the admin game map config to use

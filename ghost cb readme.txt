@@ -72,12 +72,6 @@ lan_getrootadmins = 0
 ###  seperate each name with a space, e.g. lan_rootadmins = Varlock Kilranin Instinct121
 lan_rootadmins = 
 
-### whether to create the admin game or not (see readme.txt for more information)
-###  0 do not create admin game 
-###  1 create admin game with password
-###  2 create admin game without password
-admingame_create = 0
-
 ====================
 map config additions
 ====================
@@ -98,6 +92,7 @@ Features
 - improved !start command
 - modified bot_ban method when set to 1.
 ###  if bot_banmethod = 1, GHost++ will automatically reject players using a banned name, and will print a message if it only recognizes the IP address
+- admin game supports no passwords (no login required)
 
 =======
 Credits
@@ -107,7 +102,7 @@ I really hope that I have been able to give credit to all those involved in deve
 -Varlock
 -Psionic
 -Lucasn
--Strlianc
+-Strilanc
 -Spoofy
 -Senkin
 -Emmeran
