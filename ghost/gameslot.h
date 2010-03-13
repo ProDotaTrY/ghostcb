@@ -30,7 +30,7 @@
 #define SLOTRACE_NIGHTELF	4
 #define SLOTRACE_UNDEAD		8
 #define SLOTRACE_RANDOM		32
-#define SLOTRACE_FIXED		64
+#define SLOTRACE_NONFIXED	64
 
 #define SLOTCOMP_EASY		0
 #define SLOTCOMP_NORMAL		1
@@ -52,6 +52,7 @@ private:
 	unsigned char m_Race;				// race (1 = human, 2 = orc, 4 = night elf, 8 = undead, 32 = random, 64 = fixed)
 	unsigned char m_ComputerType;		// computer type (0 = easy, 1 = human or normal comp, 2 = hard comp)
 	unsigned char m_Handicap;			// handicap
+	bool m_fixedRace;					// true iff the race cannot be changed
 
 public:
 	CGameSlot( BYTEARRAY &n );
@@ -64,9 +65,10 @@ public:
 	unsigned char GetComputer( )		{ return m_Computer; }
 	unsigned char GetTeam( )			{ return m_Team; }
 	unsigned char GetColour( )			{ return m_Colour; }
-	unsigned char GetRace( )			{ return m_Race; }
+	unsigned char GetRace( )			{ return (m_Race | (m_fixedRace ? 0 : SLOTRACE_NONFIXED)); }
 	unsigned char GetComputerType( )	{ return m_ComputerType; }
 	unsigned char GetHandicap( )		{ return m_Handicap; }
+	bool IsFixedRace( )					{ return m_fixedRace; }
 
 	void SetPID( unsigned char nPID )							{ m_PID = nPID; }
 	void SetDownloadStatus( unsigned char nDownloadStatus )		{ m_DownloadStatus = nDownloadStatus; }
