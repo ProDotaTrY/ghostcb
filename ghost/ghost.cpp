@@ -33,7 +33,9 @@
 #include "map.h"
 #include "packed.h"
 #include "savegame.h"
+#include "gameplayer.h"
 #include "gameprotocol.h"
+#include "gpsprotocol.h"
 #include "game_base.h"
 #include "game.h"
 #include "game_admin.h"
@@ -75,6 +77,7 @@
 #include "gameslot.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
+#include "gpsprotocol.h"
 #include "game_base.h"
 #include "game.h"
 #include "game_admin.h"
@@ -99,11 +102,6 @@
  #include <mach/mach_time.h>
 #endif
 
-#ifdef WIN32
- LARGE_INTEGER gHighPerfStart;
- LARGE_INTEGER gHighPerfFrequency;
-#endif
-
 string gCFGFile;
 string gLogFile;
 uint32_t gLogMethod;
@@ -119,15 +117,10 @@ uint32_t GetTicks( )
 {
 #ifdef WIN32
 	// don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
-	// use a high performance timer instead
-	// and make sure to always query the same processor
-	// note: this code is a LOT slower than GetTickCount, it might be better to only call it once per loop and store the result
+	// don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
+	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
-	LARGE_INTEGER HighPerfStop;
-	DWORD_PTR OldMask = SetThreadAffinityMask( GetCurrentThread( ), 0 );
-	QueryPerformanceCounter( &HighPerfStop );
-	SetThreadAffinityMask( GetCurrentThread( ), OldMask );
-	return (uint32_t)( ( HighPerfStop.QuadPart - gHighPerfStart.QuadPart ) * 1000 / gHighPerfFrequency.QuadPart );
+	return timeGetTime( );
 #elif __APPLE__
 	uint64_t current = mach_absolute_time( );
 	static mach_timebase_info_data_t info = { 0, 0 };
@@ -297,26 +290,28 @@ int main( int argc, char **argv )
 #endif
 
 #ifdef WIN32
-	// initialize high performance timer
+	// initialize timer resolution
+	// attempt to set the resolution as low as possible from 1ms to 5ms
 
-	DWORD_PTR OldMask = SetThreadAffinityMask( GetCurrentThread( ), 0 );
-	
-	if( !QueryPerformanceFrequency( &gHighPerfFrequency ) )
+	unsigned int TimerResolution = 0;
+
+	for( unsigned int i = 1; i <= 5; i++ )
 	{
-		// without a performance frequency we can't convert the performance counter to a meaningful value
-		// some possible solutions: revert to using GetTickCount or try another type of timer
-		// for now we just exit
-
-		CONSOLE_Print( "[GHOST] error getting Windows high performance timer resolution (error " + UTIL_ToString( GetLastError( ) ) + ")" );
-		return 1;
+		if( timeBeginPeriod( i ) == TIMERR_NOERROR )
+		{
+			TimerResolution = i;
+			break;
+		}
+		else if( i < 5 )
+			CONSOLE_Print( "[GHOST] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
+		else
+		{
+			CONSOLE_Print( "[GHOST] error setting Windows timer resolution" );
+			return 1;
+		}
 	}
 
-	QueryPerformanceCounter( &gHighPerfStart );
-	SetThreadAffinityMask( GetCurrentThread( ), OldMask );
-
-	// print the timer resolution
-
-	CONSOLE_Print( "[GHOST] using Windows high performance timer with resolution " + UTIL_ToString( (double)( 1000000.0 / gHighPerfFrequency.QuadPart ), 2 ) + " microseconds" );
+	CONSOLE_Print( "[GHOST] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
 #elif __APPLE__
 	// not sure how to get the resolution
 #else
@@ -372,6 +367,10 @@ int main( int argc, char **argv )
 
 	CONSOLE_Print( "[GHOST] shutting down winsock" );
 	WSACleanup( );
+
+	// shutdown timer
+
+	timeEndPeriod( TimerResolution );
 #endif
 
 	if( gLog )
@@ -394,6 +393,8 @@ CGHost :: CGHost( CConfig *CFG )
 	m_UDPSocket = new CUDPSocket( );
 	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
 	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
+	m_ReconnectSocket = NULL;
+	m_GPSProtocol = new CGPSProtocol( );
 	m_CRC = new CCRC32( );
 	m_CRC->Initialize( );
 	m_SHA = new CSHA1( );
@@ -482,7 +483,7 @@ CGHost :: CGHost( CConfig *CFG )
 	m_Exiting = false;
 	m_ExitingNice = false;
 	m_Enabled = true;
-	m_Version = "16.2";
+	m_Version = "17.0";
 	m_HostCounter = 1;
 	m_AutoHostMaximumGames = CFG->GetInt( "autohost_maxgames", 0 );
 	m_AutoHostAutoStartPlayers = CFG->GetInt( "autohost_startplayers", 0 );
@@ -502,6 +503,8 @@ CGHost :: CGHost( CConfig *CFG )
 		CONSOLE_Print( "[GHOST] acting as Warcraft III: Reign of Chaos" );
 
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
+	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
+	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6114 );
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "map" );
 	m_AdminGameCreate = CFG->GetInt( "admingame_create", 0 ) == 0 ? false : true;
 	m_AdminGamePort = CFG->GetInt( "admingame_port", 6113 );
@@ -663,6 +666,12 @@ CGHost :: CGHost( CConfig *CFG )
 CGHost :: ~CGHost( )
 {
 	delete m_UDPSocket;
+	delete m_ReconnectSocket;
+
+	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); i++ )
+		delete *i;
+
+	delete m_GPSProtocol;
 	delete m_CRC;
 	delete m_SHA;
 
@@ -776,6 +785,33 @@ bool CGHost :: Update( long usecBlock )
 			i++;
 	}
 
+	// create the GProxy++ reconnect listener
+
+	if( m_Reconnect )
+	{
+		if( !m_ReconnectSocket )
+		{
+			m_ReconnectSocket = new CTCPServer( );
+
+			if( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
+				CONSOLE_Print( "[GHOST] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+			else
+			{
+				CONSOLE_Print( "[GHOST] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+				delete m_ReconnectSocket;
+				m_ReconnectSocket = NULL;
+				m_Reconnect = false;
+			}
+		}
+		else if( m_ReconnectSocket->HasError( ) )
+		{
+			CONSOLE_Print( "[GHOST] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
+			delete m_ReconnectSocket;
+			m_ReconnectSocket = NULL;
+			m_Reconnect = false;
+		}
+	}
+
 	unsigned int NumFDs = 0;
 
 	// take every socket we own and throw it in one giant select statement so we can block on all sockets
@@ -805,6 +841,20 @@ bool CGHost :: Update( long usecBlock )
 
 	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
 		NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
+
+	// 5. the GProxy++ reconnect socket(s)
+
+	if( m_Reconnect && m_ReconnectSocket )
+	{
+		m_ReconnectSocket->SetFD( &fd, &send_fd, &nfds );
+		NumFDs++;
+	}
+
+	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); i++ )
+	{
+		(*i)->SetFD( &fd, &send_fd, &nfds );
+		NumFDs++;
+	}
 
 	// before we call select we need to determine how long to block for
 	// previously we just blocked for a maximum of the passed usecBlock microseconds
@@ -911,6 +961,118 @@ bool CGHost :: Update( long usecBlock )
 	{
 		if( (*i)->Update( &fd, &send_fd ) )
 			BNETExit = true;
+	}
+
+	// update GProxy++ reliable reconnect sockets
+
+	if( m_Reconnect && m_ReconnectSocket )
+	{
+		CTCPSocket *NewSocket = m_ReconnectSocket->Accept( &fd );
+
+		if( NewSocket )
+			m_ReconnectSockets.push_back( NewSocket );
+	}
+
+	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
+	{
+		if( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 10 )
+		{
+			delete *i;
+			i = m_ReconnectSockets.erase( i );
+			continue;
+		}
+
+		(*i)->DoRecv( &fd );
+		string *RecvBuffer = (*i)->GetBytes( );
+		BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
+
+		// a packet is at least 4 bytes
+
+		if( Bytes.size( ) >= 4 )
+		{
+			if( Bytes[0] == GPS_HEADER_CONSTANT )
+			{
+				// bytes 2 and 3 contain the length of the packet
+
+				uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+
+				if( Length >= 4 )
+				{
+					if( Bytes.size( ) >= Length )
+					{
+						if( Bytes[1] == CGPSProtocol :: GPS_RECONNECT && Length == 13 )
+						{
+							unsigned char PID = Bytes[4];
+							uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
+							uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
+
+							// look for a matching player in a running game
+
+							CGamePlayer *Match = NULL;
+
+							for( vector<CBaseGame *> :: iterator j = m_Games.begin( ); j != m_Games.end( ); j++ )
+							{
+								if( (*j)->GetGameLoaded( ) )
+								{
+									CGamePlayer *Player = (*j)->GetPlayerFromPID( PID );
+
+									if( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
+									{
+										Match = Player;
+										break;
+									}
+								}
+							}
+
+							if( Match )
+							{
+								// reconnect successful!
+
+								*RecvBuffer = RecvBuffer->substr( Length );
+								Match->EventGProxyReconnect( *i, LastPacket );
+								i = m_ReconnectSockets.erase( i );
+								continue;
+							}
+							else
+							{
+								(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+								(*i)->DoSend( &send_fd );
+								delete *i;
+								i = m_ReconnectSockets.erase( i );
+								continue;
+							}
+						}
+						else
+						{
+							(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+							(*i)->DoSend( &send_fd );
+							delete *i;
+							i = m_ReconnectSockets.erase( i );
+							continue;
+						}
+					}
+				}
+				else
+				{
+					(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+					(*i)->DoSend( &send_fd );
+					delete *i;
+					i = m_ReconnectSockets.erase( i );
+					continue;
+				}
+			}
+			else
+			{
+				(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+				(*i)->DoSend( &send_fd );
+				delete *i;
+				i = m_ReconnectSockets.erase( i );
+				continue;
+			}
+		}
+
+		(*i)->DoSend( &send_fd );
+		i++;
 	}
 
 	// autohost
@@ -1154,6 +1316,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_Language = new CLanguage( m_LanguageFile );
 	m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
 	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
+	m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
 	m_MaxGames = CFG->GetInt( "bot_maxgames", 5 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
 
@@ -1289,7 +1452,7 @@ void CGHost :: ExtractScripts( )
 		SFileCloseArchive( PatchMPQ );
 	}
 	else
-		CONSOLE_Print( "[GHOST] warning - unable to load MPQ file [" + PatchMPQFileName + "]" );
+		CONSOLE_Print( "[GHOST] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
 }
 
 void CGHost :: LoadIPToCountryData( )
