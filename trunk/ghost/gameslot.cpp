@@ -36,6 +36,7 @@ CGameSlot :: CGameSlot( BYTEARRAY &n )
 		m_Team = n[4];
 		m_Colour = n[5];
 		m_Race = n[6];
+		m_fixedRace = !(m_Race & SLOTRACE_NONFIXED);
 
 		if( n.size( ) >= 8 )
 			m_ComputerType = n[7];
@@ -56,6 +57,7 @@ CGameSlot :: CGameSlot( BYTEARRAY &n )
 		m_Team = 0;
 		m_Colour = 1;
 		m_Race = SLOTRACE_RANDOM;
+		m_fixedRace = true;
 		m_ComputerType = SLOTCOMP_NORMAL;
 		m_Handicap = 100;
 	}
@@ -70,8 +72,17 @@ CGameSlot :: CGameSlot( unsigned char nPID, unsigned char nDownloadStatus, unsig
 	m_Team = nTeam;
 	m_Colour = nColour;
 	m_Race = nRace;
+	m_fixedRace = !(m_Race & SLOTRACE_NONFIXED);
 	m_ComputerType = nComputerType;
 	m_Handicap = nHandicap;
+
+	/*	if (m_Race > SLOTRACE_NONFIXED)
+	{
+		m_Race -= SLOTRACE_NONFIXED;
+		m_fixedRace = false;
+	} else {
+		m_fixedRace = true;
+	}*/
 }
 
 CGameSlot :: ~CGameSlot( )
@@ -88,7 +99,7 @@ BYTEARRAY CGameSlot :: GetByteArray( ) const
 	b.push_back( m_Computer );
 	b.push_back( m_Team );
 	b.push_back( m_Colour );
-	b.push_back( m_Race );
+	b.push_back( m_Race | (m_fixedRace ? 0 : SLOTRACE_NONFIXED)) ;
 	b.push_back( m_ComputerType );
 	b.push_back( m_Handicap );
 	return b;

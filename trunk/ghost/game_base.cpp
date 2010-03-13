@@ -3103,8 +3103,11 @@ void CBaseGame :: EventPlayerChangeRace( CGamePlayer *player, unsigned char race
 	if( m_SaveGame )
 		return;
 
+	// do not deny race change requests in custom games anymore - fixed races will not change anyway
+	/*
 	if( m_Map->GetMapGameType( ) == GAMETYPE_CUSTOM )
 		return;
+	*/
 
 	if( m_Map->GetMapFlags( ) & MAPFLAG_RANDOMRACES )
 		return;
