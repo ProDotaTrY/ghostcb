@@ -1,6 +1,11 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.4 (2010-03-18)
+Based on GHost++ 17.0 (rev 402)
+ - updated to GHost revision 402
+	- added new config value bnet*_locale
+
 Version 3.3 (2010-03-13)
 Based on GHost++ 17.0 (rev 401)
  - updated to GHost++ 17.0, plus added modifications not yet released by Varlock:
