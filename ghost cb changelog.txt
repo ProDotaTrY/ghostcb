@@ -2,8 +2,12 @@
 GHost++ Custom Build Changelog
 ==============================
 Version 3.5 (xxxx-xx-xx)
-Based on GHost++ 17.0 (rev 402)
+Based on GHost++ 17.0 (rev 408)
  - changed the bot_usenormalcountdown default to avoid problems with the !start command
+ - updated to GHost++ rev 408
+ - updated readme.txt
+ - ghost.cfg is now default.cfg, ghost.cfg will overwrite all values that are also in default.cfg.
+ - set default.cfg to read only.
 
 Version 3.4 (2010-03-18)
 Based on GHost++ 17.0 (rev 402)
