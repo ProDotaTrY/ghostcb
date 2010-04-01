@@ -1,6 +1,10 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.5 (xxxx-xx-xx)
+Based on GHost++ 17.0 (rev 402)
+ - changed the bot_usenormalcountdown default to avoid problems with the !start command
+
 Version 3.4 (2010-03-18)
 Based on GHost++ 17.0 (rev 402)
  - updated to GHost revision 402

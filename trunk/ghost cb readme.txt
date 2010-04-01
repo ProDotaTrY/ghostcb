@@ -40,7 +40,7 @@ bot_approvedcountries =
 
 ### Use normal countdown when set to 1 will mimic the Warcraft III game start
 ### Set this to 0 to set back to Ghost's normal countdown
-bot_usenormalcountdown = 1
+bot_usenormalcountdown = 0
 
 ### Reload "bot_allowdownloads" after a game starts
 ###  0 - off (default) / 1 - on
