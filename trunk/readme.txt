@@ -23,15 +23,15 @@ It is possible to work around this limitation using the "Admin Game" feature of 
 Configuration
 =============
 
-GHost++ is configured via the plain text configuration file ghost.cfg.
+GHost++ is configured via the plain text configuration files default.cfg and ghost.cfg.
 The program itself runs in console mode and does not take any console input (it outputs messages to the console for information purposes only).
 
-***You need to edit ghost.cfg before running GHost++***
-***You need to edit ghost.cfg before running GHost++***
-***You need to edit ghost.cfg before running GHost++***
+***You need to create and edit ghost.cfg before running GHost++***
+***You need to create and edit ghost.cfg before running GHost++***
+***You need to create and edit ghost.cfg before running GHost++***
 
-GHost++ takes one command line argument, the name of the main config file. It defaults to ghost.cfg if no arguments are provided.
-Note: If you are using Windows and ghost.cfg looks like an unreadable mess you should try to open it with Wordpad instead of Notepad (or some other text editor).
+GHost++ takes one command line argument, the name of the main config file. It uses the defaults from default.cfg if no arguments are provided.
+Note: If you are using Windows and default.cfg or ghost.cfg looks like an unreadable mess you should try to open it with Wordpad instead of Notepad (or some other text editor).
 
 ==============
 Required Files

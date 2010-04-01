@@ -239,6 +239,7 @@ int main( int argc, char **argv )
 	// read config file
 
 	CConfig CFG;
+	CFG.Read( "default.cfg" );
 	CFG.Read( gCFGFile );
 	gLogFile = CFG.GetString( "bot_log", string( ) );
 	gLogMethod = CFG.GetInt( "bot_logmethod", 1 );
@@ -1326,6 +1327,7 @@ void CGHost :: EventGameDeleted( CBaseGame *game )
 void CGHost :: ReloadConfigs( )
 {
 	CConfig CFG;
+	CFG.Read( "default.cfg" );
 	CFG.Read( gCFGFile );
 	SetConfigs( &CFG );
 }
