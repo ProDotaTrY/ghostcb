@@ -9,6 +9,7 @@ Based on GHost++ 17.0 (rev 408)
  - ghost.cfg is now default.cfg, ghost.cfg will overwrite all values that are also in default.cfg.
  - set default.cfg to read only.
  - applied update by HardwareBug to ghost dynamic configurator (v1.2)
+ - removed changes from r37
 
 Version 3.4 (2010-03-18)
 Based on GHost++ 17.0 (rev 402)
@@ -20,8 +21,7 @@ Based on GHost++ 17.0 (rev 401)
  - updated to GHost++ 17.0, plus added modifications not yet released by Varlock:
 	- the bot now sends chat messages from the fake player if one exists
 	- fixed a bug where GProxy++ users would desync upon reconnection when load-in-game was enabled
- - added improved map config handling (fixed race and team selection in custom games) by Anderkent
- 
+
 Version 3.3 (xxxx-xx-xx)
 Based on GHost++ 16.2 (rev 384)
  - added support for $BOTNAME$ in motd.txt (by Shade0o)

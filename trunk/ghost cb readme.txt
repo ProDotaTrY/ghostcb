@@ -93,7 +93,6 @@ Features
 - modified bot_ban method when set to 1.
 ###  if bot_banmethod = 1, GHost++ will automatically reject players using a banned name, and will print a message if it only recognizes the IP address
 - admin game supports no passwords (no login required)
-- improved map config handling (fixed race and team selection in custom games)
 
 =======
 Credits
@@ -116,4 +115,3 @@ I really hope that I have been able to give credit to all those involved in deve
 -Damianakos
 -Smaug
 -Shade0o
--Anderkent

@@ -755,7 +755,7 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 		CONSOLE_Print( "[MAP] forcing races to random" );
 
 		for( vector<CGameSlot> :: iterator i = m_Slots.begin( ); i != m_Slots.end( ); i++ )
-			(*i).SetRace( SLOTRACE_RANDOM );
+			(*i).SetRace( SLOTRACE_RANDOM | SLOTRACE_FIXED );
 	}
 
 	// add observer slots
