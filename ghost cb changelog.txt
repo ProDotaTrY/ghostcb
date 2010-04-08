@@ -1,8 +1,8 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.5 (xxxx-xx-xx)
-Based on GHost++ 17.0 (rev 408)
+Version 3.5 (2010-04-07)
+Based on GHost++ 17.0 (rev 419)
  - changed the bot_usenormalcountdown default to avoid problems with the !start command
  - updated to GHost++ rev 408
  - updated readme.txt
@@ -10,7 +10,10 @@ Based on GHost++ 17.0 (rev 408)
  - set default.cfg to read only.
  - applied update by HardwareBug to ghost dynamic configurator (v1.2)
  - removed changes from r37
-
+ - updated to GHost++ rev 419
+    - there are new config values for maps which may break old configurations, read the included map config for more inforamtion.
+ - added a blank template map config file "#template.cfg"
+ 
 Version 3.4 (2010-03-18)
 Based on GHost++ 17.0 (rev 402)
  - updated to GHost revision 402
