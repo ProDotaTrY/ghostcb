@@ -23,13 +23,13 @@ Requirements:
 -dotNet framework 3.5
 
 Info:
-release: 5.4.2010
+release: 27.9.2009
 auto: HardwareBug
 version: 1.2
 written with: Virtual Basic 2008 Express Edition
 
 Change log:
-5.4.2010 - v1.2
+xx.4.2010 - v1.2
 -added support for 2 cfg files (ghost.cfg & default.cfg)
 -added settings dialog with syntax checks
 -added a button (in the settings dialog) to delete the configurator settings

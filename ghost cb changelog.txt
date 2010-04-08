@@ -8,6 +8,7 @@ Based on GHost++ 17.0 (rev 408)
  - updated readme.txt
  - ghost.cfg is now default.cfg, ghost.cfg will overwrite all values that are also in default.cfg.
  - set default.cfg to read only.
+ - applied update by HardwareBug to ghost dynamic configurator (v1.2)
 
 Version 3.4 (2010-03-18)
 Based on GHost++ 17.0 (rev 402)
