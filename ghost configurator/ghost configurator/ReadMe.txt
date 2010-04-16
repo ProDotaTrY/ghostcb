@@ -23,13 +23,25 @@ Requirements:
 -dotNet framework 3.5
 
 Info:
-release: 27.9.2009
+release: 16.4.2010
 auto: HardwareBug
-version: 1.2
+version: 1.2b
 written with: Virtual Basic 2008 Express Edition
 
+Programmer info:
+At first opening of the configurator project you may get an error when opening the SettingsDialog form,
+to solve this error just start the debugging, after that all will be fine.
+
 Change log:
-xx.4.2010 - v1.2
+16.4.2010 - v1.2b
+-fix a bug where the configurator wouldn't save the bnet#_server if it's value was the default server (useast.battle.net)
+
+11.4.2010 - v1.2a
+-if only a default.cfg is aviable the SettingsDialog will choose the create new ghost.cfg option
+-for the create new ghost.cfg option no ghost.cfg file path is needed
+-fixed some small bugs
+
+5.4.2010 - v1.2
 -added support for 2 cfg files (ghost.cfg & default.cfg)
 -added settings dialog with syntax checks
 -added a button (in the settings dialog) to delete the configurator settings

@@ -24,12 +24,17 @@ Public Class SettingsDialog
     'true für benötigte texteingaben
     Dim FileNeeded As TextBoxen
 
+    'meldungen einstellen
+    Dim File_exists As String = "using the file in the application's directroy"
+    Dim File_doesnt_exist As String = "file not found, please choose one"
+    Dim File_create As String = "create a ghost.cfg in the application's directory"
+
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
 
-        If rBtnCreateCfg.Checked Then                   'warnung falls eine ghsot.cfg schon existiert und überschrieben wird
-            If TBGhostCfgPath.Text = "" Then
-                Select Case MsgBox("The selected ghost.cfg file already exists!" & vbCr & _
-                                   "Do you realy want to overwrite it with an empty one?", MsgBoxStyle.YesNo, "Warning")
+        If rBtnCreateCfg.Checked Then                   'warnung falls eine ghost.cfg schon existiert und überschrieben wird
+            If TBGhostCfgPath.Text = "" And My.Computer.FileSystem.FileExists(MainWindow.cAppDirPath & MainWindow.cGhostCfg) Then
+                Select Case MsgBox("In the application's directroy is already a ghost.cfg file." & vbCr & _
+                                   "Do you want to overwrite it with an empty one?", MsgBoxStyle.YesNo, "Warning")
                     Case MsgBoxResult.No
                         Exit Sub
                 End Select
@@ -52,6 +57,7 @@ Public Class SettingsDialog
 
     Private Sub rBnt_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles rBntUseMonoCfg.Click, _
                                                                                         rBtnUseDualCfg.Click, rBtnCreateCfg.Click
+        'default cfg path aktivieren bzw. deaktivieren
         If rBntUseMonoCfg.Checked Then
             Me.TBDeafaultCfgPath.Enabled = False
             Me.BtnBrowseDCfg.Enabled = False
@@ -60,6 +66,17 @@ Public Class SettingsDialog
             Me.TBDeafaultCfgPath.Enabled = True
             Me.BtnBrowseDCfg.Enabled = True
             Me.LblDcfg.Enabled = True
+        End If
+
+        'meldung für create new ändern
+        If rBtnCreateCfg.Checked Then
+            TBGhostCfgPath.TextInfo = File_create
+        Else
+            If My.Computer.FileSystem.FileExists(MainWindow.cAppDirPath + MainWindow.cGhostCfg) Then
+                Me.TBGhostCfgPath.TextInfo = File_exists
+            Else
+                Me.TBGhostCfgPath.TextInfo = File_doesnt_exist
+            End If
         End If
 
         me_Validated(sender, e)
@@ -77,16 +94,24 @@ Public Class SettingsDialog
         If My.Settings.DefaultCfgPath <> Nothing Then TBDeafaultCfgPath.Text = My.Settings.DefaultCfgPath
         If My.Settings.GhostExePath <> Nothing Then TBGhostExePath.Text = My.Settings.GhostExePath
 
+        'rButtons setzen
         If My.Settings.DualCfgMode Then
-            rBtnUseDualCfg.Checked = True
+            Dim tmpDefaultCfgIsInAppDir As Boolean = If(My.Settings.DefaultCfgPath = "", True, _
+                                        (My.Computer.FileSystem.GetParentPath(My.Settings.DefaultCfgPath) + "\") = MainWindow.cAppDirPath)
+            Dim tmpDefaultCfgPath As String = If(My.Settings.DefaultCfgPath = "", MainWindow.cAppDirPath & MainWindow.cDefaultCfg, _
+                                              My.Settings.DefaultCfgPath)
+            
+            'falls (default.cfg existiert) aber (ghost.cfg nicht) und (create new nicht ausgegraut) und (default.cfg in app dir) ist
+            If My.Computer.FileSystem.FileExists(tmpDefaultCfgPath) And _
+            Not My.Computer.FileSystem.FileExists(MainWindow.cAppDirPath & MainWindow.cGhostCfg) And _
+             rBtnCreateCfg.Enabled And tmpDefaultCfgIsInAppDir Then
+                rBtnCreateCfg.Checked = True
+            Else
+                rBtnUseDualCfg.Checked = True
+            End If
         Else
             rBntUseMonoCfg.Checked = True
         End If
-        rBnt_Click(sender, e)
-
-        'meldungen einstellen
-        Dim File_exists As String = "using the file in the applications directroy"
-        Dim File_doesnt_exist As String = "file not found, please choose one"
 
         'info für TBghostCfg
         If My.Computer.FileSystem.FileExists(MainWindow.cAppDirPath + MainWindow.cGhostCfg) Then
@@ -110,10 +135,11 @@ Public Class SettingsDialog
         If My.Computer.FileSystem.FileExists(MainWindow.cAppDirPath + MainWindow.cGhostExe) Then
             Me.TBGhostExePath.TextInfo = File_exists
         Else
-            Me.TBGhostExePath.TextInfo = File_doesnt_exist
+            Me.TBGhostExePath.TextInfo = File_doesnt_exist & " (optional)"
         End If
 
-        me_Validated(sender, e)
+        rBnt_Click(sender, e) 'erst am ende w.g. sonst wird aktualisierte info nochmal zurückgesetzt
+        'me_Validated(sender, e)    'w.g. wird indirecht von rBtn_klick ausgeführt
     End Sub
 
     Private Sub BtnBrowseGCfg_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles BtnBrowseGCfg.Click
@@ -168,10 +194,10 @@ Public Class SettingsDialog
 
     'werte überprüfen und je nach dem einen error provider anzeigen
     Private Sub me_Validated(ByVal sender As Object, ByVal e As EventArgs) _
-    Handles Me.MouseMove, TBGhostCfgPath.UserChangedText, TBDeafaultCfgPath.UserChangedText, TBGhostExePath.UserChangedText 'Me.MouseMove,
+    Handles Me.MouseMove, TBGhostCfgPath.UserChangedText, TBDeafaultCfgPath.UserChangedText, TBGhostExePath.UserChangedText
         Dim DisableOK As Boolean
 
-        'nur dirch mause.move den errorprovieder auslösen
+        'nur durch mause.move den errorprovieder auslösen
         Dim SenderIsNotTB As Boolean = Not (sender.name = TBDeafaultCfgPath.Name Or sender.name = TBGhostCfgPath.Name Or _
         sender.name = TBGhostExePath.Name)
 
@@ -186,7 +212,9 @@ Public Class SettingsDialog
 
         'GhostCfg - Textbox check
         If TBGhostCfgPath.Text = "" Then
-            If FileNeeded.TBGhostCfg Then DisableOK = True
+            'wenn datei nicht existiert und nicht neu erstellen eingestellt ist
+            If FileNeeded.TBGhostCfg And Not rBtnCreateCfg.Checked Then DisableOK = True
+
             ErrorProvider.SetError(BtnBrowseGCfg, "")
 
         ElseIf Not My.Computer.FileSystem.FileExists(TBGhostCfgPath.Text) And _
