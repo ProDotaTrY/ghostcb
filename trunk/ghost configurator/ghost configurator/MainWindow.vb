@@ -32,7 +32,21 @@ Public Class MainWindow
 
     'features:
 
+
 #Region "change log:"
+    '-ab server 2 werden die folgenden einstellungen immer gespeichert: _server, _serveralias, _bnlsserver z338
+    '-releas datum aktualiesieren
+    '-beim startdialog wirklich in den papierkorb löschen
+    '-create new was ist bei eigenen pfaden?
+    '-auch beim start up dialog auf default pfade überprüfen? z1445
+    '-für create new: wenn ghostCfgPath leer ist app dir mit ghost.cfg nehmen
+    '-wenn default.cfg vorhanden & ghost.cfg nicht settings dialog auf creat new setzen
+    '-meldung aktualisieren, bedinung auf file exists umstellen (dialog ok_ckick z43)
+    '-ausnahme für create new (dialog me_validate z209)
+    '-Bedingung für create new hinzufügen in der textInfo von TBghostCfg geändert wird. (dialog z 72)
+    '-variablen für diese form globalisieren + neue variable für create new (dialog z28)
+    '-bedingung für create new hinzufügen (dialog z82)
+    '-readme eintrag der auf vb2008 bug mit custom control hinweist hinzufügen
     '-alle hauptfunktionen noch einmal durchgehen und testen ob diese in beinden modi richtig funktionieren
     '-shortcuts mit beschreibung hinzufügen
     '-hilfe aktualiesieren
@@ -83,7 +97,7 @@ Public Class MainWindow
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         'start konfiguration
         Me.Icon = My.Resources.parametres_3D
-        version = "v1.2"
+        version = "v1.2b"
         'fenster initalisieren
         Dim CfgLine(), templine As String
         Dim count(40) As Integer            '40 für anzahl tabs(1-4, 21-40)
@@ -315,7 +329,12 @@ Public Class MainWindow
                     For c As Integer = 0 To runden
                         key(tmpAktKey + c) = "bnet" & i & "_" & Schluessel(BNetIndex(c))
                         Schluessel(tmpAktKey + c) = Schluessel(BNetIndex(c))
-                        defWert(tmpAktKey + c) = defWert(BNetIndex(c))
+
+                        'Debug: für bnet# einstellungen um bestimmte werte auf den ghost++ quellcode wert zu setzen
+                        If Schluessel(BNetIndex(c)) <> "server" And Schluessel(BNetIndex(c)) <> "bnlsserver" And _
+                           Schluessel(BNetIndex(c)) <> "serveralias" Then
+                            defWert(tmpAktKey + c) = defWert(BNetIndex(c))
+                        End If
                         type(tmpAktKey + c) = type(BNetIndex(c))
                         Info(tmpAktKey + c) = Info(BNetIndex(c))
                     Next
@@ -1409,7 +1428,7 @@ Public Class MainWindow
 
                 'wenn create new ausgewählt ist
                 If SettingsDialog.rBtnCreateCfg.Checked Then
-                    'neue datei erstellen
+                    'wert aus TB übernehmen
                     If SettingsDialog.TBGhostCfgPath.Text <> "" Then
                         MyCfgPath = SettingsDialog.TBGhostCfgPath.Text
                     End If
@@ -1417,6 +1436,7 @@ Public Class MainWindow
                     Dim tmpString As String = My.Computer.FileSystem.GetParentPath(MyCfgPath)
                     Dim tmpArray(0) As String
 
+                    'neue datei erstellen
                     If My.Computer.FileSystem.DirectoryExists(tmpString) Then
                         IO.File.WriteAllLines(MyCfgPath, tmpArray)
                         My.Settings.MyCfgPath = MyCfgPath
@@ -1429,9 +1449,32 @@ Public Class MainWindow
                 End If
 
                 With My.Settings
-                    If .DualCfgMode <> True Or .MyCfgPath <> "" Or .DefaultCfgPath <> "" Or .GhostExePath <> "" Then
-                        .Save()
+                    'Standart pfade nicht speichern
+                    If .MyCfgPath = cAppDirPath + cGhostCfg Then
+                        .MyCfgPath = ""
                     End If
+                    If .DefaultCfgPath = cAppDirPath + cDefaultCfg Then
+                        .DefaultCfgPath = ""
+                    End If
+                    If .GhostExePath = cAppDirPath + cGhostExe Then
+                        .GhostExePath = ""
+                    End If
+
+                    'in jedem fall einstellungen speichern
+                    .Save()
+
+                    'If .DualCfgMode <> True Or .MyCfgPath <> "" Or .DefaultCfgPath <> "" Or .GhostExePath <> "" Then
+                    '    .Save()
+                    'Else
+                    '    'einstellungsdatei löschen
+                    '    Dim SettingDir As String = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) & _
+                    '                               "\ghost_configurator"
+
+                    '    If My.Computer.FileSystem.DirectoryExists(SettingDir) Then
+                    '        My.Computer.FileSystem.DeleteDirectory(SettingDir, FileIO.UIOption.OnlyErrorDialogs, _
+                    '                                               FileIO.RecycleOption.DeletePermanently)
+                    '    End If
+                    'End If
                 End With
 
                 Return True

@@ -96,10 +96,10 @@ Partial Class SettingsDialog
         Me.rBtnUseDualCfg.AutoSize = True
         Me.rBtnUseDualCfg.Location = New System.Drawing.Point(12, 35)
         Me.rBtnUseDualCfg.Name = "rBtnUseDualCfg"
-        Me.rBtnUseDualCfg.Size = New System.Drawing.Size(231, 17)
+        Me.rBtnUseDualCfg.Size = New System.Drawing.Size(228, 17)
         Me.rBtnUseDualCfg.TabIndex = 2
         Me.rBtnUseDualCfg.TabStop = True
-        Me.rBtnUseDualCfg.Text = "Use bouth cfg Files (ghost.cfg + default.cfg)"
+        Me.rBtnUseDualCfg.Text = "Use bouth cfg files (default.cfg + ghost.cfg)"
         Me.rBtnUseDualCfg.UseVisualStyleBackColor = True
         '
         'rBtnCreateCfg
@@ -155,27 +155,27 @@ Partial Class SettingsDialog
         Me.LblGCfg.AutoSize = True
         Me.LblGCfg.Location = New System.Drawing.Point(9, 83)
         Me.LblGCfg.Name = "LblGCfg"
-        Me.LblGCfg.Size = New System.Drawing.Size(80, 13)
+        Me.LblGCfg.Size = New System.Drawing.Size(78, 13)
         Me.LblGCfg.TabIndex = 11
-        Me.LblGCfg.Text = "Ghost.cfg path:"
+        Me.LblGCfg.Text = "ghost.cfg path:"
         '
         'LblDcfg
         '
         Me.LblDcfg.AutoSize = True
         Me.LblDcfg.Location = New System.Drawing.Point(3, 109)
         Me.LblDcfg.Name = "LblDcfg"
-        Me.LblDcfg.Size = New System.Drawing.Size(86, 13)
+        Me.LblDcfg.Size = New System.Drawing.Size(84, 13)
         Me.LblDcfg.TabIndex = 12
-        Me.LblDcfg.Text = "Default.cfg path:"
+        Me.LblDcfg.Text = "default.cfg path:"
         '
         'LblGExe
         '
         Me.LblGExe.AutoSize = True
         Me.LblGExe.Location = New System.Drawing.Point(7, 135)
         Me.LblGExe.Name = "LblGExe"
-        Me.LblGExe.Size = New System.Drawing.Size(82, 13)
+        Me.LblGExe.Size = New System.Drawing.Size(80, 13)
         Me.LblGExe.TabIndex = 13
-        Me.LblGExe.Text = "Ghost.exe path:"
+        Me.LblGExe.Text = "ghost.exe path:"
         '
         'OpenFileDialog
         '
