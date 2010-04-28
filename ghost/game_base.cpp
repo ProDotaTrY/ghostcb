@@ -537,7 +537,14 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 			if( (*i)->GetOutPacketsQueued( ) <= 1 )
 			{
+				/*
+				Varlock's original refresh
 				(*i)->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_SaveGame, GetTime( ) - m_CreationTime, m_HostCounter );
+				*/
+
+				// Refresh code from Fire86 (http://codelain.com/forum/index.php?topic=11373.msg88767#msg88767)
+				(*i)->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_SaveGame, 0, m_HostCounter );
+				
 				Refreshed = true;
 			}
 		}

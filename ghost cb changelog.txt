@@ -1,6 +1,10 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.6 (xxxx-xx-xx)
+Based on GHost++ 17.0 (rev 419)
+ - modified game refresh using code from Fire86 (http://codelain.com/forum/index.php?topic=11373.msg88767#msg88767)
+ 
 Version 3.5 (2010-04-07)
 Based on GHost++ 17.0 (rev 419)
  - changed the bot_usenormalcountdown default to avoid problems with the !start command
