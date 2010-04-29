@@ -817,7 +817,9 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	// @end
 	m_MapDefaultPlayerScore = CFG->GetInt( "map_defaultplayerscore", 1000 );
 	m_MapLoadInGame = CFG->GetInt( "map_loadingame", 0 ) == 0 ? false : true;
-
+    if (m_GHost->m_ForceLoadInGame)
+		m_MapLoadInGame = true;
+    
 	if( MapNumPlayers == 0 )
 		MapNumPlayers = CFG->GetInt( "map_numplayers", 0 );
 	else if( CFG->Exists( "map_numplayers" ) )

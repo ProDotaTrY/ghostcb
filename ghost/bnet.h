@@ -121,6 +121,8 @@ private:
 	bool m_HoldClan;								// whether to auto hold clan members when creating a game or not
 	bool m_PublicCommands;							// whether to allow public commands or not
 
+	string m_ReplyTarget;
+
 public:
 	CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, string nLANRootAdmin, char nCommandTrigger, bool nHoldFriends, bool nHoldClan, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string nPVPGNRealmName, uint32_t nMaxMessageLength, uint32_t nHostCounterID );
 	~CBNET( );
@@ -150,6 +152,13 @@ public:
 	uint32_t GetOutPacketsQueued( )		{ return m_OutPackets.size( ); }
 	BYTEARRAY GetUniqueName( );
 
+	vector<pair<string, int> > GetFriends( );
+	vector<pair<string, int> > GetClan( );
+	vector<pair<string, int> > GetBans( );
+	vector<pair<string, int> > GetAdmins( );
+	string GetReplyTarget( )			{ return m_ReplyTarget; }
+	uint32_t GetRealmId( )				{ return m_HostCounterID - 1; }
+
 	// processing functions
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
@@ -164,7 +173,7 @@ public:
 	void SendGetFriendsList( );
 	void SendGetClanList( );
 	void QueueEnterChat( );
-	void QueueChatCommand( string chatCommand );
+	void QueueChatCommand( string chatCommand, bool hidden = false );
 	void QueueChatCommand( string chatCommand, string user, bool whisper, bool whisperresponses );
 	void QueueGameCreate( unsigned char state, string gameName, string hostName, CMap *map, CSaveGame *saveGame, uint32_t hostCounter );
 	void QueueGameRefresh( unsigned char state, string gameName, string hostName, CMap *map, CSaveGame *saveGame, uint32_t upTime, uint32_t hostCounter );
@@ -173,6 +182,8 @@ public:
 	void UnqueuePackets( unsigned char type );
 	void UnqueueChatCommand( string chatCommand );
 	void UnqueueGameRefreshes( );
+
+	void RequestListUpdates( );
 
 	// other functions
 
@@ -187,6 +198,8 @@ public:
 	void RemoveBan( string name );
 	void HoldFriends( CBaseGame *game );
 	void HoldClan( CBaseGame *game );
+
+	void HiddenGhostCommand( string Message );
 };
 
 #endif

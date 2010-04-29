@@ -66,7 +66,15 @@ uint32_t GetTicks( );		// milliseconds
 // output
 
 void CONSOLE_Print( string message );
+void CONSOLE_Print( string message, bool toMainBuffer );
+void CONSOLE_Print( string message, uint32_t realmId, bool toMainBuffer = true );
 void DEBUG_Print( string message );
 void DEBUG_Print( BYTEARRAY b );
+
+void CONSOLE_ChangeChannel( string channel, uint32_t realmId );
+void CONSOLE_AddChannelUser( string name, uint32_t realmId, int flag );
+void CONSOLE_UpdateChannelUser ( string name, uint32_t realmId, int flag );
+void CONSOLE_RemoveChannelUser( string name, uint32_t realmId );
+void CONSOLE_RemoveChannelUsers( uint32_t realmId );
 
 #endif

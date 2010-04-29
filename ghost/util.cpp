@@ -23,6 +23,8 @@
 
 #include <sys/stat.h>
 
+map<pair<char, char>, int> utf8_latin1;
+
 BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size )
 {
 	if( size < 1 )
@@ -332,6 +334,58 @@ string UTIL_ToHexString( uint32_t i )
 	stringstream SS;
 	SS << std :: hex << i;
 	SS >> result;
+	return result;
+}
+
+void UTIL_Construct_UTF8_Latin1_Map( )
+{
+	int c, d;
+	for (int i = 128; i < 256; ++i)
+	{
+		c = (i >> 6) | 0xC0;
+		d = (i & 0x3F) | 0x80;
+		utf8_latin1[pair<char, char>(c, d)] = i;
+	}
+}
+
+string UTIL_Latin1ToUTF8( string &s )
+{
+	string result;
+	int c;
+
+	for (uint32_t i = 0; i < s.size(); ++i)
+	{
+		c = s[i];
+		if (s[i] < 0) c += 256;
+		if(c < 128)
+			result += c;
+		else
+		{
+			result += (c >> 6) | 0xC0;
+			result += (c & 0x3F) | 0x80;
+		}
+	}
+	return result;
+}
+
+string UTIL_UTF8ToLatin1( string & s )
+{
+	string temp, result = s;
+	for (uint32_t k = 1; k < result.size(); ++k)
+	{
+		if (utf8_latin1.find(pair<char, char>(result[k-1], result[k])) != utf8_latin1.end())
+		{
+			temp = utf8_latin1[pair<char, char>(result[k-1], result[k])];
+			result.replace(k-1, 2, temp);
+		}
+	}
+	return result;
+}
+
+unsigned long UTIL_ToULong( int i )
+{
+	unsigned long result = i;
+	if (i < 0) result += 256;
 	return result;
 }
 

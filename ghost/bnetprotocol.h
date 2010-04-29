@@ -198,15 +198,17 @@ class CIncomingChatEvent
 {
 private:
 	CBNETProtocol :: IncomingChatEvent m_ChatEvent;
+	uint32_t m_UserFlags;
 	uint32_t m_Ping;
 	string m_User;
 	string m_Message;
 
 public:
-	CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nPing, string nUser, string nMessage );
+	CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nUserFlags, uint32_t nPing, string nUser, string nMessage );
 	~CIncomingChatEvent( );
 
 	CBNETProtocol :: IncomingChatEvent GetChatEvent( )	{ return m_ChatEvent; }
+	uint32_t GetUserFlags( )							{ return m_UserFlags; }
 	uint32_t GetPing( )									{ return m_Ping; }
 	string GetUser( )									{ return m_User; }
 	string GetMessage( )								{ return m_Message; }
@@ -259,6 +261,8 @@ public:
 	string GetRank( );
 	string GetStatus( );
 	string GetDescription( );
+
+	unsigned char GetRawStatus( )	{ return m_Status; }
 };
 
 #endif
