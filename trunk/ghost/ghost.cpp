@@ -39,6 +39,7 @@
 #include "game_base.h"
 #include "game.h"
 #include "game_admin.h"
+#include "userinterface.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -107,6 +108,7 @@ string gLogFile;
 uint32_t gLogMethod;
 ofstream *gLog = NULL;
 CGHost *gGHost = NULL;
+CCurses *gCurses = NULL;
 
 uint32_t GetTime( )
 {
@@ -170,7 +172,20 @@ void SignalCatcher( int s )
 
 void CONSOLE_Print( string message )
 {
-	cout << message << endl;
+	CONSOLE_Print( message, 0, true );
+}
+
+void CONSOLE_Print( string message, bool toMainBuffer )
+{
+	CONSOLE_Print( message, 0, toMainBuffer );
+}
+
+void CONSOLE_Print( string message, uint32_t realmId, bool toMainBuffer )
+{
+	if ( gCurses )
+		gCurses->Print( message, realmId, toMainBuffer );
+	else
+		cout << message << endl;
 
 	// logging
 
@@ -225,6 +240,36 @@ void DEBUG_Print( BYTEARRAY b )
 	cout << "}" << endl;
 }
 
+void CONSOLE_ChangeChannel( string channel, uint32_t realmId )
+{
+	if ( gCurses )
+		gCurses->ChangeChannel( channel, realmId );
+}
+
+void CONSOLE_AddChannelUser( string name, uint32_t realmId, int flag )
+{
+	if ( gCurses )
+		gCurses->AddChannelUser( name, realmId, flag );
+}
+
+void CONSOLE_UpdateChannelUser( string name, uint32_t realmId, int flag )
+{
+	if ( gCurses )
+		gCurses->UpdateChannelUser( name, realmId, flag );
+}
+
+void CONSOLE_RemoveChannelUser( string name, uint32_t realmId )
+{
+	if ( gCurses )
+		gCurses->RemoveChannelUser( name, realmId );
+}
+
+void CONSOLE_RemoveChannelUsers( uint32_t realmId )
+{
+	if ( gCurses )
+		gCurses->RemoveChannelUsers( realmId );
+}
+
 //
 // main
 //
@@ -243,6 +288,11 @@ int main( int argc, char **argv )
 	CFG.Read( gCFGFile );
 	gLogFile = CFG.GetString( "bot_log", string( ) );
 	gLogMethod = CFG.GetInt( "bot_logmethod", 1 );
+
+	if ( CFG.GetInt( "curses_enabled", 1 ) == 1 )
+		gCurses = new CCurses( CFG.GetInt( "term_width", 0 ), CFG.GetInt( "term_height", 0 ), !!CFG.GetInt( "curses_splitview", 0 ), CFG.GetInt( "curses_listtype", 0 ) );
+
+	UTIL_Construct_UTF8_Latin1_Map( );
 
 	if( !gLogFile.empty( ) )
 	{
@@ -348,12 +398,15 @@ int main( int argc, char **argv )
 
 	gGHost = new CGHost( &CFG );
 
+	if ( gCurses )
+		gCurses->SetGHost( gGHost );
+
 	while( 1 )
 	{
 		// block for 50ms on all sockets - if you intend to perform any timed actions more frequently you should change this
 		// that said it's likely we'll loop more often than this due to there being data waiting on one of the sockets but there aren't any guarantees
 
-		if( gGHost->Update( 50000 ) )
+		if( gGHost->Update( 50000 ) || ( gCurses && gCurses->Update( ) ) )
 			break;
 	}
 
@@ -380,6 +433,15 @@ int main( int argc, char **argv )
 			gLog->close( );
 
 		delete gLog;
+	}
+
+	// shutdown curses
+
+	if ( gCurses )
+	{
+		CONSOLE_Print( "[GHOST] shutting down curses" );
+		delete gCurses;
+		gCurses = NULL;
 	}
 
 	return 0;
@@ -1275,13 +1337,13 @@ void CGHost :: EventBNETWhisper( CBNET *bnet, string user, string message )
 {
 	if( m_AdminGame )
 	{
-		m_AdminGame->SendAdminChat( "[W: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+		m_AdminGame->SendAdminChat( "[WHISPER: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		if( m_CurrentGame )
-			m_CurrentGame->SendLocalAdminChat( "[W: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			m_CurrentGame->SendLocalAdminChat( "[WHISPER: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
-			(*i)->SendLocalAdminChat( "[W: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			(*i)->SendLocalAdminChat( "[WHISPER: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 	}
 }
 
@@ -1289,13 +1351,111 @@ void CGHost :: EventBNETChat( CBNET *bnet, string user, string message )
 {
 	if( m_AdminGame )
 	{
-		m_AdminGame->SendAdminChat( "[L: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+		m_AdminGame->SendAdminChat( "[LOCAL: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		if( m_CurrentGame )
-			m_CurrentGame->SendLocalAdminChat( "[L: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			m_CurrentGame->SendLocalAdminChat( "[LOCAL: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
-			(*i)->SendLocalAdminChat( "[L: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			(*i)->SendLocalAdminChat( "[LOCAL: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+	}
+}
+
+void CGHost :: EventBNETBROADCAST( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[BROADCAST: " + bnet->GetServerAlias( ) + "] " + message );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[BROADCAST: " + bnet->GetServerAlias( ) + "] " + message );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[BROADCAST: " + bnet->GetServerAlias( ) + "] " + message );
+	}
+}
+
+void CGHost :: EventBNETCHANNEL( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] joined channel [" + message + "]" );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] joined channel [" + message + "]" );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] joined channel [" + message + "]" );
+	}
+}
+
+void CGHost :: EventBNETWHISPERSENT( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[WHISPERED: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[WHISPERED: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[WHISPERED: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+	}
+}
+
+void CGHost :: EventBNETCHANNELFULL( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel is full" );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel is full" );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel is full" );
+	}
+}
+
+void CGHost :: EventBNETCHANNELDOESNOTEXIST( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel does not exist" );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel does not exist" );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel does not exist" );
+	}
+}
+
+void CGHost :: EventBNETCHANNELRESTRICTED( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel restricted" );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel restricted" );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[BNET: " + bnet->GetServerAlias( ) + "] channel restricted" );
+	}
+}
+
+void CGHost :: EventBNETError( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[ERROR: " + bnet->GetServerAlias( ) + "] " + message );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[ERROR: " + bnet->GetServerAlias( ) + "] " + message );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[ERROR: " + bnet->GetServerAlias( ) + "] " + message );
 	}
 }
 
@@ -1321,6 +1481,20 @@ void CGHost :: EventGameDeleted( CBaseGame *game )
 
 		if( (*i)->GetServer( ) == game->GetCreatorServer( ) )
 			(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, false);
+	}
+}
+
+void CGHost :: EventBNETInfo( CBNET *bnet, string user, string message )
+{
+	if( m_AdminGame )
+	{
+		m_AdminGame->SendAdminChat( "[INFO: " + bnet->GetServerAlias( ) + "] " + message );
+
+		if( m_CurrentGame )
+			m_CurrentGame->SendLocalAdminChat( "[INFO: " + bnet->GetServerAlias( ) + "] " + message );
+
+		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
+			(*i)->SendLocalAdminChat( "[INFO: " + bnet->GetServerAlias( ) + "] " + message );
 	}
 }
 
@@ -1408,7 +1582,8 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_AllowDownloads2 = m_AllowDownloads;
 	m_HideCommands = CFG->GetInt( "bot_hideadmincommands", 0) == 0 ? false : true;
 	m_WhisperResponses = CFG->GetInt( "bot_whisperresponses", 0) == 0 ? false : true;
-	
+	m_ForceLoadInGame = CFG->GetInt( "bot_forceloadingame", 0 ) == 0 ? false : true;
+    
 }
 
 void CGHost :: ExtractScripts( )

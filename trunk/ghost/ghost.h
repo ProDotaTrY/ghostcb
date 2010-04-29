@@ -137,8 +137,9 @@ public:
 
 	string m_ApprovedCountries;				// custom value: approved countries 
 	// @disturbed_oc
-	bool m_HCLCommandFromGameName;			// custom value: try to get hcl command from game name
+	bool m_HCLCommandFromGameName;	        // custom value: try to get hcl command from game name
 	bool m_HCLOverride;						// custom value: if the !hcl command is issued, override hcl from gamename
+    bool m_ForceLoadInGame;                 // custom value force loadingame
 	// @end
 	uint32_t m_LANAdmins;					// custom value: enable players joining from LAN to be recognized as admins
 	string m_LANRootAdmin;					// custom value: the names of players if recognized from LAN will be root admins or admins
@@ -146,8 +147,7 @@ public:
 	bool m_ResetDownloads;					// custom value: resets the 'allow downloads' to the config value after a game starts
 	uint32_t m_AllowDownloads2;				// config value: allow map downloads or not
 	bool m_HideCommands;					// custom value: hide or show commands
-	bool m_WhisperResponses;				//config value: have ghost whisper responses to most commands regardless of how you communicated
-
+	bool m_WhisperResponses;				// config value: have ghost whisper responses to most commands regardless of how you communicated
 
 
 	CGHost( CConfig *CFG );
@@ -168,8 +168,16 @@ public:
 	void EventBNETConnectTimedOut( CBNET *bnet );
 	void EventBNETWhisper( CBNET *bnet, string user, string message );
 	void EventBNETChat( CBNET *bnet, string user, string message );
+	void EventBNETBROADCAST( CBNET *bnet, string user, string message );
+	void EventBNETCHANNEL( CBNET *bnet, string user, string message );
+	void EventBNETWHISPERSENT( CBNET *bnet, string user, string message );
+	void EventBNETCHANNELFULL( CBNET *bnet, string user, string message );
+	void EventBNETCHANNELDOESNOTEXIST( CBNET *bnet, string user, string message );
+	void EventBNETCHANNELRESTRICTED( CBNET *bnet, string user, string message );
+	void EventBNETError( CBNET *bnet, string user, string message );
 	void EventBNETEmote( CBNET *bnet, string user, string message );
 	void EventGameDeleted( CBaseGame *game );
+	void EventBNETInfo( CBNET *bnet, string user, string message );
 
 	// other functions
 

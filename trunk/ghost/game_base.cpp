@@ -3333,6 +3333,7 @@ void CBaseGame :: EventGameStarted( )
 			}
 		}
 	}
+
 	// @end
 
 	// encode the HCL command string in the slot handicaps
