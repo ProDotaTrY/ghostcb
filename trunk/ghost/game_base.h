@@ -146,9 +146,11 @@ public:
 	virtual unsigned char GetGProxyEmptyActions( )	{ return m_GProxyEmptyActions; }
 	virtual string GetGameName( )					{ return m_GameName; }
 	virtual string GetLastGameName( )				{ return m_LastGameName; }
+	virtual void SetHCL( string nHCL)				{ m_HCLCommandString = nHCL; }
 	virtual string GetVirtualHostName( )			{ return m_VirtualHostName; }
 	virtual string GetOwnerName( )					{ return m_OwnerName; }
 	virtual string GetCreatorName( )				{ return m_CreatorName; }
+	virtual string GetHCL( )						{ return m_HCLCommandString; }
 	virtual string GetCreatorServer( )				{ return m_CreatorServer; }
 	virtual uint32_t GetHostCounter( )				{ return m_HostCounter; }
 	virtual uint32_t GetLastLagScreenTime( )		{ return m_LastLagScreenTime; }
@@ -264,6 +266,7 @@ public:
 	virtual void BalanceSlots( );
 	virtual void AddToSpoofed( string server, string name, bool sendMessage );
 	virtual void AddToReserved( string name );
+	virtual void AutoSetHCL ( );
 	virtual bool IsOwner( string name );
 	virtual bool IsReserved( string name );
 	virtual bool IsDownloading( );

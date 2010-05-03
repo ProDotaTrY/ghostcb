@@ -3306,6 +3306,65 @@ void CBaseGame :: EventGameRefreshed( string server )
 	}
 }
 
+void CBaseGame :: AutoSetHCL ( )
+{
+	// auto set HCL if map_defaulthcl is not empty
+	string gameName = m_GameName;
+	transform( gameName.begin( ), gameName.end( ), gameName.begin( ), (int(*)(int))tolower );
+	string m_Mode = string();
+	string m_Modes = string();
+	string m_Modes2 = string();
+	if ( m_GHost->m_HCLCommandFromGameName )
+			if (gameName.find("-")!= string::npos)
+			{
+				uint32_t j = 0;
+				uint32_t k = 0;
+				uint32_t i = 0;
+				string mode = string();
+				while (j<gameName.length()-1 && (gameName.find("-",j)!= string::npos))
+				{
+					k = gameName.find("-",j);
+					i = gameName.find(" ",k);
+					if (i==0)
+						i = gameName.length() - k + 1;
+					else
+						i = i - k;
+					mode = gameName.substr(k, i);
+					// keep the first mode separately to be used in HCL
+					if (m_Mode.empty())
+						m_Mode = gameName.substr(k+1, i-1);
+					m_Modes += " "+mode;
+					if (m_Modes2.length()>0)
+						m_Modes2+=" ";
+					m_Modes2+= mode;
+					j = k + i;
+				}
+				if (!m_Mode.empty())
+				{
+					CONSOLE_Print( "[GHOST] autosetting HCL to [" + m_Mode + "]" );
+					if( m_Mode.size( ) <= m_Slots.size( ) )
+					{
+						string HCLChars = "abcdefghijklmnopqrstuvwxyz0123456789 -=,.";
+
+						if( m_Mode.find_first_not_of( HCLChars ) == string :: npos )
+						{
+							SetHCL(m_Mode);
+							if (m_Mode != m_HCLCommandString)
+								SendAllChat( m_GHost->m_Language->SettingHCL( GetHCL() ) );
+						}
+						else
+							SendAllChat( m_GHost->m_Language->UnableToSetHCLInvalid( ) );
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UnableToSetHCLTooLong( ) );			
+				}
+			} else
+				// no gamemode detected from gamename, disable map_defaulthcl
+			{
+				SetHCL(string());
+			}
+}
+
 void CBaseGame :: EventGameStarted( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
@@ -3316,7 +3375,7 @@ void CBaseGame :: EventGameStarted( )
 	// @disturbed_oc
 	// Get HCL Command from gamename
 
-	if ( m_Map->GetMapHCLFromGameName() && !m_HCLOverride )
+	if ( m_Map->GetMapHCLFromGameName() || !m_HCLOverride )
 	{
 		//CONSOLE_Print( "[GAME: " + m_GameName + "] Trying to get Game Mode for HCL from gamename. Valid Modes [" + m_Map->GetMapHCLValidModes() + "]" );
 
