@@ -812,6 +812,8 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 	//ghost custom build additions
 	// @disturbed_oc
 	m_HCLCommandFromGameName = CFG->GetInt( "map_hclfromgamename", 0 ) == 0 ? false : true;
+    if ( m_GHost->m_HCLCommandFromGameName )
+        m_HCLCommandFromGameName = true;
 	m_HCLValidModes = CFG->GetString( "map_validmodes", string( ) );
 	m_MapGameNameWithMode = CFG->GetString( "map_gamenamewithmode", string( ) );
 	// @end

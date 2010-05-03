@@ -1583,6 +1583,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_HideCommands = CFG->GetInt( "bot_hideadmincommands", 0) == 0 ? false : true;
 	m_WhisperResponses = CFG->GetInt( "bot_whisperresponses", 0) == 0 ? false : true;
 	m_ForceLoadInGame = CFG->GetInt( "bot_forceloadingame", 0 ) == 0 ? false : true;
+    m_HCLCommandFromGameName = CFG->GetInt( "bot_hclfromgamename", 0 ) == 0 ? false : true;
     
 }
 
@@ -1861,6 +1862,9 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 		m_CurrentGame->SetEnforcePlayers( m_EnforcePlayers );
 		m_EnforcePlayers.clear( );
 	}
+
+	// auto set HCL if map_defaulthcl is not empty
+	m_CurrentGame->AutoSetHCL();
 
 	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 	{
