@@ -1488,6 +1488,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				m_CreationTime = GetTime( );
 				m_LastRefreshTime = GetTime( );
+
+				// auto set HCL if map_defaulthcl is not empty
+				AutoSetHCL();
+
 			}
 
 			//
@@ -1523,6 +1527,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				m_CreationTime = GetTime( );
 				m_LastRefreshTime = GetTime( );
+
+				// auto set HCL if map_defaulthcl is not empty
+				AutoSetHCL();
+
 			}
 
 			//
