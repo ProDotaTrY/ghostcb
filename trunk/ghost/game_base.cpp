@@ -3349,7 +3349,7 @@ void CBaseGame :: AutoSetHCL ( )
 						if( m_Mode.find_first_not_of( HCLChars ) == string :: npos )
 						{
 							SetHCL(m_Mode);
-							if (m_Mode != m_HCLCommandString)
+							if (m_Mode == m_HCLCommandString)
 								SendAllChat( m_GHost->m_Language->SettingHCL( GetHCL() ) );
 						}
 						else
