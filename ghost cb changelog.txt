@@ -1,10 +1,14 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
-Version 3.6 (xxxx-xx-xx)
-Based on GHost++ 17.0 (rev 419)
+Version 3.6 (2010-06-09)
+Based on GHost++ 17.1 (rev 512)
+ - updated ghost dynamic configurator
  - modified game refresh using code from Fire86 (http://codelain.com/forum/index.php?topic=11373.msg88767#msg88767)
- 
+ - added SmokeMonster's GHost Curses mod (by Destroya03)
+ - Fixed rehost bug with AutoSetHCL (by Destroya03)
+ - All changes from the forums thanks to DantX (by Destroya03)
+
 Version 3.5 (2010-04-07)
 Based on GHost++ 17.0 (rev 419)
  - changed the bot_usenormalcountdown default to avoid problems with the !start command

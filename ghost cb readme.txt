@@ -72,6 +72,29 @@ lan_getrootadmins = 0
 ###  seperate each name with a space, e.g. lan_rootadmins = Varlock Kilranin Instinct121
 lan_rootadmins = 
 
+### HCL from Game Name
+bot_hclfromgamename = 0
+
+### Force the load-in-game feature
+bot_forceloadingame = 0
+
+########################
+# CURSES CONFIGURATION #
+########################
+
+### the term buffer size / window size
+term_width = 135
+term_height = 52
+
+### enable curses user interface
+curses_enabled = 1
+
+### enable split view in realm windows
+curses_splitview = 0
+
+### 0: horizontal lists, anything else: vertical lists
+curses_listtype = 1
+
 ====================
 map config additions
 ====================
@@ -115,3 +138,6 @@ I really hope that I have been able to give credit to all those involved in deve
 -Damianakos
 -Smaug
 -Shade0o
+-Destroya03
+-SmokeMonster
+-DantX
