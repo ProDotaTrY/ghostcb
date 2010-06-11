@@ -2441,9 +2441,8 @@ void CBNET :: QueueChatCommand( string chatCommand, bool hidden )
 						string target = chatCommand.substr( r, nameEndpos - r );
 					}
 				}
-				else	CONSOLE_Print( "[WHISPERED: " + m_ServerAlias + "] [Friends] " + chatCommand.substr( r, chatCommand.length( ) ) , GetRealmId( ), false );
 			}
-			else if (!hidden) CONSOLE_Print( "[" + m_UserName + "] " + chatCommand, GetRealmId( ), false );
+			else if (!hidden) CONSOLE_Print( "[LOCAL: " + m_ServerAlias + "] [" + m_UserName + "] " + chatCommand, GetRealmId( ), false );
 
 			m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( chatCommand ) );
 		}

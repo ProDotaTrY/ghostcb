@@ -1463,13 +1463,13 @@ void CGHost :: EventBNETEmote( CBNET *bnet, string user, string message )
 {
 	if( m_AdminGame )
 	{
-		m_AdminGame->SendAdminChat( "[E: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+		m_AdminGame->SendAdminChat( "[EMOTE: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		if( m_CurrentGame )
-			m_CurrentGame->SendLocalAdminChat( "[E: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			m_CurrentGame->SendLocalAdminChat( "[EMOTE: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 
 		for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
-			(*i)->SendLocalAdminChat( "[E: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
+			(*i)->SendLocalAdminChat( "[EMOTE: " + bnet->GetServerAlias( ) + "] [" + user + "] " + message );
 	}
 }
 
