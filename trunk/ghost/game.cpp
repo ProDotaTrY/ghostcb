@@ -1096,11 +1096,33 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				string Froms;
 
+				if (!Payload.empty())
+				{
+					CGamePlayer *LastMatch = NULL;
+					uint32_t Matches = GetPlayerFromNamePartial( Payload , &LastMatch );
+
+					if( Matches == 0 )
+						CONSOLE_Print("No matches");
+
+					else if( Matches == 1 )
+					{
+						Froms = LastMatch->GetName( );
+						Froms += ": (";
+						Froms += m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( (LastMatch)->GetExternalIP( ), true ) );
+						Froms += ")";
+						SendAllChat(Froms);
+					}
+					else
+						CONSOLE_Print("Found more than one match");
+				}
+
+				if (Payload.empty())
+				{
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 				{
 					// we reverse the byte order on the IP because it's stored in network byte order
-
-					Froms += (*i)->GetNameTerminated( );
+					
+					Froms += (*i)->GetName( );
 					Froms += ": (";
 					Froms += m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( (*i)->GetExternalIP( ), true ) );
 					Froms += ")";
@@ -1108,17 +1130,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					if( i != m_Players.end( ) - 1 )
 						Froms += ", ";
 
-					if( ( m_GameLoading || m_GameLoaded ) && Froms.size( ) > 100 )
-					{
-						// cut the text into multiple lines ingame
-
+					else 
 						SendAllChat( Froms );
-						Froms.clear( );
-					}
 				}
-
-				if( !Froms.empty( ) )
-					SendAllChat( Froms );
+				}
 			}
 
 			//
@@ -1398,16 +1413,42 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				uint32_t Kicked = 0;
 				uint32_t KickPing = 0;
+				string Pings;
+
+				if (!Payload.empty())
+				{
+					CGamePlayer *LastMatch = NULL;
+					uint32_t Matches = GetPlayerFromNamePartial( Payload , &LastMatch );
+
+					if( Matches == 0 )
+						CONSOLE_Print("No matches");
+
+					else if( Matches == 1 )
+					{
+						Pings = LastMatch->GetName( );
+						Pings +=": ";
+						if( LastMatch->GetNumPings( ) > 0 )
+						{
+							Pings += UTIL_ToString( LastMatch->GetPing( m_GHost->m_LCPings ) );
+							Pings +=" ms";
+						} else
+							Pings += "N/A";
+
+						SendAllChat(Pings);
+					}
+					else
+						CONSOLE_Print("Found more than one match");
+				}
 
 				if( !m_GameLoading && !m_GameLoaded && !Payload.empty( ) )
 					KickPing = UTIL_ToUInt32( Payload );
-
+				
+				if (Payload.empty())
+				{
 				// copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
 
 				vector<CGamePlayer *> SortedPlayers = m_Players;
 				sort( SortedPlayers.begin( ), SortedPlayers.end( ), CGamePlayerSortDescByPing( ) );
-				string Pings;
-
 				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); i++ )
 				{
 					Pings += (*i)->GetNameTerminated( );
@@ -1433,21 +1474,13 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 					if( i != SortedPlayers.end( ) - 1 )
 						Pings += ", ";
-
-					if( ( m_GameLoading || m_GameLoaded ) && Pings.size( ) > 100 )
-					{
-						// cut the text into multiple lines ingame
-
-						SendAllChat( Pings );
-						Pings.clear( );
-					}
 				}
-
-				if( !Pings.empty( ) )
-					SendAllChat( Pings );
+				
+				SendAllChat( Pings );
 
 				if( Kicked > 0 )
 					SendAllChat( m_GHost->m_Language->KickingPlayersWithPingsGreaterThan( UTIL_ToString( Kicked ), UTIL_ToString( KickPing ) ) );
+				}
 			}
 
 			//
