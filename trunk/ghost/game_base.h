@@ -45,6 +45,8 @@ class CBaseGame
 public:
 	CGHost *m_GHost;
 
+	uint32_t m_GameID;
+
 protected:
 	CTCPServer *m_Socket;							// listening socket
 	CGameProtocol *m_Protocol;						// game protocol
@@ -124,6 +126,10 @@ protected:
 	bool m_AutoSave;								// if we should auto save the game before someone disconnects
 	bool m_MatchMaking;								// if matchmaking mode is enabled
 	bool m_LocalAdminMessages;						// if local admin messages should be relayed or not
+
+	uint32_t m_LastUiTime;
+	uint32_t m_LastUiSlotsTime;
+
 
 	//ghost custom build additions
 	
@@ -280,6 +286,8 @@ public:
 	virtual void DeleteVirtualHost( );
 	virtual void CreateFakePlayer( );
 	virtual void DeleteFakePlayer( );
+
+	virtual string ColourValueToString( unsigned char value );
 };
 
 #endif

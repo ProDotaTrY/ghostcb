@@ -39,7 +39,8 @@
 #include "game_base.h"
 #include "game.h"
 #include "game_admin.h"
-#include "userinterface.h"
+#include "ui/ui.h"
+#include "ui/forward.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -108,7 +109,120 @@ string gLogFile;
 uint32_t gLogMethod;
 ofstream *gLog = NULL;
 CGHost *gGHost = NULL;
-CCurses *gCurses = NULL;
+CUI *gUI = NULL;
+bool gUISplit = false;
+bool gLoaded = false;
+
+void forward(CFwdData *data)
+{
+	if( data->_type == FWD_OUT_MESSAGE ||
+		data->_type == FWD_OUT_GAME ||
+		data->_type == FWD_OUT_BANS ||
+		data->_type == FWD_OUT_ADMINS )
+	{
+		if( data->_text == "/quit" || data->_text == "/exit" )
+		{
+			gUI->forceQuit();
+		}
+		else if( data->_text == "/commands" )
+		{
+			forward( new CFwdData(FWD_GENERAL, "  In the GHost++ console:", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   !<command>               : GHost command. Replace '!' with defined trigger character", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   /resize <width> <height> : Resizes console. This might crash. Please configure size in config file instead.", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   /exit or /quit           : Close GHost++", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "  User interface usage:", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Up/Down arrows         : Message history", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Esc                    : Clear input field", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Enter                  : Send message", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Mouse                  : Tabs, Scrolling, etc...", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Control-C              : Copy text", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   - Control-V              : Paste text", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "", 0 ) );
+		}
+		else if( data->_text.find("/resize ") != -1 )
+		{
+			string temp;
+			int j = 0;
+			int* dimensions = new int[2];
+
+			for ( uint32_t i = 8; i < data->_text.size( ); ++i )
+			{
+				if ( data->_text[i] == ' ' )
+				{
+					dimensions[j++] = UTIL_ToInt32( temp );
+					temp.clear( );
+				}
+
+				if ( data->_text[i] >= 48 && data->_text[i] <= 57 )
+					temp += data->_text[i];
+			}
+
+			dimensions[j++] = UTIL_ToInt32( temp );
+			temp.clear( );
+
+			if ( j == 2 )
+				gUI->resize( dimensions[0] , dimensions[1] );
+			else
+				forward( new CFwdData(FWD_GENERAL, "Resizing failed. Two arguments required.", 6, 0 ) );
+
+			delete dimensions;
+		}
+		else if( data->_type == FWD_OUT_GAME )
+		{
+			for( vector<CBaseGame *>::const_iterator i = gGHost->m_Games.begin(); i != gGHost->m_Games.end(); i++ )
+			{
+				if( (*i)->m_GameID == gUI->currentGameID( ) )
+				{
+					if( !data->_text.empty( ) && data->_text[0] == gGHost->m_CommandTrigger )
+						(*i)->SendAllChat( data->_text );
+					else
+						(*i)->SendAllChat( "ADMIN: " + data->_text );
+
+					break;
+				}
+			}
+
+			if( gGHost->m_CurrentGame && gGHost->m_CurrentGame->m_GameID == gUI->currentGameID( ) )
+			{
+				gGHost->m_CurrentGame->SendAllChat(data->_text);
+			}
+		}
+		else
+		{
+			for( vector<CBNET *>::const_iterator i = gGHost->m_BNETs.begin(); i != gGHost->m_BNETs.end(); i++ )
+			{
+				if( (*i)->GetHostCounterID() == gUI->currentServerID( ) )
+				{
+					if( data->_type == FWD_OUT_BANS )
+						(*i)->GetBans( ); // Get banlist
+					else if( data->_type == FWD_OUT_ADMINS )
+						(*i)->GetAdmins( ); // Get admins
+					else if( !data->_text.empty( ) )
+					{
+						data->_text = UTIL_Latin1ToUTF8( data->_text );
+						if( data->_text[0] == (*i)->GetCommandTrigger( ) )
+							(*i)->HiddenCommand( data->_text );
+						else
+							(*i)->QueueChatCommand( data->_text, data->_text[0] == '/' );
+					}
+				}
+			}
+		}
+		delete data;
+	}
+	else
+	{
+		data->_text = UTIL_UTF8ToLatin1(data->_text);
+		if( gUI )
+		{
+			gUI->forward( data );
+
+			if( !gLoaded )
+				gUI->update( );
+		}
+	}
+}
 
 uint32_t GetTime( )
 {
@@ -145,6 +259,7 @@ uint32_t GetTicks( )
 void SignalCatcher2( int s )
 {
 	CONSOLE_Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
+	forward( new CFwdData(FWD_GENERAL, "Caught signal " + UTIL_ToString( s ) + ", exiting NOW", 6, 0 ) );
 
 	if( gGHost )
 	{
@@ -163,6 +278,7 @@ void SignalCatcher( int s )
 	signal( SIGINT, SignalCatcher2 );
 
 	CONSOLE_Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting nicely" );
+	forward( new CFwdData(FWD_GENERAL, "Caught signal " + UTIL_ToString( s ) + ", exiting nicely", 6, 0 ) );
 
 	if( gGHost )
 		gGHost->m_ExitingNice = true;
@@ -172,18 +288,10 @@ void SignalCatcher( int s )
 
 void CONSOLE_Print( string message )
 {
-	CONSOLE_Print( message, 0, true );
-}
-
-void CONSOLE_Print( string message, bool toMainBuffer )
-{
-	CONSOLE_Print( message, 0, toMainBuffer );
-}
-
-void CONSOLE_Print( string message, uint32_t realmId, bool toMainBuffer )
-{
-	if ( gCurses )
-		gCurses->Print( message, realmId, toMainBuffer );
+	if(gUI)
+	{
+		forward(new CFwdData(FWD_RAW, message, 0));
+	}
 	else
 		cout << message << endl;
 
@@ -240,36 +348,6 @@ void DEBUG_Print( BYTEARRAY b )
 	cout << "}" << endl;
 }
 
-void CONSOLE_ChangeChannel( string channel, uint32_t realmId )
-{
-	if ( gCurses )
-		gCurses->ChangeChannel( channel, realmId );
-}
-
-void CONSOLE_AddChannelUser( string name, uint32_t realmId, int flag )
-{
-	if ( gCurses )
-		gCurses->AddChannelUser( name, realmId, flag );
-}
-
-void CONSOLE_UpdateChannelUser( string name, uint32_t realmId, int flag )
-{
-	if ( gCurses )
-		gCurses->UpdateChannelUser( name, realmId, flag );
-}
-
-void CONSOLE_RemoveChannelUser( string name, uint32_t realmId )
-{
-	if ( gCurses )
-		gCurses->RemoveChannelUser( name, realmId );
-}
-
-void CONSOLE_RemoveChannelUsers( uint32_t realmId )
-{
-	if ( gCurses )
-		gCurses->RemoveChannelUsers( realmId );
-}
-
 //
 // main
 //
@@ -288,11 +366,16 @@ int main( int argc, char **argv )
 	CFG.Read( gCFGFile );
 	gLogFile = CFG.GetString( "bot_log", string( ) );
 	gLogMethod = CFG.GetInt( "bot_logmethod", 1 );
+	
+	// initialize ui
 
-	if ( CFG.GetInt( "curses_enabled", 1 ) == 1 )
-		gCurses = new CCurses( CFG.GetInt( "term_width", 0 ), CFG.GetInt( "term_height", 0 ), !!CFG.GetInt( "curses_splitview", 0 ), CFG.GetInt( "curses_listtype", 0 ) );
+	if ( CFG.GetInt( "ui_enabled", 1 ) == 1 )
+	{
+		CONSOLE_Print( "[GHOST] Initializing user interface..." );
+		gUI = new CUI( CFG.GetInt( "ui_width", 135 ), CFG.GetInt( "ui_height", 43 ), CFG.GetInt( "ui_splitsid", 1 ), CFG.GetInt( "ui_spliton", 0 ) == 0 ? false : true, CFG.GetInt( "ui_gameinfotab", 0 ) == 0 ? false : true );
+	}
 
-	UTIL_Construct_UTF8_Latin1_Map( );
+	//
 
 	if( !gLogFile.empty( ) )
 	{
@@ -313,21 +396,34 @@ int main( int argc, char **argv )
 	}
 
 	CONSOLE_Print( "[GHOST] starting up" );
+	forward( new CFwdData(FWD_GENERAL, "Starting up", 2, 0) );
 
 	if( !gLogFile.empty( ) )
 	{
 		if( gLogMethod == 1 )
+		{
 			CONSOLE_Print( "[GHOST] using log method 1, logging is enabled and [" + gLogFile + "] will not be locked" );
+			forward( new CFwdData(FWD_GENERAL, "Using log method 1, logging is enabled and [" + gLogFile + "] will not be locked", 2, 0) );
+		}
 		else if( gLogMethod == 2 )
 		{
 			if( gLog->fail( ) )
+			{
 				CONSOLE_Print( "[GHOST] using log method 2 but unable to open [" + gLogFile + "] for appending, logging is disabled" );
+				forward( new CFwdData(FWD_GENERAL, "Using log method 2 but unable to open [" + gLogFile + "] for appending, logging is disabled", 2, 0) );
+			}
 			else
+			{
 				CONSOLE_Print( "[GHOST] using log method 2, logging is enabled and [" + gLogFile + "] is now locked" );
+				forward( new CFwdData(FWD_GENERAL, "Using log method 2, logging is enabled and [" + gLogFile + "] is now locked", 2, 0) );
+			}
 		}
 	}
 	else
+	{
 		CONSOLE_Print( "[GHOST] no log file specified, logging is disabled" );
+		forward( new CFwdData(FWD_GENERAL, "No log file specified, logging is disabled", 2, 0) );
+	}
 
 	// catch SIGABRT and SIGINT
 
@@ -354,15 +450,20 @@ int main( int argc, char **argv )
 			break;
 		}
 		else if( i < 5 )
+		{
 			CONSOLE_Print( "[GHOST] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
+			forward( new CFwdData(FWD_GENERAL, "Error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution", 6, 0) );
+		}
 		else
 		{
 			CONSOLE_Print( "[GHOST] error setting Windows timer resolution" );
+			forward( new CFwdData(FWD_GENERAL, "Error setting Windows timer resolution", 6, 0) );
 			return 1;
 		}
 	}
 
 	CONSOLE_Print( "[GHOST] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
+	forward( new CFwdData(FWD_GENERAL, "Using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds", 1, 0) );
 #elif __APPLE__
 	// not sure how to get the resolution
 #else
@@ -371,26 +472,35 @@ int main( int argc, char **argv )
 	struct timespec Resolution;
 
 	if( clock_getres( CLOCK_MONOTONIC, &Resolution ) == -1 )
+	{
 		CONSOLE_Print( "[GHOST] error getting monotonic timer resolution" );
+		forward( new CFwdData(FWD_GENERAL, "Error getting monotonic timer resolution", 6, 0) );
+	}
 	else
+	{
 		CONSOLE_Print( "[GHOST] using monotonic timer with resolution " + UTIL_ToString( (double)( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
+		forward( new CFwdData(FWD_GENERAL, "Using monotonic timer with resolution " + UTIL_ToString( (double)( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds", 1, 0) );
+	}
 #endif
 
 #ifdef WIN32
 	// initialize winsock
 
 	CONSOLE_Print( "[GHOST] starting winsock" );
+	forward( new CFwdData(FWD_GENERAL, "Starting winsock", 1, 0) );
 	WSADATA wsadata;
 
 	if( WSAStartup( MAKEWORD( 2, 2 ), &wsadata ) != 0 )
 	{
 		CONSOLE_Print( "[GHOST] error starting winsock" );
+		forward( new CFwdData(FWD_GENERAL, "Error starting winsock", 6, 0) );
 		return 1;
 	}
 
 	// increase process priority
 
 	CONSOLE_Print( "[GHOST] setting process priority to \"above normal\"" );
+	forward( new CFwdData(FWD_GENERAL, "Setting process priority to \"above normal\"", 2, 0) );
 	SetPriorityClass( GetCurrentProcess( ), ABOVE_NORMAL_PRIORITY_CLASS );
 #endif
 
@@ -398,21 +508,23 @@ int main( int argc, char **argv )
 
 	gGHost = new CGHost( &CFG );
 
-	if ( gCurses )
-		gCurses->SetGHost( gGHost );
+	UTIL_Construct_UTF8_Latin1_Map( );
+
+	gLoaded = true;
 
 	while( 1 )
 	{
 		// block for 50ms on all sockets - if you intend to perform any timed actions more frequently you should change this
 		// that said it's likely we'll loop more often than this due to there being data waiting on one of the sockets but there aren't any guarantees
 
-		if( gGHost->Update( 50000 ) || ( gCurses && gCurses->Update( ) ) )
+		if( gGHost->Update( 50000 ) || gUI->update( ) )
 			break;
 	}
 
 	// shutdown ghost
 
 	CONSOLE_Print( "[GHOST] shutting down" );
+	forward( new CFwdData(FWD_GENERAL, "Shutting down GHost++", 2, 0 ) );
 	delete gGHost;
 	gGHost = NULL;
 
@@ -420,6 +532,7 @@ int main( int argc, char **argv )
 	// shutdown winsock
 
 	CONSOLE_Print( "[GHOST] shutting down winsock" );
+	forward( new CFwdData(FWD_GENERAL, "Shutting down winsock", 2, 0 ) );
 	WSACleanup( );
 
 	// shutdown timer
@@ -435,13 +548,11 @@ int main( int argc, char **argv )
 		delete gLog;
 	}
 
-	// shutdown curses
-
-	if ( gCurses )
+	// shutdown ui
+	if( gUI )
 	{
-		CONSOLE_Print( "[GHOST] shutting down curses" );
-		delete gCurses;
-		gCurses = NULL;
+		delete gUI;
+		gUI = NULL;
 	}
 
 	return 0;
@@ -464,6 +575,7 @@ CGHost :: CGHost( CConfig *CFG )
 	m_CurrentGame = NULL;
 	string DBType = CFG->GetString( "db_type", "sqlite3" );
 	CONSOLE_Print( "[GHOST] opening primary database" );
+	forward( new CFwdData(FWD_GENERAL, "Opening primary database", 2, 0 ) );
 
 	if( DBType == "mysql" )
 	{
@@ -471,6 +583,7 @@ CGHost :: CGHost( CConfig *CFG )
 		m_DB = new CGHostDBMySQL( CFG );
 #else
 		CONSOLE_Print( "[GHOST] warning - this binary was not compiled with MySQL database support, using SQLite database instead" );
+		forward( new CFwdData(FWD_GENERAL, "Warning - this binary was not compiled with MySQL database support, using SQLite database instead", 2, 0 ) );
 		m_DB = new CGHostDBSQLite( CFG );
 #endif
 	}
@@ -478,12 +591,14 @@ CGHost :: CGHost( CConfig *CFG )
 		m_DB = new CGHostDBSQLite( CFG );
 
 	CONSOLE_Print( "[GHOST] opening secondary (local) database" );
+	forward( new CFwdData(FWD_GENERAL, "Opening secondary (local) database", 2, 0 ) );
 	m_DBLocal = new CGHostDBSQLite( CFG );
 
 	// get a list of local IP addresses
 	// this list is used elsewhere to determine if a player connecting to the bot is local or not
 
 	CONSOLE_Print( "[GHOST] attempting to find local IP addresses" );
+	forward( new CFwdData(FWD_GENERAL, "Attempting to find local IP addresses", 2, 0 ) );
 
 #ifdef WIN32
 	// use a more reliable Windows specific method since the portable method doesn't always work properly on Windows
@@ -492,14 +607,20 @@ CGHost :: CGHost( CConfig *CFG )
 	SOCKET sd = WSASocket( AF_INET, SOCK_DGRAM, 0, 0, 0, 0 );
 
 	if( sd == SOCKET_ERROR )
+	{
 		CONSOLE_Print( "[GHOST] error finding local IP addresses - failed to create socket (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")" );
+		forward( new CFwdData(FWD_GENERAL, "Error finding local IP addresses - failed to create socket (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")", 6, 0 ) );
+	}
 	else
 	{
 		INTERFACE_INFO InterfaceList[20];
 		unsigned long nBytesReturned;
 
 		if( WSAIoctl( sd, SIO_GET_INTERFACE_LIST, 0, 0, &InterfaceList, sizeof(InterfaceList), &nBytesReturned, 0, 0 ) == SOCKET_ERROR )
+		{
 			CONSOLE_Print( "[GHOST] error finding local IP addresses - WSAIoctl failed (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")" );
+			forward( new CFwdData(FWD_GENERAL, "Error finding local IP addresses - WSAIoctl failed (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")", 6, 0 ) );
+		}
 		else
 		{
 			int nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
@@ -509,6 +630,7 @@ CGHost :: CGHost( CConfig *CFG )
 				sockaddr_in *pAddress;
 				pAddress = (sockaddr_in *)&(InterfaceList[i].iiAddress);
 				CONSOLE_Print( "[GHOST] local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( pAddress->sin_addr ) ) + "]" );
+				forward( new CFwdData(FWD_GENERAL, "Local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( pAddress->sin_addr ) ) + "]", 2, 0 ) );
 				m_LocalAddresses.push_back( UTIL_CreateByteArray( (uint32_t)pAddress->sin_addr.s_addr, false ) );
 			}
 		}
@@ -521,14 +643,21 @@ CGHost :: CGHost( CConfig *CFG )
 	char HostName[255];
 
 	if( gethostname( HostName, 255 ) == SOCKET_ERROR )
+	{
 		CONSOLE_Print( "[GHOST] error finding local IP addresses - failed to get local hostname" );
+		forward( new CFwdData(FWD_GENERAL, "Error finding local IP addresses - failed to get local hostname", 6, 0 ) );
+	}
 	else
 	{
 		CONSOLE_Print( "[GHOST] local hostname is [" + string( HostName ) + "]" );
+		forward( new CFwdData(FWD_GENERAL, "Local hostname is [" + string( HostName ) + "]", 2, 0 ) );
 		struct hostent *HostEnt = gethostbyname( HostName );
 
 		if( !HostEnt )
+		{
 			CONSOLE_Print( "[GHOST] error finding local IP addresses - gethostbyname failed" );
+			forward( new CFwdData(FWD_GENERAL, "Error finding local IP addresses - gethostbyname failed", 6, 0 ) );
+		}
 		else
 		{
 			for( int i = 0; HostEnt->h_addr_list[i] != NULL; i++ )
@@ -536,6 +665,7 @@ CGHost :: CGHost( CConfig *CFG )
 				struct in_addr Address;
 				memcpy( &Address, HostEnt->h_addr_list[i], sizeof(struct in_addr) );
 				CONSOLE_Print( "[GHOST] local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( Address ) ) + "]" );
+				forward( new CFwdData(FWD_GENERAL, "Local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( Address ) ) + "]", 2, 0 ) );
 				m_LocalAddresses.push_back( UTIL_CreateByteArray( (uint32_t)Address.s_addr, false ) );
 			}
 		}
@@ -561,9 +691,15 @@ CGHost :: CGHost( CConfig *CFG )
 	m_TFT = CFG->GetInt( "bot_tft", 1 ) == 0 ? false : true;
 
 	if( m_TFT )
+	{
 		CONSOLE_Print( "[GHOST] acting as Warcraft III: The Frozen Throne" );
+		forward( new CFwdData(FWD_GENERAL, "Acting as Warcraft III: The Frozen Throne", 2, 0 ) );
+	}
 	else
+	{
 		CONSOLE_Print( "[GHOST] acting as Warcraft III: Reign of Chaos" );
+		forward( new CFwdData(FWD_GENERAL, "Acting as Warcraft III: Reign of Chaos", 2, 0 ) );
+	}
 
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
@@ -658,6 +794,7 @@ CGHost :: CGHost( CConfig *CFG )
 			CONSOLE_Print( "[GHOST] missing " + Prefix + "password, skipping this battle.net connection" );
 			continue;
 		}
+		forward(new CFwdData(FWD_SERVER_ADD, ServerAlias, i));
 
 		CONSOLE_Print( "[GHOST] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
 
@@ -688,6 +825,7 @@ CGHost :: CGHost( CConfig *CFG )
 	{
 		m_DefaultMap += ".cfg";
 		CONSOLE_Print( "[GHOST] adding \".cfg\" to default map -> new default is [" + m_DefaultMap + "]" );
+		forward( new CFwdData(FWD_GENERAL, "Adding \".cfg\" to default map -> new default is [" + m_DefaultMap + "]", 2, 0 ) );
 	}
 
 	CConfig MapCFG;
@@ -700,9 +838,11 @@ CGHost :: CGHost( CConfig *CFG )
 		{
 			m_AdminGameMap += ".cfg";
 			CONSOLE_Print( "[GHOST] adding \".cfg\" to default admin game map -> new default is [" + m_AdminGameMap + "]" );
+			forward( new CFwdData(FWD_GENERAL, "Adding \".cfg\" to default admin game map -> new default is [" + m_AdminGameMap + "]", 2, 0 ) );
 		}
 
 		CONSOLE_Print( "[GHOST] trying to load default admin game map" );
+		forward( new CFwdData(FWD_GENERAL, "Trying to load default admin game map", 2, 0 ) );
 		CConfig AdminMapCFG;
 		AdminMapCFG.Read( m_MapCFGPath + m_AdminGameMap );
 		m_AdminMap = new CMap( this, &AdminMapCFG, m_MapCFGPath + m_AdminGameMap );
@@ -710,6 +850,7 @@ CGHost :: CGHost( CConfig *CFG )
 		if( !m_AdminMap->GetValid( ) )
 		{
 			CONSOLE_Print( "[GHOST] default admin game map isn't valid, using hardcoded admin game map instead" );
+			forward( new CFwdData(FWD_GENERAL, "Default admin game map isn't valid, using hardcoded admin game map instead", 2, 0 ) );
 			delete m_AdminMap;
 			m_AdminMap = new CMap( this );
 		}
@@ -717,6 +858,7 @@ CGHost :: CGHost( CConfig *CFG )
 	else
 	{
 		CONSOLE_Print( "[GHOST] using hardcoded admin game map" );
+		forward( new CFwdData(FWD_GENERAL, "Using hardcoded admin game map", 2, 0 ) );
 		m_AdminMap = new CMap( this );
 	}
 
@@ -732,10 +874,14 @@ CGHost :: CGHost( CConfig *CFG )
 	if( m_AdminGameCreate )
 	{
 		CONSOLE_Print( "[GHOST] creating admin game" );
+		forward( new CFwdData(FWD_GENERAL, "Creating admin game", 2, 0 ) );
 		m_AdminGame = new CAdminGame( this, m_AdminMap, NULL, m_AdminGamePort, 0, "GHost++ Admin Game", m_AdminGamePassword );
 
 		if( m_AdminGamePort == m_HostPort )
+		{
 			CONSOLE_Print( "[GHOST] warning - admingame_port and bot_hostport are set to the same value, you won't be able to host any games" );
+			forward( new CFwdData(FWD_GENERAL, "Warning - admingame_port and bot_hostport are set to the same value, you won't be able to host any games", 2, 0 ) );
+		}
 	}
 	else
 		m_AdminGame = NULL;
@@ -745,8 +891,10 @@ CGHost :: CGHost( CConfig *CFG )
 
 #ifdef GHOST_MYSQL
 	CONSOLE_Print( "[GHOST] GHost++ Version " + m_Version + " (with MySQL support)" );
+	forward( new CFwdData(FWD_GENERAL, "GHost++ Version " + m_Version + " (with MySQL support)", 2, 0 ) );
 #else
 	CONSOLE_Print( "[GHOST] GHost++ Version " + m_Version + " (without MySQL support)" );
+	forward( new CFwdData(FWD_GENERAL, "GHost++ Version " + m_Version + " (without MySQL support)", 2, 0 ) );
 #endif
 }
 
@@ -779,7 +927,10 @@ CGHost :: ~CGHost( )
 	// but if you try to recreate the CGHost object within a single session you will probably leak resources!
 
 	if( !m_Callables.empty( ) )
+	{
 		CONSOLE_Print( "[GHOST] warning - " + UTIL_ToString( m_Callables.size( ) ) + " orphaned callables were leaked (this is not an error)" );
+		forward( new CFwdData(FWD_GENERAL, "Warning - " + UTIL_ToString( m_Callables.size( ) ) + " orphaned callables were leaked (this is not an error)", 2, 0 ) );
+	}
 
 	delete m_Language;
 	delete m_Map;
@@ -795,12 +946,14 @@ bool CGHost :: Update( long usecBlock )
 	if( m_DB->HasError( ) )
 	{
 		CONSOLE_Print( "[GHOST] database error - " + m_DB->GetError( ) );
+		forward( new CFwdData(FWD_GENERAL, "Database error - " + m_DB->GetError( ), 6, 0 ) );
 		return true;
 	}
 
 	if( m_DBLocal->HasError( ) )
 	{
 		CONSOLE_Print( "[GHOST] local database error - " + m_DBLocal->GetError( ) );
+		forward( new CFwdData(FWD_GENERAL, "Local database error - " + m_DBLocal->GetError( ), 6, 0 ) );
 		return true;
 	}
 
@@ -811,6 +964,7 @@ bool CGHost :: Update( long usecBlock )
 		if( !m_BNETs.empty( ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting all battle.net connections in preparation for exiting nicely" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting all battle.net connections in preparation for exiting nicely", 2, 0 ) );
 
 			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
 				delete *i;
@@ -821,6 +975,7 @@ bool CGHost :: Update( long usecBlock )
 		if( m_CurrentGame )
 		{
 			CONSOLE_Print( "[GHOST] deleting current game in preparation for exiting nicely" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting current game in preparation for exiting nicely", 2, 0 ) );
 			delete m_CurrentGame;
 			m_CurrentGame = NULL;
 		}
@@ -828,6 +983,7 @@ bool CGHost :: Update( long usecBlock )
 		if( m_AdminGame )
 		{
 			CONSOLE_Print( "[GHOST] deleting admin game in preparation for exiting nicely" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting admin game in preparation for exiting nicely", 2, 0 ) );
 			delete m_AdminGame;
 			m_AdminGame = NULL;
 		}
@@ -838,6 +994,8 @@ bool CGHost :: Update( long usecBlock )
 			{
 				CONSOLE_Print( "[GHOST] all games finished, waiting 60 seconds for threads to finish" );
 				CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads in progress" );
+				forward( new CFwdData(FWD_GENERAL, "All games finished, waiting 60 seconds for threads to finish", 2, 0 ) );
+				forward( new CFwdData(FWD_GENERAL, "There are " + UTIL_ToString( m_Callables.size( ) ) + " threads in progress", 2, 0 ) );
 				m_AllGamesFinished = true;
 				m_AllGamesFinishedTime = GetTime( );
 			}
@@ -846,12 +1004,15 @@ bool CGHost :: Update( long usecBlock )
 				if( m_Callables.empty( ) )
 				{
 					CONSOLE_Print( "[GHOST] all threads finished, exiting nicely" );
+					forward( new CFwdData(FWD_GENERAL, "All threads finished, exiting nicely", 2, 0 ) );
 					m_Exiting = true;
 				}
 				else if( GetTime( ) - m_AllGamesFinishedTime >= 60 )
 				{
 					CONSOLE_Print( "[GHOST] waited 60 seconds for threads to finish, exiting anyway" );
 					CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads still in progress which will be terminated" );
+					forward( new CFwdData(FWD_GENERAL, "Waited 60 seconds for threads to finish, exiting anyway", 2, 0 ) );
+					forward( new CFwdData(FWD_GENERAL, "There are " + UTIL_ToString( m_Callables.size( ) ) + " threads still in progress which will be terminated", 2, 0 ) );
 					m_Exiting = true;
 				}
 			}
@@ -881,10 +1042,14 @@ bool CGHost :: Update( long usecBlock )
 			m_ReconnectSocket = new CTCPServer( );
 
 			if( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
+			{
 				CONSOLE_Print( "[GHOST] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+				forward( new CFwdData(FWD_GENERAL, "Listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ), 2, 0 ) );
+			}
 			else
 			{
 				CONSOLE_Print( "[GHOST] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+				forward( new CFwdData(FWD_GENERAL, "Error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ), 6, 0 ) );
 				delete m_ReconnectSocket;
 				m_ReconnectSocket = NULL;
 				m_Reconnect = false;
@@ -893,6 +1058,7 @@ bool CGHost :: Update( long usecBlock )
 		else if( m_ReconnectSocket->HasError( ) )
 		{
 			CONSOLE_Print( "[GHOST] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
+			forward( new CFwdData(FWD_GENERAL, "GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")", 6, 0 ) );
 			delete m_ReconnectSocket;
 			m_ReconnectSocket = NULL;
 			m_Reconnect = false;
@@ -950,7 +1116,7 @@ bool CGHost :: Update( long usecBlock )
 
 	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
 	{
-		if( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
+		if( (*i)->GetNextTimedActionTicks( ) * 1000 < (unsigned long)usecBlock )
 			usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
 	}
 
@@ -996,6 +1162,7 @@ bool CGHost :: Update( long usecBlock )
 		if( m_CurrentGame->Update( &fd, &send_fd ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting current game [" + m_CurrentGame->GetGameName( ) + "]", 2, 0 ) );
 			delete m_CurrentGame;
 			m_CurrentGame = NULL;
 
@@ -1016,6 +1183,7 @@ bool CGHost :: Update( long usecBlock )
 		if( m_AdminGame->Update( &fd, &send_fd ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting admin game" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting admin game", 2, 0 ) );
 			delete m_AdminGame;
 			m_AdminGame = NULL;
 			AdminExit = true;
@@ -1031,6 +1199,7 @@ bool CGHost :: Update( long usecBlock )
 		if( (*i)->Update( &fd, &send_fd ) )
 		{
 			CONSOLE_Print( "[GHOST] deleting game [" + (*i)->GetGameName( ) + "]" );
+			forward( new CFwdData(FWD_GENERAL, "Deleting admin [" + (*i)->GetGameName( ) + "]", 2, 0 ) );
 			EventGameDeleted( *i );
 			delete *i;
 			i = m_Games.erase( i );
@@ -1663,17 +1832,24 @@ void CGHost :: LoadIPToCountryData( )
 	in.open( "ip-to-country.csv" );
 
 	if( in.fail( ) )
+	{
 		CONSOLE_Print( "[GHOST] warning - unable to read file [ip-to-country.csv], iptocountry data not loaded" );
+		forward( new CFwdData(FWD_GENERAL, "Warning - unable to read file [ip-to-country.csv], iptocountry data not loaded", 2, 0 ) );
+	}
 	else
 	{
 		CONSOLE_Print( "[GHOST] started loading [ip-to-country.csv]" );
+		forward( new CFwdData(FWD_GENERAL, "Started loading [ip-to-country.csv]", 2, 0 ) );
 
 		// the begin and commit statements are optimizations
 		// we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
 		// todotodo: handle begin/commit failures a bit more gracefully
 
 		if( !m_DBLocal->Begin( ) )
+		{
 			CONSOLE_Print( "[GHOST] warning - failed to begin local database transaction, iptocountry data not loaded" );
+			forward( new CFwdData(FWD_GENERAL, "Warning - failed to begin local database transaction, iptocountry data not loaded", 2, 0 ) );
+		}
 		else
 		{
 			unsigned char Percent = 0;
@@ -1711,13 +1887,20 @@ void CGHost :: LoadIPToCountryData( )
 				{
 					Percent = NewPercent;
 					CONSOLE_Print( "[GHOST] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
+					forward( new CFwdData(FWD_GENERAL, "Iptocountry data: " + UTIL_ToString( Percent ) + "% loaded", 2, 0 ) );
 				}
 			}
 
 			if( !m_DBLocal->Commit( ) )
+			{
 				CONSOLE_Print( "[GHOST] warning - failed to commit local database transaction, iptocountry data not loaded" );
+				forward( new CFwdData(FWD_GENERAL, "Warning - failed to commit local database transaction, iptocountry data not loaded", 2, 0 ) );
+			}
 			else
+			{
 				CONSOLE_Print( "[GHOST] finished loading [ip-to-country.csv]" );
+				forward( new CFwdData(FWD_GENERAL, "Finished loading [ip-to-country.csv]", 2, 0 ) );
+			}
 		}
 
 		in.close( );
@@ -1849,6 +2032,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, bool saveGame, st
 	}
 
 	CONSOLE_Print( "[GHOST] creating game [" + gameName + "]" );
+	forward( new CFwdData(FWD_GENERAL, "Creating game [" + gameName + "]", 2, 0 ) );
 
 	if( saveGame )
 		m_CurrentGame = new CGame( this, map, m_SaveGame, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );

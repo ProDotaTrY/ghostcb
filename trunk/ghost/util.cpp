@@ -23,8 +23,6 @@
 
 #include <sys/stat.h>
 
-map<pair<char, char>, int> utf8_latin1;
-
 BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size )
 {
 	if( size < 1 )
@@ -336,6 +334,8 @@ string UTIL_ToHexString( uint32_t i )
 	SS >> result;
 	return result;
 }
+
+map<pair<char, char>, int> utf8_latin1;
 
 void UTIL_Construct_UTF8_Latin1_Map( )
 {

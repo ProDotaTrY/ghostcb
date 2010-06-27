@@ -21,6 +21,7 @@
 #include "ghost.h"
 #include "util.h"
 #include "bnetprotocol.h"
+#include "ui/forward.h"
 
 CBNETProtocol :: CBNETProtocol( )
 {
@@ -687,7 +688,10 @@ Flags:
 		AssignLength( packet );
 	}
 	else
+	{
 		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_STARTADVEX3" );
+		forward(new CFwdData(FWD_REALM, "Invalid parameters passed to SEND_SID_STARTADVEX3", 6, hostCounter));
+	}
 
 	// DEBUG_Print( "SENT SID_STARTADVEX3" );
 	// DEBUG_Print( packet );
@@ -728,7 +732,10 @@ BYTEARRAY CBNETProtocol :: SEND_SID_PING( BYTEARRAY pingValue )
 		AssignLength( packet );
 	}
 	else
+	{
 		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_PING" );
+		forward(new CFwdData(FWD_GENERAL, "Invalid parameters passed to SEND_SID_PING", 6, 0));
+	}
 
 	// DEBUG_Print( "SENT SID_PING" );
 	// DEBUG_Print( packet );
@@ -838,7 +845,10 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_CHECK( bool TFT, BYTEARRAY clientToken,
 		AssignLength( packet );
 	}
 	else
+	{
 		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_CHECK" );
+		forward(new CFwdData(FWD_GENERAL, "Invalid parameters passed to SEND_SID_AUTH_CHECK", 6, 0));
+	}
 
 	// DEBUG_Print( "SENT SID_AUTH_CHECK" );
 	// DEBUG_Print( packet );
@@ -860,7 +870,10 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_ACCOUNTLOGON( BYTEARRAY clientPublicKey
 		AssignLength( packet );
 	}
 	else
+	{
 		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+		forward(new CFwdData(FWD_GENERAL, "Invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON", 6, 0));
+	}
 
 	// DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGON" );
 	// DEBUG_Print( packet );
@@ -881,7 +894,10 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY clientPass
 		AssignLength( packet );
 	}
 	else
+	{
 		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+		forward(new CFwdData(FWD_GENERAL, "Invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON", 6, 0));
+	}
 
 	// DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGONPROOF" );
 	// DEBUG_Print( packet );

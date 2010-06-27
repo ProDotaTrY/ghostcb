@@ -272,7 +272,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\bncsutil\src;..\StormLib;..\zlib\include;..\mysql\include;..\pdcurses"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GHOST_MYSQL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GHOST_MYSQL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -460,13 +460,41 @@
 				>
 			</File>
 			<File
-				RelativePath=".\userinterface.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\util.cpp"
 				>
 			</File>
+			<Filter
+				Name="ui"
+				>
+				<File
+					RelativePath=".\ui\common.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\layout.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\listwidget.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\tablewidget.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\ui.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\widget.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\window.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -614,13 +642,45 @@
 				>
 			</File>
 			<File
-				RelativePath=".\userinterface.h"
-				>
-			</File>
-			<File
 				RelativePath=".\util.h"
 				>
 			</File>
+			<Filter
+				Name="ui"
+				>
+				<File
+					RelativePath=".\ui\common.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\forward.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\layout.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\listwidget.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\tablewidget.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\ui.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\widget.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ui\window.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
