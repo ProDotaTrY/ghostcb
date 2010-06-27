@@ -261,8 +261,6 @@ public:
 	string GetRank( );
 	string GetStatus( );
 	string GetDescription( );
-
-	unsigned char GetRawStatus( )	{ return m_Status; }
 };
 
 #endif

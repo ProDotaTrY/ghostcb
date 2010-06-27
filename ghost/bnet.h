@@ -98,6 +98,7 @@ private:
 	string m_CurrentChannel;						// the current chat channel
 	string m_RootAdmin;								// the root admin
 	string m_LANRootAdmin;							// the LAN root admin
+	string m_ReplyTarget;							// reply target
 	char m_CommandTrigger;							// the character prefix to identify commands
 	unsigned char m_War3Version;					// custom warcraft 3 version for PvPGN users
 	BYTEARRAY m_EXEVersion;							// custom exe version for PvPGN users
@@ -113,6 +114,7 @@ private:
 	uint32_t m_LastOutPacketSize;
 	uint32_t m_LastAdminRefreshTime;				// GetTime when the admin list was last refreshed from the database
 	uint32_t m_LastBanRefreshTime;					// GetTime when the ban list was last refreshed from the database
+	uint32_t m_LastListRefreshTime;					// GetTime when the friends list and clan list was last refreshed
 	bool m_FirstConnect;							// if we haven't tried to connect to battle.net yet
 	bool m_WaitingToConnect;						// if we're waiting to reconnect to battle.net after being disconnected
 	bool m_LoggedIn;								// if we've logged into battle.net or not
@@ -120,8 +122,6 @@ private:
 	bool m_HoldFriends;								// whether to auto hold friends when creating a game or not
 	bool m_HoldClan;								// whether to auto hold clan members when creating a game or not
 	bool m_PublicCommands;							// whether to allow public commands or not
-
-	string m_ReplyTarget;
 
 public:
 	CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, string nLANRootAdmin, char nCommandTrigger, bool nHoldFriends, bool nHoldClan, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string nPVPGNRealmName, uint32_t nMaxMessageLength, uint32_t nHostCounterID );
@@ -138,6 +138,7 @@ public:
 	string GetCurrentChannel( )			{ return m_CurrentChannel; }
 	string GetRootAdmin( )				{ return m_RootAdmin; }
 	string GetLANRootAdmin( )			{ return m_LANRootAdmin; }
+	string GetReplyTarget( )			{ return m_ReplyTarget; }
 	char GetCommandTrigger( )			{ return m_CommandTrigger; }
 	BYTEARRAY GetEXEVersion( )			{ return m_EXEVersion; }
 	BYTEARRAY GetEXEVersionHash( )		{ return m_EXEVersionHash; }
@@ -152,12 +153,8 @@ public:
 	uint32_t GetOutPacketsQueued( )		{ return m_OutPackets.size( ); }
 	BYTEARRAY GetUniqueName( );
 
-	vector<pair<string, int> > GetFriends( );
-	vector<pair<string, int> > GetClan( );
-	vector<pair<string, int> > GetBans( );
-	vector<pair<string, int> > GetAdmins( );
-	string GetReplyTarget( )			{ return m_ReplyTarget; }
-	uint32_t GetRealmId( )				{ return m_HostCounterID - 1; }
+	void GetBans( );
+	void GetAdmins( );
 
 	// processing functions
 
@@ -183,8 +180,6 @@ public:
 	void UnqueueChatCommand( string chatCommand );
 	void UnqueueGameRefreshes( );
 
-	void RequestListUpdates( );
-
 	// other functions
 
 	bool IsAdmin( string name );
@@ -198,8 +193,7 @@ public:
 	void RemoveBan( string name );
 	void HoldFriends( CBaseGame *game );
 	void HoldClan( CBaseGame *game );
-
-	void HiddenGhostCommand( string Message );
+	void HiddenCommand( const string &Message );
 };
 
 #endif
