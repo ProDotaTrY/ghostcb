@@ -128,7 +128,7 @@ void forward(CFwdData *data)
 		{
 			forward( new CFwdData(FWD_GENERAL, "  In the GHost++ console:", 0 ) );
 			forward( new CFwdData(FWD_GENERAL, "   !<command>               : GHost command. Replace '!' with defined trigger character", 0 ) );
-			forward( new CFwdData(FWD_GENERAL, "   /resize <width> <height> : Resizes console. This might crash. Please configure size in config file instead.", 0 ) );
+			forward( new CFwdData(FWD_GENERAL, "   /resize <width> <height> : Resizes console. This might crash. Please configure in config file instead.", 0 ) );
 			forward( new CFwdData(FWD_GENERAL, "   /exit or /quit           : Close GHost++", 0 ) );
 			forward( new CFwdData(FWD_GENERAL, "", 0 ) );
 			forward( new CFwdData(FWD_GENERAL, "  User interface usage:", 0 ) );
@@ -508,6 +508,9 @@ int main( int argc, char **argv )
 
 	gGHost = new CGHost( &CFG );
 
+	if(gUI)
+		gUI->setWindowTitle("GHost++ " + gGHost->m_Version);
+
 	UTIL_Construct_UTF8_Latin1_Map( );
 
 	gLoaded = true;
@@ -676,7 +679,7 @@ CGHost :: CGHost( CConfig *CFG )
 	m_Exiting = false;
 	m_ExitingNice = false;
 	m_Enabled = true;
-	m_Version = "17.1";
+	m_Version = "CursesMod-2.0";
 	m_HostCounter = 1;
 	m_AutoHostMaximumGames = CFG->GetInt( "autohost_maxgames", 0 );
 	m_AutoHostAutoStartPlayers = CFG->GetInt( "autohost_startplayers", 0 );
