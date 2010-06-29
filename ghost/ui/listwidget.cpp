@@ -84,6 +84,7 @@ CListWidget::CListWidget(const string &name, int id, Color fgcolor, Color bgcolo
 {
 	scrollok(_window, true);
 	_scroll = 0;
+	_count = 0;
 	_autoScroll = true;
 
 	setForegroundColor(fgcolor);
@@ -101,7 +102,9 @@ void CListWidget::addItem(const string &text, Color fgcolor, Color bgcolor, bool
 {
 	CListWidgetItem *item = new CListWidgetItem(this);
 
-	if(text[text.size() - 1] == '\3')
+	uint th = _size.height();
+
+	if(!text.empty() && text[text.size() - 1] == '\3')
 	{
 		item->setNocrlf(true);
 		item->setText(text.substr(0, text.size() - 1));
@@ -114,17 +117,26 @@ void CListWidget::addItem(const string &text, Color fgcolor, Color bgcolor, bool
 	item->setBold(bold);
 	_items.push_back(item);
 
-	if(_autoScroll || _items.size() < _size.height())
+	if(!item->nocrlf())
+		_count++;
+
+	if(!item->nocrlf() && (_autoScroll || _scroll < th))
 		_scroll++;
 
 	_changed = true;
 
 	if(_items.size() > 512)
 	{
+		if((*_items.begin())->nocrlf())
+			_items.erase(_items.begin());
+
 		_items.erase(_items.begin());
 		
-		if(_autoScroll && _scroll > 512)
+		if(!item->nocrlf() && (_autoScroll && _scroll > 512))
 			_scroll--;
+
+		if(!item->nocrlf())
+			_count--;
 	}
 }
 
@@ -163,6 +175,9 @@ void CListWidget::removeItem(const string &text, Color fgcolor)
 	{
 		if((*i)->text() == text && (fgcolor == Null ? true : (*i)->foregroundColor() == fgcolor))
 		{
+			if(!(*i)->nocrlf())
+				_count--;
+
 			delete *i;
 			_items.erase(i);
 
@@ -182,6 +197,9 @@ void CListWidget::removeItem(uint i)
 	{
 		if(k == i)
 		{
+			if(!(*j)->nocrlf())
+				_count--;
+
 			delete *j;
 			_items.erase(j);
 
@@ -224,6 +242,7 @@ void CListWidget::removeItems()
 
 		_items.clear();
 
+		_count = 0;
 		_scroll = 0;
 		_changed = true;
 	}
@@ -240,32 +259,36 @@ void CListWidget::update(int c)
 		{		
 #ifdef __PDCURSES__
 			// Mouse wheel scrolling
-			if(c == KEY_MOUSE && _scroll >= th - 1)
+			if(c == KEY_MOUSE && _count > th)
 			{
 				if(Mouse_status.changes == MOUSE_WHEEL_DOWN)
 				{
-					_scroll = _scroll < _items.size() ? _scroll + 4 : _scroll;
+					_scroll = _scroll < _count ? _scroll + 4 : _scroll;
+					if(_scroll > _count) _scroll = _count;
 					_changed = true;
 				}
 				else if(Mouse_status.changes == MOUSE_WHEEL_UP)
 				{
-					_scroll = _scroll - 4 >= th ? _scroll - 4 : th - 1;
+					_scroll = _scroll - 4 >= th ? _scroll - 4 : th;
+					if(_scroll < th) _scroll = th;
 					_changed = true;
 				}
 			}
 #endif
 		}
 
-		if(_listenKeys || focused())
+		if((_listenKeys || focused()) && _count > th)
 		{
 			if( c == KEY_NPAGE )	// PAGE DOWN
 			{
-				_scroll = _scroll < _items.size() ? _scroll + 4 : _scroll;
+				_scroll = _scroll < _count ? _scroll + 4 : _scroll;
+				if(_scroll > _count) _scroll = _count;
 				_changed = true;
 			}
 			else if( c == KEY_PPAGE )	// PAGE UP
 			{
-				_scroll = _scroll - 4 >= th ? _scroll - 4 : th - 1;
+				_scroll = _scroll - 4 >= th ? _scroll - 4 : th;
+				if(_scroll < th) _scroll = th;
 				_changed = true;
 			}
 		}
@@ -276,7 +299,13 @@ void CListWidget::update(int c)
 			top_panel(_panel);
 			wclear(_window);
 
-			uint k = (_scroll > tw ? _scroll - tw : 0), n = 0;
+			if(_count < th && _scroll < _count) _scroll = _count;
+			if(_scroll < th && _count > _scroll) _scroll = th;
+
+			uint k = (_scroll > th ? _scroll - th : 0), n = 0;
+
+			bool previousNocrlf = false;
+			uint previousN = 0;
 
 			for(uint i = k; i < _items.size(); i++)
 			{
@@ -287,7 +316,7 @@ void CListWidget::update(int c)
 				attr_t a = attribute(_items[i]->backgroundColor(), _items[i]->foregroundColor(), _items[i]->bold());
 				wattr_on(_window, a, 0);
 
-				n = 0;
+				n = previousNocrlf ? previousN : 0;
 
 				for(uint j = 0; j < message.size(); j++)
 				{
@@ -301,15 +330,23 @@ void CListWidget::update(int c)
 						waddch(_window, ' ');
 						wattr_on(_window, a, 0);
 					}
+
+					if(j == message.size() - 1)
+						previousN = n;
 				}
 
 				wattr_off(_window, a, 0);
 
-				if(k++ >= _scroll)
+				if(!_items[i]->nocrlf())
+					k++;
+
+				if(k >= _scroll)
 					break;
 
 				if(i != _items.size() - 1 && !_items[i]->nocrlf())
 					waddch(_window, '\n');
+
+				previousNocrlf = _items[i]->nocrlf();
 			}
 
 			_changed = false;
