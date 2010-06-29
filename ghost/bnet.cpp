@@ -2589,12 +2589,8 @@ void CBNET :: QueueChatCommand( string chatCommand, bool hidden )
 						string target = chatCommand.substr( r, nameEndpos - r );
 					}
 				}
-				else
-				{
-					CONSOLE_Print( "[WHISPERED: " + m_ServerAlias + "] [Friends] " + chatCommand.substr( r, chatCommand.length( ) ) );
-					forward(new CFwdData(FWD_REALM, "Whispered to friends: " + chatCommand.substr( r, chatCommand.length( ) ), 5, m_HostCounterID));
-				}
 			}
+
 			else if (!hidden)
 			{
 				CONSOLE_Print( "[QUEUED: " + m_ServerAlias + "] " + chatCommand );
