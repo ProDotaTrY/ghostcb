@@ -182,7 +182,8 @@ bool CGame :: Update( void *fd, void *send_fd )
 						(*j)->AddBan( i->second->GetUser( ), i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ), i->second->GetReason( ) );
 				}
 
-				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( i->second->GetServer( ), i->second->GetUser( ), i->first ) );
+				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( i->second->GetServer( ), i->second->GetUser( ), i->first, i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ) ) );
+			    SendAllChat( i->second->GetReason( ) );		
 			}
 
 			m_GHost->m_DB->RecoverCallable( i->second );
@@ -503,12 +504,28 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 								break;
 							}
 						}
-					}
+				}
 
 					if( Matches == 0 )
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
-					else if( Matches == 1 )
+					else if( Matches == 1 ) 
+					{
+						// calculate timestamp
+						uint32_t timestamp = m_GameTicks - m_GameStartTime; 
+				
+						string MinString = UTIL_ToString( ( timestamp / 1000 ) / 60 );
+						string SecString = UTIL_ToString( ( timestamp / 1000 ) % 60 );
+				
+						if( MinString.size( ) == 1 )
+							MinString.insert( 0, "0" );
+				
+						if( SecString.size( ) == 1 )
+							SecString.insert( 0, "0" );
+
+						Reason = "[Reason: " + MinString + ":" + SecString + "] " + Reason; 					
+				
 						m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason ) ) );
+					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
@@ -636,7 +653,21 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
 
-				m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload ) ) );
+				// calculate timestamp
+				uint32_t timestamp = m_GameTicks - m_GameStartTime; 
+				
+				string MinString = UTIL_ToString( ( timestamp / 1000 ) / 60 );
+				string SecString = UTIL_ToString( ( timestamp / 1000 ) % 60 );
+				
+				if( MinString.size( ) == 1 )
+					MinString.insert( 0, "0" );
+				
+				if( SecString.size( ) == 1 )
+					SecString.insert( 0, "0" );
+
+				string Reason = "[Reason: " + MinString + ":" + SecString + "] " + Payload;			
+				
+				m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Reason ) ) );
 			}
 
 			//
@@ -1493,11 +1524,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				uint32_t Kicked = 0;
 				uint32_t KickPing = 0;
 				string Pings;
+				uint32_t Matches = 0;
 
 				if (!Payload.empty())
 				{
 					CGamePlayer *LastMatch = NULL;
-					uint32_t Matches = GetPlayerFromNamePartial( Payload , &LastMatch );
+					Matches = GetPlayerFromNamePartial( Payload , &LastMatch );
 
 					if( Matches == 0 )
 						CONSOLE_Print("No matches");
@@ -1522,7 +1554,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				if( !m_GameLoading && !m_GameLoaded && !Payload.empty( ) )
 					KickPing = UTIL_ToUInt32( Payload );
 				
-				if (Payload.empty())
+				if (Payload.empty() || Matches == 0 )
 				{
 				// copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
 
@@ -1561,6 +1593,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					SendAllChat( m_GHost->m_Language->KickingPlayersWithPingsGreaterThan( UTIL_ToString( Kicked ), UTIL_ToString( KickPing ) ) );
 				}
 			}
+
 
 			//
 			// !PRIV (rehost as private game)

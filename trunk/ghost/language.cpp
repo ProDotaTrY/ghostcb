@@ -407,12 +407,15 @@ string CLanguage :: UnableToBanNoMatchesFound( string victim )
 	return Out;
 }
 
-string CLanguage :: PlayerWasBannedByPlayer( string server, string victim, string user )
+string CLanguage :: PlayerWasBannedByPlayer( string server, string victim, string user, string ip, string gamename, string admin )
 {
 	string Out = m_CFG->GetString( "lang_0052", "lang_0052" );
 	UTIL_Replace( Out, "$SERVER$", server );
 	UTIL_Replace( Out, "$VICTIM$", victim );
 	UTIL_Replace( Out, "$USER$", user );
+	UTIL_Replace( Out, "$IP$", ip );
+	UTIL_Replace( Out, "$GAME$", gamename );
+	UTIL_Replace( Out, "$ADMIN$", admin );
 	return Out;
 }
 

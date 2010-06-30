@@ -129,6 +129,7 @@ protected:
 
 	uint32_t m_LastUiTime;
 	uint32_t m_LastUiSlotsTime;
+	uint32_t m_GameStartTime;						// Tick Count when the Game officially started (creeps spawn)
 
 
 	//ghost custom build additions
@@ -166,7 +167,10 @@ public:
 	virtual bool GetGameLoading( )					{ return m_GameLoading; }
 	virtual bool GetGameLoaded( )					{ return m_GameLoaded; }
 	virtual bool GetLagging( )						{ return m_Lagging; }
+	virtual uint32_t GetGameStartTime( )			{ return m_GameStartTime; }
+	virtual uint32_t GetGameTicks( )				{ return m_GameTicks; }
 
+	virtual void SetGameStartTime( uint32_t nGameStartTime )			{ m_GameStartTime = nGameStartTime; }
 	virtual void SetEnforceSlots( vector<CGameSlot> nEnforceSlots )		{ m_EnforceSlots = nEnforceSlots; }
 	virtual void SetEnforcePlayers( vector<PIDPlayer> nEnforcePlayers )	{ m_EnforcePlayers = nEnforcePlayers; }
 	virtual void SetExiting( bool nExiting )							{ m_Exiting = nExiting; }
