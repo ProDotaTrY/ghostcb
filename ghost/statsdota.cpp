@@ -262,6 +262,11 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 							{
 								// a player disconnected
 							}
+							else if( KeyString.size( ) >= 9 && KeyString.substr( 0, 9 ) == "GameStart" )
+							{
+ 								// Store the starttime of the game
+ 								m_Game->SetGameStartTime ( m_Game->GetGameTicks() );
+  							}
 						}
 						else if( DataString == "Global" )
 						{

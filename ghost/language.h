@@ -85,7 +85,7 @@ public:
 	string CountDownAborted( );
 	string TryingToJoinTheGameButBanned( string victim );
 	string UnableToBanNoMatchesFound( string victim );
-	string PlayerWasBannedByPlayer( string server, string victim, string user );
+	string PlayerWasBannedByPlayer( string server, string victim, string user, string ip, string gamename, string admin);
 	string UnableToBanFoundMoreThanOneMatch( string victim );
 	string AddedPlayerToTheHoldList( string user );
 	string UnableToKickNoMatchesFound( string victim );
