@@ -176,14 +176,18 @@ bool CGame :: Update( void *fd, void *send_fd )
 		{
 			if( i->second->GetResult( ) )
 			{
+				string alias = i->second->GetServer( );
 				for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); j++ )
 				{
-					if( (*j)->GetServer( ) == i->second->GetServer( ) )
+					if( (*j)->GetServer( ) == i->second->GetServer( ) ) 
+					{
 						(*j)->AddBan( i->second->GetUser( ), i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ), i->second->GetReason( ) );
+						alias = (*j)->GetServerAlias();
+					}
 				}
 
-				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( i->second->GetServer( ), i->second->GetUser( ), i->first, i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ) ) );
-			    SendAllChat( i->second->GetReason( ) );		
+				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( alias, i->second->GetUser( ), i->first, i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ) ) );
+			   SendAllChat( i->second->GetReason( ) );
 			}
 
 			m_GHost->m_DB->RecoverCallable( i->second );
