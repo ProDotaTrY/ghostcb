@@ -2092,9 +2092,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 	//
 	// !STATS
+	// !S
 	//
 
-	if( Command == "stats" && GetTime( ) - player->GetStatsSentTime( ) >= 5 )
+	if( ( Command == "stats" || Command == "s" ) && GetTime( ) - player->GetStatsSentTime( ) >= 5 )
 	{
 		string StatsUser = User;
 
@@ -2111,9 +2112,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 	//
 	// !STATSDOTA
+	// !SD
+	// !DOTASTATS
+	// !DS
 	//
 
-	if( Command == "statsdota" && GetTime( ) - player->GetStatsDotASentTime( ) >= 5 )
+	if( ( Command == "statsdota" || Command == "sd" || Command == "ds" || Command == "dotastats" ) && GetTime( ) - player->GetStatsDotASentTime( ) >= 5 )
 	{
 		string StatsUser = User;
 
