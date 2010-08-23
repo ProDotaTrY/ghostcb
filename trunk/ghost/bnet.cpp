@@ -2425,9 +2425,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			{
 				//
 				// !STATS
+				// !S
 				//
 
-				if( Command == "stats" )
+				if( Command == "stats" || Command == "s" )
 				{
 					string StatsUser = User;
 
@@ -2442,9 +2443,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 				//
 				// !STATSDOTA
+				// !DOTASTATS
+				// !SD
+				// !DS
 				//
 
-				if( Command == "statsdota" )
+				if( Command == "statsdota" || Command == "sd" || Command == "ds" || Command == "dotastats" )
 				{
 					string StatsUser = User;
 

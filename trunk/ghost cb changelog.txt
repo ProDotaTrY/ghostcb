@@ -1,6 +1,10 @@
 ==============================
 GHost++ Custom Build Changelog
 ==============================
+Version 3.7 (xxxx-xx-xx)
+Based on GHost++ 17.1 (rev ?)
+ - added command aliases for !statsdota (!dotastats, !sd, !ds) and !stats (!s)
+
 Version 3.6 (2010-06-09)
 Based on GHost++ 17.1 (rev 512)
  - updated ghost dynamic configurator
