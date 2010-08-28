@@ -18,6 +18,9 @@
 
 */
 
+// Next line enables database-stats in UI (Stats, DotA/DB)
+//#define ENABLE_UI_DB_STATS
+
 #include "ghost.h"
 #include "util.h"
 #include "config.h"
@@ -2383,7 +2386,7 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	playerData.push_back( Player->GetGProxy( ) ? "on" : "off" ); // gproxy++
 
 	forward( new CFwdData( FWD_GAME_SLOT_ADD, playerData, m_GameID ) );
-	
+#ifdef ENABLE_UI_DB_STATS
 	CCallableGamePlayerSummaryCheck *stats = m_GHost->m_DB->ThreadedGamePlayerSummaryCheck( Player->GetName( ) );
 
 	if(stats->GetResult())
@@ -2435,6 +2438,8 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	}
 
 	delete dotadb;
+
+#endif
 
 	playerData.clear( );
 	playerData.push_back( "Players" ); playerData.push_back( UTIL_ToString( GetNumHumanPlayers( ) ) + "/" + UTIL_ToString( m_GameLoading || m_GameLoaded ? m_StartPlayers : m_Slots.size( ) ) );
