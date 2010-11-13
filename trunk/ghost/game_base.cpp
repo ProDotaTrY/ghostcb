@@ -1966,7 +1966,7 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 		// if the player is really on the LAN they'll know the entry key, otherwise they won't
 		// or they're very lucky since it's a 32 bit number
 
-		if( joinPlayer->GetEntryKey( ) != m_EntryKey )
+		if( m_GHost->m_EntryKeyRequired == 1 && joinPlayer->GetEntryKey( ) != m_EntryKey )
 		{
 			// oops!
 
