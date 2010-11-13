@@ -129,7 +129,7 @@ private:
 
 	// @disturbed_oc
 	bool m_HCLCommandFromGameName;				// config value: try to get hcl command from gamename
-	string m_HCLValidModes;					// config value: valid hcl modes for map
+	string m_HCLValidModes;						// config value: valid hcl modes for map
 	string m_MapGameNameWithMode;				// config value: gamename with random mode
 	// @end
 
