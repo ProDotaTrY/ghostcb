@@ -1,6 +1,6 @@
 /*
 
-   Copyright [2008] [Trevor Hogan]
+   Copyright 2010 Trevor Hogan
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,33 +14,29 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
-
 */
 
-#include "ghost.h"
-#include "stats.h"
+#ifndef COMMANDPACKET_H
+#define COMMANDPACKET_H
 
 //
-// CStats
+// CCommandPacket
 //
 
-CStats :: CStats( CBaseGame *nGame ) : m_Game( nGame )
+class CCommandPacket
 {
+private:
+	unsigned char m_PacketType;
+	int m_ID;
+	BYTEARRAY m_Data;
 
-}
+public:
+	CCommandPacket( unsigned char nPacketType, int nID, BYTEARRAY nData );
+	~CCommandPacket( );
 
-CStats :: ~CStats( )
-{
+	unsigned char GetPacketType( )	{ return m_PacketType; }
+	int GetID( )					{ return m_ID; }
+	BYTEARRAY GetData( )			{ return m_Data; }
+};
 
-}
-
-bool CStats :: ProcessAction( CIncomingAction *Action )
-{
-	return false;
-}
-
-void CStats :: Save( CGHost *GHost, CGHostDB *DB, uint32_t GameID )
-{
-
-}
+#endif

@@ -96,7 +96,7 @@ CListWidget::CListWidget(const string &name, int id, Color fgcolor, Color bgcolo
 
 CListWidget::~CListWidget()
 {
-	for(vector<CListWidgetItem *>::iterator i = _items.begin(); i != _items.end(); i++)
+	for(vector<CListWidgetItem *>::iterator i = _items.begin(); i != _items.end(); ++i)
 		SafeDelete(*i);
 }
 
@@ -144,7 +144,7 @@ void CListWidget::addItem(const string &text, Color fgcolor, Color bgcolor, bool
 
 void CListWidget::updateItem(const string &text, Color fgcolor, Color bgcolor, bool bold)
 {
-	for(uint i = 0; i < _items.size(); i++)
+	for(uint i = 0; i < _items.size(); ++i)
 	{
 		if(_items[i]->text() == text)
 		{
@@ -173,7 +173,7 @@ void CListWidget::updateItem(uint i, const string &text, Color fgcolor, Color bg
 
 void CListWidget::removeItem(const string &text, Color fgcolor)
 {
-	for(vector<CListWidgetItem *>::iterator i = _items.begin(); i != _items.end(); i++)
+	for(vector<CListWidgetItem *>::iterator i = _items.begin(); i != _items.end(); ++i)
 	{
 		if((*i)->text() == text && (fgcolor == Null ? true : (*i)->foregroundColor() == fgcolor))
 		{
@@ -195,7 +195,7 @@ void CListWidget::removeItem(const string &text, Color fgcolor)
 void CListWidget::removeItem(uint i)
 {
 	uint k = 0;
-	for(vector<CListWidgetItem *>::iterator j = _items.begin(); j != _items.end(); j++, k++)
+	for(vector<CListWidgetItem *>::iterator j = _items.begin(); j != _items.end(); ++j, ++k)
 	{
 		if(k == i)
 		{
@@ -216,7 +216,7 @@ void CListWidget::removeItem(uint i)
 
 int CListWidget::indexOf(const string &text)
 {
-	for(uint i = 0; i < _items.size(); i++)
+	for(uint i = 0; i < _items.size(); ++i)
 	{
 		if(_items[i]->text() == text)
 		{
@@ -239,7 +239,7 @@ void CListWidget::removeItems()
 {
 	if(!_items.empty())
 	{
-		for(vector<CListWidgetItem *>::const_iterator j = _items.begin(); j != _items.end(); j++)
+		for(vector<CListWidgetItem *>::const_iterator j = _items.begin(); j != _items.end(); ++j)
 			delete *j;
 
 		_items.clear();
@@ -302,7 +302,7 @@ void CListWidget::update(int c)
 
 			uint b = 0, n = 0;
 
-			for(uint i = 0; i < _items.size() && i < _scroll + b; i++)
+			for(uint i = 0; i < _items.size() && i < _scroll + b; ++i)
 			{
 				if(_items[i]->nocrlf()) b++;
 
@@ -311,7 +311,7 @@ void CListWidget::update(int c)
 
 				const string &message = _items[i]->text();
 
-				for(uint j = 0; j < _leftMargin; j++)
+				for(uint j = 0; j < _leftMargin; ++j)
 					waddch(_window, ' ');
 
 				attr_t a = attribute(_items[i]->backgroundColor(), _items[i]->foregroundColor(), _items[i]->bold());
@@ -319,14 +319,14 @@ void CListWidget::update(int c)
 
 				n++;
 
-				for(uint j = 0; j < message.size(); j++, n++)
+				for(uint j = 0; j < message.size(); ++j, n++)
 				{
 					if(n >= tw - _leftMargin - _rightMargin)
 					{
 						n = 0;
 						wattr_off(_window, a, 0);
 						waddch(_window, '\n');
-						for(uint j = 0; j < _leftMargin; j++)
+						for(uint j = 0; j < _leftMargin; ++j)
 							waddch(_window, ' ');
 						wattr_on(_window, a, 0);
 					}

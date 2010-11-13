@@ -64,7 +64,7 @@ CUI::CUI(uint width, uint height, uint splitSID, bool splitOn, bool gameinfotab,
 #endif
 
 	// Initialize replytargets
-	for(uint i = 0; i < 20; i++)
+	for(uint i = 0; i < 20; ++i)
 		_replyTargets.push_back("");
 
 	_scrollablewidgets.push_back(log);
@@ -121,7 +121,7 @@ bool CUI::update()
 	{
 		_selectedTabWidget->listenKeys(false);
 		bool next = false;
-		for(vector<CTabWidget *>::iterator i = _tabwidgets.begin();; i++)
+		for(vector<CTabWidget *>::iterator i = _tabwidgets.begin();; ++i)
 		{
 			if(i == _tabwidgets.end())
 				i = _tabwidgets.begin();
@@ -164,13 +164,13 @@ bool CUI::update()
 
 	if(_window->key() == KEY_LEFT || _window->key() == KEY_RIGHT)
 	{
-		for(vector<CWidget *>::iterator i = _scrollablewidgets.begin(); i != _scrollablewidgets.end(); i++)
+		for(vector<CWidget *>::iterator i = _scrollablewidgets.begin(); i != _scrollablewidgets.end(); ++i)
 			(*i)->listenKeys((*i)->visible());
 	}
 
 	if(currentServerID() >= 0)
 	{
-		for(vector<PairedWidget>::iterator i = _edit.begin(); i != _edit.end(); i++)
+		for(vector<PairedWidget>::iterator i = _edit.begin(); i != _edit.end(); ++i)
 		{
 			if((*i).first == currentServerID())
 			{
@@ -430,7 +430,7 @@ void CUI::updateGame(const string &name, int id)
 void CUI::removeGame(int id)
 {
 	DEBUG_ui("CUI::removeGame");
-	for(vector<CTabWidget *>::iterator i = _tabwidgets.begin(); i != _tabwidgets.end(); i++)
+	for(vector<CTabWidget *>::iterator i = _tabwidgets.begin(); i != _tabwidgets.end(); ++i)
 	{
 		if((*i)->customID() == id)
 		{
@@ -439,7 +439,7 @@ void CUI::removeGame(int id)
 		}
 	}
 
-	for(vector<PairedWidget>::iterator i = _players.begin(); i != _players.end(); i++)
+	for(vector<PairedWidget>::iterator i = _players.begin(); i != _players.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -448,7 +448,7 @@ void CUI::removeGame(int id)
 		}
 	}
 
-	for(vector<PairedWidget>::iterator i = _stats.begin(); i != _stats.end(); i++)
+	for(vector<PairedWidget>::iterator i = _stats.begin(); i != _stats.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -457,7 +457,7 @@ void CUI::removeGame(int id)
 		}
 	}
 
-	for(vector<PairedWidget>::iterator i = _dotadb.begin(); i != _dotadb.end(); i++)
+	for(vector<PairedWidget>::iterator i = _dotadb.begin(); i != _dotadb.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -466,7 +466,7 @@ void CUI::removeGame(int id)
 		}
 	}
 
-	for(vector<PairedWidget>::iterator i = _gamechat.begin(); i != _gamechat.end(); i++)
+	for(vector<PairedWidget>::iterator i = _gamechat.begin(); i != _gamechat.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -475,7 +475,7 @@ void CUI::removeGame(int id)
 		}
 	}
 
-	for(vector<PairedWidget>::iterator i = _gameinfo.begin(); i != _gameinfo.end(); i++)
+	for(vector<PairedWidget>::iterator i = _gameinfo.begin(); i != _gameinfo.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -502,7 +502,7 @@ void CUI::printToGeneral(const string &message, int flag, int id)
 	case 6: color = Red;     break; // ERROR
 	}
 
-	for(vector<PairedWidget>::iterator i = _allLog.begin(); i != _allLog.end(); i++)
+	for(vector<PairedWidget>::iterator i = _allLog.begin(); i != _allLog.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -527,7 +527,7 @@ void CUI::printToServer(const string &message, int flag, int id)
 	case 6: color = Red;     break; // ERROR
 	}
 
-	for(vector<PairedWidget>::iterator i = _serverLog.begin(); i != _serverLog.end(); i++)
+	for(vector<PairedWidget>::iterator i = _serverLog.begin(); i != _serverLog.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -566,7 +566,7 @@ void CUI::printToGame(const string &message, int flag, int id)
 	case 1: color = Yellow;    break; //
 	}
 
-	for(vector<PairedWidget>::const_iterator i = _gamechat.begin(); i != _gamechat.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _gamechat.begin(); i != _gamechat.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -595,7 +595,7 @@ int CUI::rawFlag(const string &message)
 void CUI::setChannelName(const string &name, int id)
 {
 	DEBUG_ui("CUI::setChannelName");
-	for(vector<PairedWidget>::const_iterator i = _channelName.begin(); i != _channelName.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _channelName.begin(); i != _channelName.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -619,7 +619,7 @@ void CUI::updateChannelUser(const string &name, int flag, int id)
 	case 32: color = Red;	break;	// SQUELCHED
 	}
 
-	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -638,7 +638,7 @@ void CUI::updateChannelUser(const string &name, int flag, int id)
 void CUI::removeChannelUser(const string &name, int id)
 {
 	DEBUG_ui("CUI::removeChannelUser");
-	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -651,7 +651,7 @@ void CUI::removeChannelUser(const string &name, int id)
 void CUI::removeChannelUsers(int id)
 {
 	DEBUG_ui("CUI::removeChannelUsers");
-	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _channel.begin(); i != _channel.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -676,7 +676,7 @@ void CUI::addFriend(const string &name, int flag, int id)
 	case 5: color = Magenta; break;	// IN PRIVATE GAME; MUTUAL
 	}
 
-	for(vector<PairedWidget>::const_iterator i = _friends.begin(); i != _friends.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _friends.begin(); i != _friends.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -695,7 +695,7 @@ void CUI::addFriend(const string &name, int flag, int id)
 void CUI::removeFriends(int id)
 {
 	DEBUG_ui("CUI::removeFriends");
-	for(vector<PairedWidget>::const_iterator i = _friends.begin(); i != _friends.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _friends.begin(); i != _friends.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -719,7 +719,7 @@ void CUI::addClanMember(const string &name, int flag, int id)
 	case 4: color = Magenta; break;	// LEADER
 	}
 
-	for(vector<PairedWidget>::const_iterator i = _clan.begin(); i != _clan.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _clan.begin(); i != _clan.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -737,7 +737,7 @@ void CUI::addClanMember(const string &name, int flag, int id)
 void CUI::removeClan(int id)
 {
 	DEBUG_ui("CUI::removeClan");
-	for(vector<PairedWidget>::const_iterator i = _clan.begin(); i != _clan.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _clan.begin(); i != _clan.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -750,7 +750,7 @@ void CUI::removeClan(int id)
 void CUI::addBan(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::addBan");
-	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -763,7 +763,7 @@ void CUI::addBan(const vector<string> &row, int id)
 void CUI::removeBan(const string &name, int id)
 {
 	DEBUG_ui("CUI::removeBan");
-	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -776,7 +776,7 @@ void CUI::removeBan(const string &name, int id)
 void CUI::removeBans(int id)
 {
 	DEBUG_ui("CUI::removeBans");
-	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _bans.begin(); i != _bans.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -797,7 +797,7 @@ void CUI::addAdmin(const string &name, int flag, int id)
 	case 1: color = Yellow;    break; // ROOT
 	}
 
-	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -810,7 +810,7 @@ void CUI::addAdmin(const string &name, int flag, int id)
 void CUI::removeAdmin(const string &name, int id)
 {
 	DEBUG_ui("CUI::removeAdmin");
-	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -823,7 +823,7 @@ void CUI::removeAdmin(const string &name, int id)
 void CUI::removeAdmins(int id)
 {
 	DEBUG_ui("CUI::removeAdmins");
-	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _admins.begin(); i != _admins.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -836,7 +836,7 @@ void CUI::removeAdmins(int id)
 void CUI::addPlayer(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::addPlayer");
-	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -849,7 +849,7 @@ void CUI::addPlayer(const vector<string> &row, int id)
 void CUI::updatePlayer(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::updatePlayer");
-	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -862,7 +862,7 @@ void CUI::updatePlayer(const vector<string> &row, int id)
 void CUI::removePlayer(const string &name, int id)
 {
 	DEBUG_ui("CUI::removePlayer");
-	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _players.begin(); i != _players.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -875,7 +875,7 @@ void CUI::removePlayer(const string &name, int id)
 void CUI::addStats(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::addStats");
-	for(vector<PairedWidget>::const_iterator i = _stats.begin(); i != _stats.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _stats.begin(); i != _stats.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -888,7 +888,7 @@ void CUI::addStats(const vector<string> &row, int id)
 void CUI::removeStats(const string &name, int id)
 {
 	DEBUG_ui("CUI::removeStats");
-	for(vector<PairedWidget>::const_iterator i = _stats.begin(); i != _stats.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _stats.begin(); i != _stats.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -901,7 +901,7 @@ void CUI::removeStats(const string &name, int id)
 void CUI::addDotaDB(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::addDotaDB");
-	for(vector<PairedWidget>::const_iterator i = _dotadb.begin(); i != _dotadb.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _dotadb.begin(); i != _dotadb.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -914,7 +914,7 @@ void CUI::addDotaDB(const vector<string> &row, int id)
 void CUI::removeDotaDB(const string &name, int id)
 {
 	DEBUG_ui("CUI::removeDotaDB");
-	for(vector<PairedWidget>::const_iterator i = _dotadb.begin(); i != _dotadb.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _dotadb.begin(); i != _dotadb.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -927,7 +927,7 @@ void CUI::removeDotaDB(const string &name, int id)
 void CUI::addGameInfo(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::addGameInfo");
-	for(vector<PairedWidget>::const_iterator i = _gameinfo.begin(); i != _gameinfo.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _gameinfo.begin(); i != _gameinfo.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -940,7 +940,7 @@ void CUI::addGameInfo(const vector<string> &row, int id)
 void CUI::updateGameInfo(const vector<string> &row, int id)
 {
 	DEBUG_ui("CUI::updateGameInfo");
-	for(vector<PairedWidget>::const_iterator i = _gameinfo.begin(); i != _gameinfo.end(); i++)
+	for(vector<PairedWidget>::const_iterator i = _gameinfo.begin(); i != _gameinfo.end(); ++i)
 	{
 		if((*i).first == id)
 		{
@@ -960,7 +960,7 @@ void CUI::forward(CFwdData *data)
 	case FWD_GENERAL:
 		if(_mainWidget)
 		{
-			for(uint i = 0; i < _mainWidget->count(); i++)
+			for(uint i = 0; i < _mainWidget->count(); ++i)
 			{
 				int cID = _mainWidget->at(i)->customID();
 				if(cID >= 0 && cID < 50) // only servers

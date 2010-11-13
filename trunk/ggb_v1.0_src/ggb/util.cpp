@@ -1,6 +1,6 @@
 /*
 
-   Copyright [2008] [Trevor Hogan]
+   Copyright 2010 Trevor Hogan
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
-
 */
 
-#include "ghost.h"
+#include "ggb.h"
 #include "util.h"
 
 #include <sys/stat.h>
@@ -97,7 +95,7 @@ string UTIL_ByteArrayToDecString( BYTEARRAY b )
 
 	string result = UTIL_ToString( b[0] );
 
-        for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
+	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); i++ )
 		result += " " + UTIL_ToString( *i );
 
 	return result;
@@ -110,7 +108,7 @@ string UTIL_ByteArrayToHexString( BYTEARRAY b )
 
 	string result = UTIL_ToHexString( b[0] );
 
-        for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
+	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); i++ )
 	{
 		if( *i < 16 )
 			result += " 0" + UTIL_ToHexString( *i );
@@ -173,7 +171,7 @@ BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start )
 
 	if( start < b.size( ) )
 	{
-                for( unsigned int i = start; i < b.size( ); ++i )
+		for( unsigned int i = start; i < b.size( ); i++ )
 		{
 			if( b[i] == 0 )
 				return BYTEARRAY( b.begin( ) + start, b.begin( ) + i );
@@ -218,7 +216,7 @@ BYTEARRAY UTIL_ExtractNumbers( string s, unsigned int count )
 	stringstream SS;
 	SS << s;
 
-        for( unsigned int i = 0; i < count; ++i )
+	for( unsigned int i = 0; i < count; i++ )
 	{
 		if( SS.eof( ) )
 			break;
@@ -332,60 +330,6 @@ string UTIL_ToHexString( uint32_t i )
 	stringstream SS;
 	SS << std :: hex << i;
 	SS >> result;
-	return result;
-}
-
-map<pair<char, char>, int> utf8_latin1;
-
-void UTIL_Construct_UTF8_Latin1_Map( )
-{
-	int c, d;
-	for (int i = 128; i < 256; ++i)
-	{
-		c = (i >> 6) | 0xC0;
-		d = (i & 0x3F) | 0x80;
-		utf8_latin1[pair<char, char>(c, d)] = i;
-	}
-}
-
-string UTIL_Latin1ToUTF8( string &s )
-{
-	string result;
-	int c;
-
-	for (uint32_t i = 0; i < s.size(); ++i)
-	{
-		c = s[i];
-		if (s[i] < 0) c += 256;
-		if(c < 128)
-			result += c;
-		else
-		{
-			result += (c >> 6) | 0xC0;
-			result += (c & 0x3F) | 0x80;
-		}
-	}
-	return result;
-}
-
-string UTIL_UTF8ToLatin1( string & s )
-{
-	string temp, result = s;
-	for (uint32_t k = 1; k < result.size(); ++k)
-	{
-		if (utf8_latin1.find(pair<char, char>(result[k-1], result[k])) != utf8_latin1.end())
-		{
-			temp = utf8_latin1[pair<char, char>(result[k-1], result[k])];
-			result.replace(k-1, 2, temp);
-		}
-	}
-	return result;
-}
-
-unsigned long UTIL_ToULong( int i )
-{
-	unsigned long result = i;
-	if (i < 0) result += 256;
 	return result;
 }
 
@@ -578,7 +522,7 @@ BYTEARRAY UTIL_EncodeStatString( BYTEARRAY &data )
 	unsigned char Mask = 1;
 	BYTEARRAY Result;
 
-        for( unsigned int i = 0; i < data.size( ); ++i )
+	for( unsigned int i = 0; i < data.size( ); i++ )
 	{
 		if( ( data[i] % 2 ) == 0 )
 			Result.push_back( data[i] + 1 );
@@ -603,7 +547,7 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
 	unsigned char Mask;
 	BYTEARRAY Result;
 
-        for( unsigned int i = 0; i < data.size( ); ++i )
+	for( unsigned int i = 0; i < data.size( ); i++ )
 	{
 		if( ( i % 8 ) == 0 )
 			Mask = data[i];
@@ -619,100 +563,38 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
 	return Result;
 }
 
-bool UTIL_IsLanIP( BYTEARRAY ip )
+bool UTIL_AssignLength( BYTEARRAY &content )
 {
-	if( ip.size( ) != 4 )
-		return false;
+	// insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-	// thanks to LuCasn for this function
+	BYTEARRAY LengthBytes;
 
-	// 127.0.0.1
-	if( ip[0] == 127 && ip[1] == 0 && ip[2] == 0 && ip[3] == 1 )
+	if( content.size( ) >= 4 && content.size( ) <= 65535 )
+	{
+		LengthBytes = UTIL_CreateByteArray( (uint16_t)content.size( ), false );
+		content[2] = LengthBytes[0];
+		content[3] = LengthBytes[1];
 		return true;
-
-	// 10.x.x.x
-	if( ip[0] == 10 )
-		return true;
-
-	// 172.16.0.0-172.31.255.255
-	if( ip[0] == 172 && ip[1] >= 16 && ip[1] <= 31 )
-		return true;
-
-	// 192.168.x.x
-	if( ip[0] == 192 && ip[1] == 168 )
-		return true;
-
-	// RFC 3330 and RFC 3927 automatic address range
-	if( ip[0] == 169 && ip[1] == 254 )
-		return true;
+	}
 
 	return false;
 }
-
-bool UTIL_IsLocalIP( BYTEARRAY ip, vector<BYTEARRAY> &localIPs )
+bool UTIL_ValidateLength( BYTEARRAY &content )
 {
-	if( ip.size( ) != 4 )
-		return false;
+	// verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-        for( vector<BYTEARRAY> :: iterator i = localIPs.begin( ); i != localIPs.end( ); ++i )
+	uint16_t Length;
+	BYTEARRAY LengthBytes;
+
+	if( content.size( ) >= 4 && content.size( ) <= 65535 )
 	{
-		if( (*i).size( ) != 4 )
-			continue;
+		LengthBytes.push_back( content[2] );
+		LengthBytes.push_back( content[3] );
+		Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
 
-		if( ip[0] == (*i)[0] && ip[1] == (*i)[1] && ip[2] == (*i)[2] && ip[3] == (*i)[3] )
+		if( Length == content.size( ) )
 			return true;
 	}
 
 	return false;
-}
-
-void UTIL_Replace( string &Text, string Key, string Value )
-{
-	// don't allow any infinite loops
-
-	if( Value.find( Key ) != string :: npos )
-		return;
-
-	string :: size_type KeyStart = Text.find( Key );
-
-	while( KeyStart != string :: npos )
-	{
-		Text.replace( KeyStart, Key.size( ), Value );
-		KeyStart = Text.find( Key );
-	}
-}
-
-vector<string> UTIL_Tokenize( string s, char delim )
-{
-	vector<string> Tokens;
-	string Token;
-
-        for( string :: iterator i = s.begin( ); i != s.end( ); ++i )
-	{
-		if( *i == delim )
-		{
-			if( Token.empty( ) )
-				continue;
-
-			Tokens.push_back( Token );
-			Token.clear( );
-		}
-		else
-			Token += *i;
-	}
-
-	if( !Token.empty( ) )
-		Tokens.push_back( Token );
-
-	return Tokens;
-}
-
-uint32_t UTIL_Factorial( uint32_t x )
-{
-	uint32_t Factorial = 1;
-
-        for( uint32_t i = 2; i <= x; ++i )
-		Factorial *= i;
-
-	return Factorial;
 }

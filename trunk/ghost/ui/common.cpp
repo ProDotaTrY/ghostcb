@@ -5,9 +5,9 @@ attr_t attribute(Color bgcolor, Color fgcolor, bool bold)
 	attr_t result = 0;
 
 	uint k = 0;
-	for(uint i = 0; i <= 7; i++)
+	for(uint i = 0; i <= 7; ++i)
 	{
-		for(uint j = 0; j <= 7; j++)
+		for(uint j = 0; j <= 7; ++j)
 		{
 			if(i == fgcolor && j == bgcolor)
 			{
@@ -27,9 +27,9 @@ attr_t attribute(Color bgcolor, Color fgcolor, bool bold)
 uint colorpair(Color bgcolor, Color fgcolor)
 {
 	uint k = 0;
-	for(uint i = 0; i <= 7; i++)
+	for(uint i = 0; i <= 7; ++i)
 	{
-		for(uint j = 0; j <= 7; j++)
+		for(uint j = 0; j <= 7; ++j)
 		{
 			if(i == fgcolor && j == bgcolor)
 			{

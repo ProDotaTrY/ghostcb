@@ -1,6 +1,6 @@
 /*
 
-   Copyright [2008] [Trevor Hogan]
+   Copyright 2010 Trevor Hogan
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,33 +14,29 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
-
 */
 
-#include "ghost.h"
-#include "stats.h"
+#ifndef CONFIG_H
+#define CONFIG_H
 
 //
-// CStats
+// CConfig
 //
 
-CStats :: CStats( CBaseGame *nGame ) : m_Game( nGame )
+class CConfig
 {
+private:
+	map<string, string> m_CFG;
 
-}
+public:
+	CConfig( );
+	~CConfig( );
 
-CStats :: ~CStats( )
-{
+	void Read( string file );
+	bool Exists( string key );
+	int GetInt( string key, int x );
+	string GetString( string key, string x );
+	void Set( string key, string x );
+};
 
-}
-
-bool CStats :: ProcessAction( CIncomingAction *Action )
-{
-	return false;
-}
-
-void CStats :: Save( CGHost *GHost, CGHostDB *DB, uint32_t GameID )
-{
-
-}
+#endif

@@ -1,6 +1,6 @@
 /*
 
-   Copyright [2008] [Trevor Hogan]
+   Copyright 2010 Trevor Hogan
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
-
 */
 
-#include "ghost.h"
+#include "ggb.h"
 #include "util.h"
 #include "socket.h"
 
@@ -32,14 +30,22 @@
 // CSocket
 //
 
-CSocket :: CSocket( ) :  m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 )
+CSocket :: CSocket( )
 {
-        memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_Socket = INVALID_SOCKET;
+	memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_HasError = false;
+	m_Error = 0;
+	m_SuppressError = false;
 }
 
-CSocket :: CSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_HasError( false ), m_Error( 0 )
+CSocket :: CSocket( SOCKET nSocket, struct sockaddr_in nSIN,bool suppress_error )
 {
-
+	m_Socket = nSocket;
+	m_SIN = nSIN;
+	m_HasError = false;
+	m_Error = 0;
+	m_SuppressError;
 }
 
 CSocket :: ~CSocket( )
@@ -133,6 +139,7 @@ void CSocket :: Allocate( int type )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
+		if ( !m_SuppressError )
 		CONSOLE_Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
 		return;
 	}
@@ -153,9 +160,12 @@ void CSocket :: Reset( )
 // CTCPSocket
 //
 
-CTCPSocket :: CTCPSocket( ) : CSocket( ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPSocket :: CTCPSocket( ) : CSocket( )
 {
 	Allocate( SOCK_STREAM );
+	m_Connected = false;
+	m_LastRecv = GetTime( );
+	m_LastSend = GetTime( );
 
 	// make socket non blocking
 
@@ -167,7 +177,7 @@ CTCPSocket :: CTCPSocket( ) : CSocket( ), m_Connected( false ), m_LastRecv( GetT
 #endif
 }
 
-CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : CSocket( nSocket, nSIN )
+CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN, bool suppress_error ) : CSocket( nSocket, nSIN ,suppress_error)
 {
 	m_Connected = true;
 	m_LastRecv = GetTime( );
@@ -249,14 +259,16 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
+			if ( !m_SuppressError )
+				CONSOLE_Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) +" from " + GetIPString( ));
 			return;
 		}
 		else if( c == 0 )
 		{
 			// the other end closed the connection
 
-			CONSOLE_Print( "[TCPSOCKET] closed by remote host" );
+			if ( !m_SuppressError )
+				CONSOLE_Print( "[TCPSOCKET] closed by remote host ["+GetIPString( ) +"]" );
 			m_Connected = false;
 		}
 		else if( c > 0 )
@@ -298,7 +310,8 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
+			if ( !m_SuppressError )
+				CONSOLE_Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) +" ["+GetIPString( ) +"]" );
 			return;
 		}
 		else if( s > 0 )
@@ -345,9 +358,9 @@ void CTCPSocket :: SetNoDelay( bool noDelay )
 // CTCPClient
 //
 
-CTCPClient :: CTCPClient( ) : CTCPSocket( ), m_Connecting( false )
+CTCPClient :: CTCPClient( ) : CTCPSocket( )
 {
-
+	m_Connecting = false;
 }
 
 CTCPClient :: ~CTCPClient( )
@@ -509,7 +522,8 @@ bool CTCPServer :: Listen( string address, uint16_t port )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
-		CONSOLE_Print( "[TCPSERVER] error (bind) - " + GetErrorString( ) );
+		if ( !m_SuppressError )
+			CONSOLE_Print( "[TCPSERVER] error (bind) - " + GetErrorString( ) );
 		return false;
 	}
 
@@ -519,7 +533,8 @@ bool CTCPServer :: Listen( string address, uint16_t port )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
-		CONSOLE_Print( "[TCPSERVER] error (listen) - " + GetErrorString( ) );
+		if ( !m_SuppressError )
+			CONSOLE_Print( "[TCPSERVER] error (listen) - " + GetErrorString( ) );
 		return false;
 	}
 
@@ -551,7 +566,7 @@ CTCPSocket *CTCPServer :: Accept( fd_set *fd )
 		{
 			// success! return the new socket
 
-			return new CTCPSocket( NewSocket, Addr );
+			return new CTCPSocket( NewSocket, Addr, false );
 		}
 	}
 

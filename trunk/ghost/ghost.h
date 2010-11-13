@@ -133,6 +133,8 @@ public:
 	uint32_t m_ReplayBuildNumber;			// config value: replay build number (for saving replays)
 	bool m_TCPNoDelay;						// config value: use Nagle's algorithm or not
 	uint32_t m_MatchMakingMethod;			// config value: the matchmaking method
+	CTCPServer *m_GameBroadcastersListener; // listening socket for game broadcasters
+	vector<CTCPSocket *> m_GameBroadcasters;// vector of sockets that broadcast the games
 	bool m_UseNormalCountDown;				// config value: use normal wc3 countdown
 
 	string m_ApprovedCountries;				// custom value: approved countries 
