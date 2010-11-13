@@ -72,7 +72,7 @@ CTableWidgetRow::CTableWidgetRow(CWidget *parent)
 
 CTableWidgetRow::~CTableWidgetRow()
 {
-	for(vector<CTableWidgetItem *>::iterator i = _items.begin(); i != _items.end(); i++)
+	for(vector<CTableWidgetItem *>::iterator i = _items.begin(); i != _items.end(); ++i)
 		SafeDelete(*i);
 }
 
@@ -89,7 +89,7 @@ void CTableWidgetRow::addItem(const string &text)
 
 void CTableWidgetRow::replaceWith(const vector<string> &row)
 {
-	for(uint i = 0; i < _items.size(); i++)
+	for(uint i = 0; i < _items.size(); ++i)
 		_items[i]->setText(row[i]);
 }
 
@@ -166,7 +166,7 @@ CTableWidget::CTableWidget(const string &name, int id, Color fgcolor, Color bgco
 
 CTableWidget::~CTableWidget()
 {
-	for(vector<CTableWidgetRow *>::iterator i = _rows.begin(); i != _rows.end(); i++)
+	for(vector<CTableWidgetRow *>::iterator i = _rows.begin(); i != _rows.end(); ++i)
 		SafeDelete(*i);
 }
 
@@ -183,7 +183,7 @@ void CTableWidget::addRow(const vector<string> &row)
 		nrow->setBackgroundColor(_bgcolor);
 		nrow->setForegroundColor(_fgcolor);
 		
-		for(vector<string>::const_iterator i = row.begin(); i != row.end(); i++)
+		for(vector<string>::const_iterator i = row.begin(); i != row.end(); ++i)
 			nrow->addItem(*i);
 
 		_rows.push_back(nrow);
@@ -202,7 +202,7 @@ void CTableWidget::updateRow(const vector<string> &row)
 {
 	if(!row.empty())
 	{
-		for(vector<CTableWidgetRow *>::const_iterator i = _rows.begin(); i != _rows.end(); i++)
+		for(vector<CTableWidgetRow *>::const_iterator i = _rows.begin(); i != _rows.end(); ++i)
 		{
 			if((*i)->at(0)->text() == row[0])
 			{
@@ -218,7 +218,7 @@ void CTableWidget::updateRow(const vector<string> &row)
 
 void CTableWidget::removeRow(const string &text)
 {
-	for(vector<CTableWidgetRow *>::iterator i = _rows.begin(); i != _rows.end(); i++)
+	for(vector<CTableWidgetRow *>::iterator i = _rows.begin(); i != _rows.end(); ++i)
 	{
 		if((*i)->at(0)->text() == text)
 		{
@@ -239,7 +239,7 @@ void CTableWidget::removeRow(const string &text)
 void CTableWidget::removeRow(uint index)
 {
 	uint k = 0;
-	for(vector<CTableWidgetRow *>::iterator j = _rows.begin(); j != _rows.end(); j++, k++)
+	for(vector<CTableWidgetRow *>::iterator j = _rows.begin(); j != _rows.end(); ++j, ++k)
 	{
 		if(k == index)
 		{
@@ -259,7 +259,7 @@ void CTableWidget::removeRow(uint index)
 
 int CTableWidget::indexOf(const string &text)
 {
-	for(uint i = 0; i < _rows.size(); i++)
+	for(uint i = 0; i < _rows.size(); ++i)
 	{
 		if(_rows[i]->at(0)->text() == text)
 		{
@@ -282,7 +282,7 @@ void CTableWidget::removeRows()
 {
 	if(!_rows.empty())
 	{
-		for(vector<CTableWidgetRow *>::iterator j = _rows.begin(); j != _rows.end(); j++)
+		for(vector<CTableWidgetRow *>::iterator j = _rows.begin(); j != _rows.end(); ++j)
 			delete *j;
 
 		_rows.clear();
@@ -351,7 +351,7 @@ void CTableWidget::update(int c)
 
 			waddch(_window, '\n');
 
-			for(vector<CTableWidgetRow *>::iterator i = _rows.begin() + k; i != _rows.end(); i++)
+			for(vector<CTableWidgetRow *>::iterator i = _rows.begin() + k; i != _rows.end(); ++i)
 			{
 				m = 0;
 				stopHere = false;
@@ -370,7 +370,7 @@ void CTableWidget::update(int c)
 
 					n = 0;
 
-					for(uint j = 0; j < message.size(); j++)
+					for(uint j = 0; j < message.size(); ++j)
 					{
 						waddch(_window, toULong(message[j]));
 
@@ -415,7 +415,7 @@ void CTableWidget::update(int c)
 			wattr_on(_window, a, 0);
 			mvwaddch(_window, 0, 0, ' ');
 
-			for(uint i = 0; i < _headers.size() && !stopHere; i++)
+			for(uint i = 0; i < _headers.size() && !stopHere; ++i)
 			{
 				string &message = _headers[i].first;
 				cw = _headers[i].second;
@@ -427,7 +427,7 @@ void CTableWidget::update(int c)
 
 				n = 0;
 
-				for(uint j = 0; j < message.size(); j++)
+				for(uint j = 0; j < message.size(); ++j)
 				{
 					waddch(_window, toULong(message[j]));
 
@@ -479,7 +479,7 @@ void CTableWidget::sort()
 		// Insertion sort. Good at sorting small number of rows.
 
 		uint j;
-		for (uint i = 1; i < _rows.size(); i++)
+		for (uint i = 1; i < _rows.size(); ++i)
 		{
 			j = i;
 			while(j > 0 && toInt(_rows[j - 1]->at(_sortColumn)->text()) > toInt(_rows[j]->at(_sortColumn)->text()))

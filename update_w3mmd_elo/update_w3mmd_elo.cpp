@@ -70,7 +70,7 @@ vector<string> MySQLFetchRow( MYSQL_RES *res )
 		unsigned long *Lengths;
 		Lengths = mysql_fetch_lengths( res );
 
-		for( unsigned int i = 0; i < mysql_num_fields( res ); i++ )
+		for( unsigned int i = 0; i < mysql_num_fields( res ); ++i )
 		{
 			if( Row[i] )
 				Result.push_back( string( Row[i], Lengths[i] ) );
@@ -257,7 +257,7 @@ int main( int argc, char **argv )
 				float team_winners[12];
 				int team_numplayers[12];
 
-				for( int i = 0; i < 12; i++ )
+				for( int i = 0; i < 12; ++i )
 				{
 					team_ratings[i] = 0.0;
 					team_numplayers[i] = 0;
@@ -356,7 +356,7 @@ int main( int argc, char **argv )
 						// team_ratings[1] /= team_numplayers[1];
 						elo_recalculate_ratings( num_players, player_ratings, player_teams, num_teams, team_ratings, team_winners );
 
-						for( int i = 0; i < num_players; i++ )
+						for( int i = 0; i < num_players; ++i )
 						{
 							cout << "player [" << names[i] << "|" << servers[i] << "] rating " << UTIL_ToString( (uint32_t)old_player_ratings[i] ) << " -> " << UTIL_ToString( (uint32_t)player_ratings[i] ) << endl;
 

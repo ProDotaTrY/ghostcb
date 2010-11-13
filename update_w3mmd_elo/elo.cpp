@@ -359,7 +359,7 @@ static double elo_integrate_part(double val, double incr,
 
 	prob = get_normal_cdf(val + incr) - get_normal_cdf(val);
 
-	for (j = 0; j < num; j++) {
+	for (j = 0; j < num; ++j) {
 		double prob2;
 		double ratingdiff = myrating - ratings[j];
 
@@ -395,18 +395,18 @@ static void elo_compute_expectations(int num, float *ratings, float *probs)
 	double sum = 0;
 
 	/* "normalize" the ratings */
-	for (i = 0; i < num; i++) {
+	for (i = 0; i < num; ++i) {
 		myratings[i] = ratings[i];
 		myratings[i] /= STD_DEV;
 	}
 
-	for (i = 0; i < num; i++) {
+	for (i = 0; i < num; ++i) {
 		probs[i] = elo_integrate_all(num, i, myratings);
 		sum += probs[i];
 	}
 
 	/* dbg_msg(GGZ_DBG_STATS, "Probabilities sum to %f; normalizing.", sum); */
-	for (i = 0; i < num; i++)
+	for (i = 0; i < num; ++i)
 		probs[i] /= sum;
 
 	delete [] myratings;
@@ -423,7 +423,7 @@ void elo_recalculate_ratings(int num_players, float *player_ratings,
 	elo_compute_expectations(num_teams, team_ratings, team_probs);
 
 	/* Debugging data */
-	for (i = 0; i < num_players; i++) {
+	for (i = 0; i < num_players; ++i) {
 		int team = num_teams > 0 ? player_teams[i] : i;
 		/* dbg_msg(GGZ_DBG_STATS,
 			"Player %d has rating %f, expectation %f.", i,
@@ -431,7 +431,7 @@ void elo_recalculate_ratings(int num_players, float *player_ratings,
 	}
 
 	/* Calculate new ratings for all players. */
-	for (i = 0; i < num_players; i++) {
+	for (i = 0; i < num_players; ++i) {
 		int team = num_teams > 0 ? player_teams[i] : i;
 		float K, diff;
 

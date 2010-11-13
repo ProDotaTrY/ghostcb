@@ -558,7 +558,7 @@ CTabWidget::CTabWidget(const string &name, int id, Color fgcolor, Color bgcolor,
 
 CTabWidget::~CTabWidget()
 {
-	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		delete *i;
 }
 
@@ -574,7 +574,7 @@ int CTabWidget::addTab(CWidget *page)
 
 void CTabWidget::removeTab(CWidget *page)
 {
-	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 	{
 		if(*i == page)
 		{
@@ -615,7 +615,7 @@ int CTabWidget::currentIndex()
 
 int CTabWidget::indexOf(CWidget *w)
 {
-	for(uint i = 0; i < _widgets.size(); i++)
+	for(uint i = 0; i < _widgets.size(); ++i)
 	{
 		if(_widgets[i] == w)
 			return i; // found
@@ -626,7 +626,7 @@ int CTabWidget::indexOf(CWidget *w)
 
 int CTabWidget::indexOf(int id)
 {
-	for(uint i = 0; i < _widgets.size(); i++)
+	for(uint i = 0; i < _widgets.size(); ++i)
 	{
 		if(_widgets[i]->customID() == id)
 			return i; // found
@@ -655,7 +655,7 @@ void CTabWidget::setSize(uint width, uint height)
 	wresize(_window, height, width);
 	replace_panel(_panel, _window);
 
-	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		(*i)->setSize(width, height - 1);
 
 	_changed = true;
@@ -700,7 +700,7 @@ void CTabWidget::update(int c)
 #endif
 
 		int k = 0;
-		for(uint i = 0; i < _widgets.size(); i++)
+		for(uint i = 0; i < _widgets.size(); ++i)
 		{
 			if(leftClick)
 			{

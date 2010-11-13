@@ -27,10 +27,9 @@
 // CSaveGame
 //
 
-CSaveGame :: CSaveGame( ) : CPacked( )
+CSaveGame :: CSaveGame( ) : CPacked( ), m_NumSlots( 0 ), m_RandomSeed( 0 )
 {
-	m_NumSlots = 0;
-	m_RandomSeed = 0;
+
 }
 
 CSaveGame :: ~CSaveGame( )
@@ -94,7 +93,7 @@ void CSaveGame :: ParseSaveGame( )
 		return;
 	}
 
-	for( unsigned char i = 0; i < m_NumSlots; i++ )
+	for( unsigned char i = 0; i < m_NumSlots; ++i )
 	{
 		unsigned char SlotData[9];
 		READB( ISS, SlotData, 9 );			// slot data

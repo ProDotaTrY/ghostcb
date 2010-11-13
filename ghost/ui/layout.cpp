@@ -12,7 +12,7 @@ CLayout::CLayout(CWidget *parent)
 
 CLayout::~CLayout()
 {
-	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		SafeDelete(*i);
 }
 
@@ -24,7 +24,7 @@ void CLayout::addWidget(CWidget *widget)
 
 void CLayout::removeWidget(CWidget *widget)
 {
-	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 	{
 		if((*i) == widget)
 		{
@@ -42,19 +42,19 @@ CWidget *CLayout::widgetAt(uint index)
 
 void CLayout::hide()
 {
-	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		(*i)->hide();
 }
 
 void CLayout::show()
 {
-	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		(*i)->show();
 }
 
 void CLayout::update(int c)
 {
-	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); i++)
+	for(vector<CWidget *>::const_iterator i = _widgets.begin(); i != _widgets.end(); ++i)
 		(*i)->update(c);
 }
 
@@ -79,7 +79,7 @@ void CLayout::setPosition(uint x, uint y)
 
 		_pos.set(x, y);
 
-		for(uint i = 0; i < _widgets.size(); i++)
+		for(uint i = 0; i < _widgets.size(); ++i)
 		{
 			if(_widgets[i]->pos().x() < oldx || _widgets[i]->pos().y() < oldy)
 				_widgets[i]->setPosition(x, y);
@@ -92,7 +92,7 @@ void CLayout::setPosition(uint x, uint y)
 
 int CLayout::indexOf(CWidget *w)
 {
-	for(uint i = 0; i < _widgets.size(); i++)
+	for(uint i = 0; i < _widgets.size(); ++i)
 	{
 		if(_widgets[i] == w)
 			return i; // found
@@ -103,7 +103,7 @@ int CLayout::indexOf(CWidget *w)
 
 int CLayout::indexOf(int id)
 {
-	for(uint i = 0; i < _widgets.size(); i++)
+	for(uint i = 0; i < _widgets.size(); ++i)
 	{
 		if(_widgets[i]->customID() == id)
 			return i; // found
@@ -202,7 +202,7 @@ void CVBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 	}
 
 	bool k = false; // no fixed size found
-	for (uint i = from; i <= to; i++)
+	for (uint i = from; i <= to; ++i)
 	{
 		if(_widgets[i]->size().fixed())
 		{
@@ -225,7 +225,7 @@ void CVBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 		else
 		{
 			// not fixed
-			for(uint j = i + 1; j <= to && !k; j++)
+			for(uint j = i + 1; j <= to && !k; ++j)
 			{
 				if(_widgets[i]->size().fixed())
 				{
@@ -243,7 +243,7 @@ void CVBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 				// set size, i..to
 				// limits: width, height / (to - i + 1)
 
-				for(uint j = i; j <= to; j++)
+				for(uint j = i; j <= to; ++j)
 				{
 					_widgets[j]->setSize(width, height / (to - i + 1));
 					_widgets[j]->setPosition(x, y + j * height / (to - i + 1));
@@ -333,7 +333,7 @@ void CHBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 	}
 
 	bool k = false; // no fixed size found
-	for (uint i = from; i <= to; i++)
+	for (uint i = from; i <= to; ++i)
 	{
 		if(_widgets[i]->size().fixed())
 		{
@@ -356,7 +356,7 @@ void CHBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 		else
 		{
 			// not fixed
-			for(uint j = i + 1; j <= to && !k; j++)
+			for(uint j = i + 1; j <= to && !k; ++j)
 			{
 				if(_widgets[i]->size().fixed())
 				{
@@ -374,7 +374,7 @@ void CHBoxLayout::recursiveResize(uint from, uint to, uint width, uint height, u
 				// set size, i..to
 				// limits: width / (to - i + 1), height
 
-				for(uint j = i; j <= to; j++)
+				for(uint j = i; j <= to; ++j)
 				{
 					_widgets[j]->setSize(width / (to - i + 1), height);
 					_widgets[j]->setPosition(x + j * width / (to - i + 1), y);

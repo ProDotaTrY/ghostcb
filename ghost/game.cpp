@@ -67,10 +67,9 @@ public:
 // CGame
 //
 
-CGame :: CGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer )
+CGame :: CGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer ) : CBaseGame( nGHost, nMap, nSaveGame, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_CallableGameAdd( NULL )
 {
-	m_DBBanLast = NULL;
-	m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
+    m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
 
 	if( m_Map->GetMapType( ) == "w3mmd" )
 		m_Stats = new CStatsW3MMD( this, m_Map->GetMapStatsW3MMDCategory( ) );
@@ -78,8 +77,6 @@ CGame :: CGame( CGHost *nGHost, CMap *nMap, CSaveGame *nSaveGame, uint16_t nHost
 		m_Stats = new CStatsDOTA( this );
 	else
 		m_Stats = NULL;
-
-	m_CallableGameAdd = NULL;
 }
 
 CGame :: ~CGame( )
@@ -93,7 +90,7 @@ CGame :: ~CGame( )
 
 			// store the CDBGamePlayers in the database
 
-			for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); i++ )
+			for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
 				m_GHost->m_Callables.push_back( m_GHost->m_DB->ThreadedGamePlayerAdd( m_CallableGameAdd->GetResult( ), (*i)->GetName( ), (*i)->GetIP( ), (*i)->GetSpoofed( ), (*i)->GetSpoofedRealm( ), (*i)->GetReserved( ), (*i)->GetLoadingTime( ), (*i)->GetLeft( ), (*i)->GetLeftReason( ), (*i)->GetTeam( ), (*i)->GetColour( ) ) );
 
 			// store the stats in the database
@@ -112,24 +109,24 @@ CGame :: ~CGame( )
 		m_CallableGameAdd = NULL;
 	}
 
-	for( vector<PairedBanCheck> :: iterator i = m_PairedBanChecks.begin( ); i != m_PairedBanChecks.end( ); i++ )
+        for( vector<PairedBanCheck> :: iterator i = m_PairedBanChecks.begin( ); i != m_PairedBanChecks.end( ); ++i )
 		m_GHost->m_Callables.push_back( i->second );
 
-	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); i++ )
+        for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); ++i )
 		m_GHost->m_Callables.push_back( i->second );
 
-	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); i++ )
+        for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); ++i )
 		m_GHost->m_Callables.push_back( i->second );
 
-	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); i++ )
+        for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); ++i )
 		m_GHost->m_Callables.push_back( i->second );
 
-	for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); i++ )
+        for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
 		delete *i;
 
 	delete m_DBGame;
 
-	for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); i++ )
+        for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
 		delete *i;
 
 	delete m_Stats;
@@ -167,7 +164,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			i = m_PairedBanChecks.erase( i );
 		}
 		else
-			i++;
+                        ++i;
 	}
 
 	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); )
@@ -177,7 +174,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			if( i->second->GetResult( ) )
 			{
 				string alias = i->second->GetServer( );
-				for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); j++ )
+				for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); ++j )
 				{
 					if( (*j)->GetServer( ) == i->second->GetServer( ) ) 
 					{
@@ -195,7 +192,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			i = m_PairedBanAdds.erase( i );
 		}
 		else
-			i++;
+                        ++i;
 	}
 
 	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); )
@@ -234,7 +231,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			i = m_PairedGPSChecks.erase( i );
 		}
 		else
-			i++;
+                        ++i;
 	}
 
 	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); )
@@ -296,7 +293,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			i = m_PairedDPSChecks.erase( i );
 		}
 		else
-			i++;
+                        ++i;
 	}
 
 	return CBaseGame :: Update( fd, send_fd );
@@ -307,7 +304,7 @@ void CGame :: EventPlayerLeft( CGamePlayer *player, uint32_t reason )
 {
 	// Check if leaver is admin/root admin with a loop then set the bool accordingly.
 	bool isAdmin = false;
-	for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); j++ )
+	for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); ++j )
 	{
 		if( (*j)->IsAdmin(player->GetName( ) ) || (*j)->IsRootAdmin( player->GetName( )) ) 
 		{
@@ -347,7 +344,7 @@ void CGame :: EventPlayerDeleted( CGamePlayer *player )
 
 		// also keep track of the last player to leave for the !banlast command
 
-		for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); i++ )
+                for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
 		{
 			if( (*i)->GetName( ) == player->GetName( ) )
 				m_DBBanLast = *i;
@@ -382,7 +379,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 	bool AdminCheck = false;
 
-	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
 		if( (*i)->GetServer( ) == player->GetSpoofedRealm( ) && (*i)->IsAdmin( User ) )
 		{
@@ -402,7 +399,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 	bool RootAdminCheck = false;
 
-	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
 		if( (*i)->GetServer( ) == player->GetSpoofedRealm( ) && (*i)->IsRootAdmin( User ) )
 		{
@@ -457,7 +454,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !BAN
 			//
 
-			if( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
+			else if( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -490,7 +487,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					// try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
 					// we use the m_DBBans vector for this in case the player already left and thus isn't in the m_Players vector anymore
 
-					for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); i++ )
+                                        for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
 					{
 						string TestName = (*i)->GetName( );
 						transform( TestName.begin( ), TestName.end( ), TestName.begin( ), (int(*)(int))tolower );
@@ -551,7 +548,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !ANNOUNCE
 			//
 
-			if( Command == "announce" && !m_CountDownStarted )
+			else if( Command == "announce" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -603,7 +600,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !AUTOSAVE
 			//
 
-			if( Command == "autosave" )
+                        else if( Command == "autosave" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -624,7 +621,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !AUTOSTART
 			//
 
-			if( Command == "autostart" && !m_CountDownStarted )
+                        else if( Command == "autostart" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -652,7 +649,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !BANLAST
 			//
 
-			if( Command == "banlast" && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
+			else if( Command == "banlast" && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -678,7 +675,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !CHECK
 			//
 
-			if( Command == "check" )
+			else if( Command == "check" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -694,7 +691,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					{
 						bool LastMatchAdminCheck = false;
 
-						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                                for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 						{
 							if( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) && (*i)->IsAdmin( LastMatch->GetName( ) ) )
 							{
@@ -705,7 +702,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 						bool LastMatchRootAdminCheck = false;
 
-						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                                for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 						{
 							if( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) && (*i)->IsRootAdmin( LastMatch->GetName( ) ) )
 							{
@@ -727,12 +724,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !CHECKBAN
 			//
 
-			if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
+			else if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
 
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					m_PairedBanChecks.push_back( PairedBanCheck( User, m_GHost->m_DB->ThreadedBanCheck( (*i)->GetServer( ), Payload, string( ) ) ) );
 			}
 
@@ -740,7 +737,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !CLEARHCL
 			//
 
-			if( Command == "clearhcl" && !m_CountDownStarted )
+			else if( Command == "clearhcl" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -753,7 +750,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !CLOSE (close slot)
 			//
 
-			if( Command == "close" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "close" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -783,7 +780,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !CLOSEALL
 			//
 
-			if( Command == "closeall" && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "closeall" && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -795,7 +792,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !COMP (computer slot)
 			//
 
-			if( Command == "comp" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
+			else if( Command == "comp" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -833,7 +830,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !COMPCOLOUR (computer colour change)
 			//
 
-			if( Command == "compcolour" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
+			else if( Command == "compcolour" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -886,7 +883,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !COMPHANDICAP (computer handicap change)
 			//
 
-			if( Command == "comphandicap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
+			else if( Command == "comphandicap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -942,7 +939,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !COMPRACE (computer race change)
 			//
 
-			if( Command == "comprace" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
+			else if( Command == "comprace" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1023,7 +1020,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !COMPTEAM (computer team change)
 			//
 
-			if( Command == "compteam" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
+			else if( Command == "compteam" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1079,7 +1076,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !DBSTATUS
 			//
 
-			if( Command == "dbstatus" )
+			else if( Command == "dbstatus" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1092,7 +1089,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !DL
 			//
 
-			if( ( Command == "download" || Command == "dl" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( ( Command == "download" || Command == "dl" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1129,7 +1126,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !DROP
 			//
 
-			if( Command == "drop" && m_GameLoaded )
+			else if( Command == "drop" && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1141,7 +1138,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !END
 			//
 
-			if( Command == "end" && m_GameLoaded )
+			else if( Command == "end" && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1155,7 +1152,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !FAKEPLAYER
 			//
 
-			if( Command == "fakeplayer" && !m_CountDownStarted )
+			else if( Command == "fakeplayer" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1170,7 +1167,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !FPPAUSE
 			//
 
-			if( Command == "fppause" && m_FakePlayerPID != 255 && m_GameLoaded )
+			else if( Command == "fppause" && m_FakePlayerPID != 255 && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1185,7 +1182,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !FPRESUME
 			//
 
-			if( Command == "fpresume" && m_FakePlayerPID != 255 && m_GameLoaded )
+			else if( Command == "fpresume" && m_FakePlayerPID != 255 && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1200,7 +1197,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !FROM
 			//
 
-			if( Command == "from" )
+			else if( Command == "from" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1229,7 +1226,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				if (Payload.empty())
 				{
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 				{
 					// we reverse the byte order on the IP because it's stored in network byte order
 
@@ -1251,7 +1248,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !HCL
 			//
 
-			if( Command == "hcl" && !m_CountDownStarted )
+			else if( Command == "hcl" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1285,7 +1282,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !HOLD (hold a slot for someone)
 			//
 
-			if( Command == "hold" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "hold" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1318,7 +1315,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !KICK (kick a player)
 			//
 
-			if( Command == "kick" && !Payload.empty( ) )
+			else if( Command == "kick" && !Payload.empty( ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1349,7 +1346,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !LATENCY (set game latency)
 			//
 
-			if( Command == "latency" )
+			else if( Command == "latency" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1379,7 +1376,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !LOCK
 			//
 
-			if( Command == "lock" && ( RootAdminCheck || IsOwner( User ) ) )
+			else if( Command == "lock" && ( RootAdminCheck || IsOwner( User ) ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1392,7 +1389,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !MESSAGES
 			//
 
-			if( Command == "messages" )
+			else if( Command == "messages" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1413,7 +1410,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !MUTE
 			//
 
-			if( Command == "mute" )
+			else if( Command == "mute" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1436,7 +1433,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !MUTEALL
 			//
 
-			if( Command == "muteall" && m_GameLoaded )
+			else if( Command == "muteall" && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1449,7 +1446,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !OPEN (open slot)
 			//
 
-			if( Command == "open" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "open" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1479,7 +1476,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !OPENALL
 			//
 
-			if( Command == "openall" && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "openall" && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1491,7 +1488,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !OWNER (set game owner)
 			//
 
-			if( Command == "owner" )
+			else if( Command == "owner" )
 			{
 				if( RootAdminCheck || IsOwner( User ) || !GetPlayerFromName( m_OwnerName, false ) )
 				{
@@ -1517,7 +1514,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !PING
 			//
 
-			if( Command == "ping" )
+			else if( Command == "ping" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1564,7 +1561,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 
 				vector<CGamePlayer *> SortedPlayers = m_Players;
 				sort( SortedPlayers.begin( ), SortedPlayers.end( ), CGamePlayerSortDescByPing( ) );
-				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); i++ )
+				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); ++i )
 				{
 					Pings += (*i)->GetNameTerminated( );
 					Pings += ": ";
@@ -1603,7 +1600,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !PRIV (rehost as private game)
 			//
 
-			if( Command == "priv" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
+			else if( Command == "priv" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1619,7 +1616,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					m_RefreshError = false;
 					m_RefreshRehosted = true;
 
-					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					{
 						// unqueue any existing game refreshes because we're going to assume the next successful game refresh indicates that the rehost worked
 						// this ignores the fact that it's possible a game refresh was just sent and no response has been received yet
@@ -1652,7 +1649,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !PUB (rehost as public game)
 			//
 
-			if( Command == "pub" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
+			else if( Command == "pub" && !Payload.empty( ) && !m_CountDownStarted && !m_SaveGame )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1668,7 +1665,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					m_RefreshError = false;
 					m_RefreshRehosted = true;
 
-					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					{
 						// unqueue any existing game refreshes because we're going to assume the next successful game refresh indicates that the rehost worked
 						// this ignores the fact that it's possible a game refresh was just sent and no response has been received yet
@@ -1695,7 +1692,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !REFRESH (turn on or off refresh messages)
 			//
 
-			if( Command == "refresh" && !m_CountDownStarted )
+			else if( Command == "refresh" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1716,9 +1713,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !SAY
 			//
 
-			if( Command == "say" && !Payload.empty( ) )
+			else if( Command == "say" && !Payload.empty( ) )
 			{
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					(*i)->QueueChatCommand( Payload );
 
 				HideCommand = true;
@@ -1728,7 +1725,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !SENDLAN
 			//
 
-			if( Command == "sendlan" && !Payload.empty( ) && !m_CountDownStarted )
+			else if( Command == "sendlan" && !Payload.empty( ) && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1752,6 +1749,15 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				}
 				else
 				{
+					// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+					// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+					// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+					// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+					// when a player joins a game we can obtain the ID from the received host counter
+					// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+
+					uint32_t FixedHostCounter = m_HostCounter & 0x0FFFFFFF;
+
 					// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
 					// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
 					// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
@@ -1772,7 +1778,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 						BYTEARRAY MapHeight;
 						MapHeight.push_back( 0 );
 						MapHeight.push_back( 0 );
-						m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_TFT, m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), MapWidth, MapHeight, m_GameName, "Varlock", GetTime( ) - m_CreationTime, "Save\\Multiplayer\\" + m_SaveGame->GetFileNameNoPath( ), m_SaveGame->GetMagicNumber( ), 12, 12, m_HostPort, m_HostCounter ) );
+						m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_TFT, m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), MapWidth, MapHeight, m_GameName, "Varlock", GetTime( ) - m_CreationTime, "Save\\Multiplayer\\" + m_SaveGame->GetFileNameNoPath( ), m_SaveGame->GetMagicNumber( ), 12, 12, m_HostPort, FixedHostCounter, m_EntryKey ) );
 					}
 					else
 					{
@@ -1780,7 +1786,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 						// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 						uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-						m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_TFT, m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Varlock", GetTime( ) - m_CreationTime, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, m_HostCounter ) );
+						m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_TFT, m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Varlock", GetTime( ) - m_CreationTime, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter, m_EntryKey ) );
 					}
 				}
 			}
@@ -1789,7 +1795,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !SP
 			//
 
-			if( Command == "sp" && !m_CountDownStarted )
+			else if( Command == "sp" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1802,7 +1808,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !START
 			//
 
-			if( Command == "start" && !m_CountDownStarted )
+			else if( Command == "start" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1857,7 +1863,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !SWAP (swap slots)
 			//
 
-			if( Command == "swap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( Command == "swap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1896,7 +1902,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !SYNCLIMIT
 			//
 
-			if( Command == "synclimit" )
+			else if( Command == "synclimit" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1926,7 +1932,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !UNHOST
 			//
 
-			if( Command == "unhost" && !m_CountDownStarted )
+			else if( Command == "unhost" && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1938,7 +1944,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !UNLOCK
 			//
 
-			if( Command == "unlock" && ( RootAdminCheck || IsOwner( User ) ) )
+			else if( Command == "unlock" && ( RootAdminCheck || IsOwner( User ) ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1951,7 +1957,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !UNMUTE
 			//
 
-			if( Command == "unmute" )
+			else if( Command == "unmute" )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1974,7 +1980,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !UNMUTEALL
 			//
 
-			if( Command == "unmuteall" && m_GameLoaded )
+			else if( Command == "unmuteall" && m_GameLoaded )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -1987,7 +1993,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !VIRTUALHOST
 			//
 
-			if( Command == "virtualhost" && !Payload.empty( ) && Payload.size( ) <= 15 && !m_CountDownStarted )
+			else if( Command == "virtualhost" && !Payload.empty( ) && Payload.size( ) <= 15 && !m_CountDownStarted )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -2000,7 +2006,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !VOTECANCEL
 			//
 
-			if( Command == "votecancel" && !m_KickVotePlayer.empty( ) )
+			else if( Command == "votecancel" && !m_KickVotePlayer.empty( ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -2014,7 +2020,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !W
 			//
 
-			if( Command == "w" && !Payload.empty( ) )
+			else if( Command == "w" && !Payload.empty( ) )
 			{
 				// extract the name and the message
 				// e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
@@ -2028,7 +2034,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					Name = Payload.substr( 0, MessageStart );
 					Message = Payload.substr( MessageStart + 1 );
 
-					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+                                        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 						(*i)->QueueChatCommand( Message, Name, true, false );
 				}
 
@@ -2040,7 +2046,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			// !normalcountdown
 			//
 
-			if ( Command == "normalcountdown" && !Payload.empty( ) )
+			else if ( Command == "normalcountdown" && !Payload.empty( ) )
 			{
 				if ( m_GHost->m_HideCommands )
 					HideCommand = true;
@@ -2095,7 +2101,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 	// !S
 	//
 
-	if( ( Command == "stats" || Command == "s" ) && GetTime( ) - player->GetStatsSentTime( ) >= 5 )
+	else if( ( Command == "stats" || Command == "s" ) && GetTime( ) - player->GetStatsSentTime( ) >= 5 )
 	{
 		string StatsUser = User;
 
@@ -2117,7 +2123,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 	// !DS
 	//
 
-	if( ( Command == "statsdota" || Command == "sd" || Command == "ds" || Command == "dotastats" ) && GetTime( ) - player->GetStatsDotASentTime( ) >= 5 )
+	else if( ( Command == "statsdota" || Command == "sd" || Command == "ds" || Command == "dotastats" ) && GetTime( ) - player->GetStatsDotASentTime( ) >= 5 )
 	{
 		string StatsUser = User;
 
@@ -2136,7 +2142,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 	// !VERSION
 	//
 
-	if( Command == "version" )
+	else if( Command == "version" )
 	{
 		if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
 			SendChat( player, m_GHost->m_Language->VersionAdmin( m_GHost->m_Version ) );
@@ -2148,7 +2154,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 	// !VOTEKICK
 	//
 
-	if( Command == "votekick" && m_GHost->m_VoteKickAllowed && !Payload.empty( ) )
+	else if( Command == "votekick" && m_GHost->m_VoteKickAllowed && !Payload.empty( ) )
 	{
 		if( !m_KickVotePlayer.empty( ) )
 			SendChat( player, m_GHost->m_Language->UnableToVoteKickAlreadyInProgress( ) );
@@ -2170,7 +2176,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 					m_KickVotePlayer = LastMatch->GetName( );
 					m_StartedKickVoteTime = GetTime( );
 
-					for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+                                        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 						(*i)->SetKickVote( false );
 
 					player->SetKickVote( true );
@@ -2189,16 +2195,16 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 	// !YES
 	//
 
-	if( Command == "yes" && !m_KickVotePlayer.empty( ) && player->GetName( ) != m_KickVotePlayer && !player->GetKickVote( ) )
+	else if( Command == "yes" && !m_KickVotePlayer.empty( ) && player->GetName( ) != m_KickVotePlayer && !player->GetKickVote( ) )
 	{
 		player->SetKickVote( true );
 		uint32_t VotesNeeded = (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float)m_GHost->m_VoteKickPercentage / 100 );
 		uint32_t Votes = 0;
 
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( (*i)->GetKickVote( ) )
-				Votes++;
+                                ++Votes;
 		}
 
 		if( Votes >= VotesNeeded )
@@ -2244,7 +2250,7 @@ void CGame :: EventGameStarted( )
 	// but since the player has already left the game we don't have access to their information anymore
 	// so we create a "potential ban" for each player and only store it in the database if requested to by an admin
 
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		m_DBBans.push_back( new CDBBan( (*i)->GetJoinedRealm( ), (*i)->GetName( ), (*i)->GetExternalIPString( ), string( ), string( ), string( ), string( ) ) );
 }
 

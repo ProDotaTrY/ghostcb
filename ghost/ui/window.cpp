@@ -16,9 +16,9 @@ CWindow::CWindow()
 	start_color();
 
 	uint k = 0;
-	for(uint i = 0; i <= 7; i++)
+	for(uint i = 0; i <= 7; ++i)
 	{
-		for(uint j = 0; j <= 7; j++)
+		for(uint j = 0; j <= 7; ++j)
 		{
 			init_pair(k++, i, j);
 		}
