@@ -3778,22 +3778,22 @@ void CBaseGame :: EventGameStarted( )
 				unsigned char EncodingMap[256];
 				unsigned char j = 0;
 
-                                for( uint32_t i = 0; i < 256; ++i )
+                                for( uint32_t i = 0; i < 256; i++ )
 				{
 					// the following 7 handicap values are forbidden
 
 					if( j == 0 || j == 50 || j == 60 || j == 70 || j == 80 || j == 90 || j == 100 )
-                                                ++j;
+                                                j++;
 
-                                        EncodingMap[i] = ++j;
+                                        EncodingMap[i] = j++;
 				}
 
 				unsigned char CurrentSlot = 0;
 
-                                for( string :: iterator si = m_HCLCommandString.begin( ); si != m_HCLCommandString.end( ); ++si )
+                                for( string :: iterator si = m_HCLCommandString.begin( ); si != m_HCLCommandString.end( ); si++ )
 				{
 					while( m_Slots[CurrentSlot].GetSlotStatus( ) != SLOTSTATUS_OCCUPIED )
-                                                ++CurrentSlot;
+                                                CurrentSlot++;
 
 					unsigned char HandicapIndex = ( m_Slots[CurrentSlot].GetHandicap( ) - 50 ) / 10;
 					unsigned char CharIndex = HCLChars.find( *si );
