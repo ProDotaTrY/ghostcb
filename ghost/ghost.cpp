@@ -1837,7 +1837,8 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_WhisperResponses = CFG->GetInt( "bot_whisperresponses", 0) == 0 ? false : true;
 	m_ForceLoadInGame = CFG->GetInt( "bot_forceloadingame", 0 ) == 0 ? false : true;
     m_HCLCommandFromGameName = CFG->GetInt( "bot_hclfromgamename", 0 ) == 0 ? false : true;
-    
+	m_EntryKeyRequired = CFG->GetInt( "bot_entrykeyrequired", 0 ) == 0 ? false : true;
+
 }
 
 void CGHost :: ExtractScripts( )

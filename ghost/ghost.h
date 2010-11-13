@@ -142,6 +142,7 @@ public:
 	bool m_HCLCommandFromGameName;	        // custom value: try to get hcl command from game name
 	bool m_HCLOverride;						// custom value: if the !hcl command is issued, override hcl from gamename
     bool m_ForceLoadInGame;                 // custom value force loadingame
+	bool m_EntryKeyRequired;				// custom value: no entry key required for lan
 	// @end
 	uint32_t m_LANAdmins;					// custom value: enable players joining from LAN to be recognized as admins
 	string m_LANRootAdmin;					// custom value: the names of players if recognized from LAN will be root admins or admins
